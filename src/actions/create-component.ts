@@ -67,6 +67,16 @@ async function createComponent(g:Graph, opts:Opt[]):Promise<ActionResult> {
                 throw new ActionResult(true, text(`DnaComponent with URI ${withinComponentIdentity.uri} not found for --within-component`))
             }
 
+            let annoURI = g.generateURI(withinComponentIdentity.uri + '_anno$n$')
+
+            g.insertProperties(withinComponentIdentity.uri, {
+                [Predicates.SBOL1.annotation]: node.createUriNode(annoURI),
+            })
+
+            g.insertProperties(annoURI, {
+                [Predicates.a]: node.createUriNode(Types.SBOL1.SequenceAnnotation),
+                [Predicates.SBOL1.subComponent]: node.createUriNode(identity.uri)
+            })
         }
 
 

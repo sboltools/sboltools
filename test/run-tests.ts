@@ -27,12 +27,12 @@ async function runTests() {
 
         let pass = true
 
-        try {
+        // try {
             var output = await sboltools(['node', 'just.a.unit.test'].concat(stringArgv(test.command)))
-        } catch(e) {
-            print(indent([spacer(),text('--- ' + test.id + ' failed at execution stage: ' + e, 'red bold')]))
-            pass = false
-        }
+        // } catch(e) {
+        //     print(indent([spacer(),text('--- ' + test.id + ' failed at execution stage: ' + e, 'red bold')]))
+        //     pass = false
+        // }
 
         let stderr = endCaptureOutput()
 

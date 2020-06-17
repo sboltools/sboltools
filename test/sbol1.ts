@@ -61,7 +61,7 @@ let tests:Test[] = [
             let c = matches[0]
 
             assert(c.subComponents.length === 1)
-            assert(c.subComponents[0].name === 'pLac')
+            assert(c.subComponents[0].displayId === 'pLac')
         }
     }
 ]
