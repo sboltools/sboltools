@@ -30,6 +30,8 @@ jobs:
             repository: 'sboltools/sboltools.github.io'
             path: pages
         - name: Commit to pages branch
+          env:
+              GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           run: |
             cd pages
             rm -f _data/actions.json
@@ -38,6 +40,6 @@ jobs:
             git add _data
             git config user.name "GitHub Actions" && git config user.email "actions@users.noreply.github.com"
             git commit -m "Update generated docs via GitHub action"
-            git remote set-url origin https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/sboltools/sboltools.github.io.git
+            git remote set-url origin https://sbolbot:$GH_TOKEN@github.com/sboltools/sboltools.github.io.git
             git push
 
