@@ -38,6 +38,6 @@ jobs:
             git add _data
             git config user.name "GitHub Actions" && git config user.email "actions@users.noreply.github.com"
             git commit -m "Update generated docs via GitHub action"
-            git remote set-url origin https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/sboltools/sboltools.github.io
+            git remote set-url origin https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/sboltools/sboltools.github.io.git
             git push
 
