@@ -38,9 +38,6 @@ jobs:
             git add _data
             git config user.name "GitHub Actions" && git config user.email "actions@users.noreply.github.com"
             git commit -m "Update generated docs via GitHub action"
-        - name: Push changes
-          uses: ad-m/github-push-action@master
-          with:
-            branch: gh-pages
-            repository: 'sboltools/sboltools.github.io'
-            github_token: ${{ secrets.GH_TOKEN }}
+            git remote set-url origin https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/sboltools/sboltools.github.io
+            git push
+
