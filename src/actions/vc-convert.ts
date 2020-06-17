@@ -11,6 +11,7 @@ import ActionDef from "./ActionDef"
 let vcConvertAction:ActionDef = {
     name: 'vc-convert',
     category: 'vc',
+    description: 'Converts SBOL using the online SBOL converter/validator',
     opts: [
     ],
     run: vcConvert
