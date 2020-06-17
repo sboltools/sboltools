@@ -1,0 +1,46 @@
+
+name: sboltools docs workflow
+on: push
+jobs:
+  build:
+    name: sboltools docs job
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [12.x]
+    steps:
+        - uses: actions/checkout@v2
+          with:
+            ref: ${{ github.ref }}
+        - name: Use Node.js ${{ matrix.node-version }}
+          uses: actions/setup-node@v1
+          with:
+              node-version: ${{ matrix.node-version }}
+        - name: Install dependencies
+          run: npm install
+        - name: Install dev dependencies
+          run: npm install --only=dev
+        - name: Build
+          run: npm run-script build
+        - name: Generate docs
+          run: node actions2json > actions.json
+        - uses: actions/checkout@v2
+          name: Checkout pages repo
+          with:
+            repository: 'sboltools/sboltools.github.io'
+            path: pages
+        - name: Commit to pages branch
+          run: |
+            cd pages
+            rm -f _data/actions.json
+            mkdir -p _data
+            cp ../actions.json _data/
+            git add _data
+            git config user.name "GitHub Actions" && git config user.email "actions@users.noreply.github.com"
+            git commit -m "Update generated docs via GitHub action"
+        - name: Push changes
+          uses: ad-m/github-push-action@master
+          with:
+            branch: gh-pages
+            repository: 'sboltools/sboltools.github.io'
+            github_token: ${{ secrets.GH_TOKEN }}

@@ -1,0 +1,94 @@
+name: sboltools release workflow
+on:
+  push:
+    branches:
+      - release
+jobs:
+  build:
+    name: sboltools release job
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [12.x]
+    steps:
+        - uses: actions/checkout@v2
+          with:
+              ref: 'release'
+        - name: Use Node.js ${{ matrix.node-version }}
+          uses: actions/setup-node@v1
+          with:
+              node-version: ${{ matrix.node-version }}
+        - name: Install dependencies
+          run: npm install
+        - name: Install dev dependencies
+          run: npm install --only=dev
+        - name: TypeScript build
+          run: npm run build
+        - name: Package
+          run: npm run package
+        - name: make dist
+          run: npm run makedist
+        - name: Download windows node x86
+          run: wget https://nodejs.org/dist/v12.16.3/node-v12.16.3-win-x86.zip && unzip node-v12.16.3-win-x86.zip
+        - name: Download windows node x64
+          run: wget https://nodejs.org/dist/v12.16.3/node-v12.16.3-win-x64.zip && unzip node-v12.16.3-win-x64.zip
+        - name: Copy node to windows dist x86
+          run: cp -f node-v12.16.3-win-x86/node.exe ./bin/dist/win32-x86/ && cp -f node-v12.16.3-win-x86/LICENSE ./bin/dist/win32-x86/license_node.txt
+        - name: Copy nodes to windows dist x64
+          run: cp -f node-v12.16.3-win-x64/node.exe ./bin/dist/win32-x64/ && cp -f node-v12.16.3-win-x64/LICENSE ./bin/dist/win32-x64/license_node.txt
+        - name: Make unix zip
+          run: zip -j sboltools-unix.zip ./bin/dist/unix/sbol 
+        - name: Make unix tgz
+          run: pushd ./bin/dist/unix && tar -czf ../../../sboltools-unix.tar.gz * && popd
+        - name: Make win32 x86 zip
+          run: zip -j sboltools-win32-x86.zip ./bin/dist/win32-x86/* 
+        - name: Make win32 x64 zip
+          run: zip -j sboltools-win32-x64.zip ./bin/dist/win32-x64/* 
+        - name: Create Release
+          id: create_release
+          uses: actions/create-release@v1
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+          with:
+            tag_name: release-${{ github.run_number }}
+            release_name: Release ${{ github.run_number }}
+            draft: false
+            prerelease: false
+        - name: Upload unix zip
+          uses: actions/upload-release-asset@v1
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          with:
+            upload_url: ${{ steps.create_release.outputs.upload_url }}
+            asset_path: sboltools-unix.zip
+            asset_name: sboltools-unix.zip
+            asset_content_type: application/zip 
+        - name: Upload unix tgz
+          uses: actions/upload-release-asset@v1
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          with:
+            upload_url: ${{ steps.create_release.outputs.upload_url }}
+            asset_path: sboltools-unix.tar.gz
+            asset_name: sboltools-unix.tar.gz
+            asset_content_type: application/gzip 
+        - name: Upload win32 zip
+          uses: actions/upload-release-asset@v1
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          with:
+            upload_url: ${{ steps.create_release.outputs.upload_url }}
+            asset_path: sboltools-win32-x86.zip
+            asset_name: sboltools-win32-x86.zip
+            asset_content_type: application/gzip 
+        - name: Upload win64 zip
+          uses: actions/upload-release-asset@v1
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          with:
+            upload_url: ${{ steps.create_release.outputs.upload_url }}
+            asset_path: sboltools-win32-x64.zip
+            asset_name: sboltools-win32-x64.zip
+            asset_content_type: application/gzip 
+
+

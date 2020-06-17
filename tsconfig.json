@@ -1,0 +1,18 @@
+{
+	"compilerOptions": {
+		"outDir": "./dist/",
+        "declaration": false,
+		"target": "es6",
+		"sourceMap": true,
+		"baseUrl": ".",
+		"alwaysStrict": true,
+		"strictNullChecks": true,
+		"module": "commonjs",
+		"paths": {
+		}
+	},
+	"exclude": [
+		"node_modules",
+		"dist"
+	]
+}

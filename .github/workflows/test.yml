@@ -1,0 +1,26 @@
+
+name: sboltools test workflow
+on: push
+jobs:
+  build:
+    name: sboltools test job
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [12.x]
+    steps:
+        - uses: actions/checkout@v2
+          with:
+            ref: ${{ github.ref }}
+        - name: Use Node.js ${{ matrix.node-version }}
+          uses: actions/setup-node@v1
+          with:
+              node-version: ${{ matrix.node-version }}
+        - name: Install dependencies
+          run: npm install
+        - name: Install dev dependencies
+          run: npm install --only=dev
+        - name: Build
+          run: npm run-script build
+        - name: Test
+          run: npm run-script test
