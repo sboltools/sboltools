@@ -8,9 +8,20 @@ export default interface ActionDef {
     description?: string,
     help?:string
 
-    category:'local-conversion'|'vc'|'object-cd'|'rel-cd'|'seq-anno'|'other'
-    opts: OptDef[],
-    run: (g: Graph, opts: Opt[]) => Promise<ActionResult>
+    category:
+        'graph'
+        | 'local-conversion'
+        | 'vc'
+        | 'object-cd'
+        | 'rel-cd'
+        | 'seq-anno'
+        | 'other'
+
+
+    namedOpts: OptDef[],
+    positionalOpts: OptDef[],
+
+    run: (g: Graph, namedOpts: Opt[], positionalOpts: string[]) => Promise<ActionResult>
 }
 
 export interface OptDef {
@@ -30,26 +41,32 @@ export function def2usage(def:ActionDef):string {
     let doneOpts = new Set()
 
     // I like the --preposition-* opts like "for" and "within" to be before anything else in the help
-    for(let forOpt of def.opts.filter(opt => opt.name.indexOf('for') === 0 || opt.name.indexOf('within') === 0)) {
+    for(let forOpt of def.namedOpts.filter(opt => opt.name.indexOf('for') === 0 || opt.name.indexOf('within') === 0)) {
         doneOpts.add(forOpt)
-        addLine(descOpt(forOpt))
+        addLine(descNamedOpt(forOpt))
     }
 
     // then mandatory ones
-    for(let opt of def.opts.filter(opt => !opt.optional)) {
+    for(let opt of def.namedOpts.filter(opt => !opt.optional)) {
         if(!doneOpts.has(opt)) {
             doneOpts.add(opt)
-            addLine(descOpt(opt))
+            addLine(descNamedOpt(opt))
         }
     }
 
     // then everything else
-    for(let opt of def.opts) {
+    for(let opt of def.namedOpts) {
         if(!doneOpts.has(opt)) {
             doneOpts.add(opt)
-            addLine(descOpt(opt))
+            addLine(descNamedOpt(opt))
         }
     }
+
+    // finally, positional args
+    for(let opt of def.positionalOpts) {
+        addLine(descPositionalOpt(opt))
+    }
+
 
     return out
 
@@ -58,12 +75,20 @@ export function def2usage(def:ActionDef):string {
         indent += 4
     }
 
-    function descOpt(opt:OptDef) {
+    function descNamedOpt(opt:OptDef) {
         return [
             opt.optional === true ? '[' : '',
             opt.name.length > 0 ? '--' + opt.name : opt.name,
             ' ' + argType(opt),
             opt.optional === true ? ']' : '',
+        ].join('')
+    }
+
+    function descPositionalOpt(opt:OptDef) {
+        return [
+            opt.optional === true ? '[' : '<',
+            opt.name,
+            opt.optional === true ? ']' : '>',
         ].join('')
     }
 

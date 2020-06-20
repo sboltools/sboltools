@@ -1,6 +1,6 @@
 import { Graph, identifyFiletype } from "rdfoo";
 import Identity from "./Identity";
-import ActionResult from "../actions/ActionResult";
+import ActionResult, { actionResultAbort } from "../actions/ActionResult";
 import { text } from "../output/output";
 import IdentityFactory from "./IdentityFactory";
 import { SBOLVersion } from "../util/get-sbol-version-from-graph";
@@ -177,7 +177,7 @@ export default class IdentityFactorySBOL1 extends IdentityFactory {
                 let matchingTopLevels = v.topLevels.filter(tl => tl.getStringProperty(Predicates.SBOL1.displayId) === contextDisplayId)
 
                 if(matchingTopLevels.length === 0) {
-                    throw new ActionResult(true, text('no top level found with displayId ' + displayId))
+                    throw actionResultAbort(text('no top level found with displayId ' + displayId))
                 }
 
                 if(namespace !== undefined) {
@@ -187,14 +187,14 @@ export default class IdentityFactorySBOL1 extends IdentityFactory {
                 }
 
                 if(matchingTopLevels.length > 1) {
-                    throw new ActionResult(true, text('more than one possible match for displayId ' + displayId))
+                    throw actionResultAbort(text('more than one possible match for displayId ' + displayId))
                 }
 
                 parent = matchingTopLevels[0]
             }
 
             if (!parent) {
-                throw new ActionResult(true, text('displayId not found: ' + displayId))
+                throw actionResultAbort(text('displayId not found: ' + displayId))
             }
         }
 
@@ -210,7 +210,7 @@ export default class IdentityFactorySBOL1 extends IdentityFactory {
 }
 
 function sbol1VersionError() {
-    return new ActionResult(true, text(`Version is only supported in SBOL2`))
+    return actionResultAbort(text(`Version is only supported in SBOL2`))
 }
 
 export function extractPrefixesFromGraphSBOL1(g:Graph) {

@@ -1,4 +1,5 @@
 
+import _import from './import'
 import convert from './convert'
 import create_sequence from './create-sequence'
 import components from './components'
@@ -9,6 +10,7 @@ import createComponent from './create-component'
 import render from './render'
 
 export default [
+    _import,
     convert,
     components,
     vcConvert,

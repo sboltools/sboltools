@@ -5,17 +5,15 @@ export default `
 
 **Usage**
 
-    sbol [--input <format>] [--output <format>]
-            [--nonsbol-conversion-target <format>]
-                [url|filename] [url2|filename2] ...
-                    [action1] [action1args]
-                    [action2] [action2args]
-                    ...
+    sbol [--output <format>]
+            [action1] [action1args]
+            [action2] [action2args]
+            ...
 
 This tool allows the manipulation of files describing biological systems using
 the Synthetic Biology Open Language (SBOL) and other related standards such as
 FASTA and GenBank.
 
-For docs, check out http://www.sboltools.org
+For docs, check out http://sboltools.github.io
 `
 .trim()

@@ -14,7 +14,7 @@ export default class OptString extends Opt {
         super(actDef, optDef, argv)
     }
 
-    getURL(g:Graph):string {
+    getString(g:Graph):string {
         return this.argv.getString(this.optDef.name, '')
     }
 

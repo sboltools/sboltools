@@ -3,7 +3,7 @@ import { SBOLVersion } from "../util/get-sbol-version-from-graph"
 import joinURIFragments from "../util/join-uri-fragments"
 import { Predicates, Types } from "bioterms"
 import { S1Facade } from "sbolgraph"
-import ActionResult from "../actions/ActionResult"
+import ActionResult, { actionResultAbort } from "../actions/ActionResult"
 import { text } from "../output/output"
 import IdentityFactorySBOL1 from "./IdentityFactorySBOL1"
 import IdentityFactorySBOL2 from "./IdentityFactorySBOL2"
@@ -89,7 +89,7 @@ function factory(sbolVersion:SBOLVersion)  {
         case SBOLVersion.SBOL3:
             return new IdentityFactorySBOL3()
         default:
-            throw new ActionResult(true, text(`Unknown SBOL version`))
+            throw actionResultAbort(text(`Unknown SBOL version`))
     }
 }
 

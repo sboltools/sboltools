@@ -1,7 +1,7 @@
 
 import { text, group, spacer, header, indent, conditional } from "../output/output"
 import { Graph, node } from "rdfoo"
-import ActionResult from "./ActionResult"
+import ActionResult, { Outcome } from "./ActionResult"
 import Opt from "./opt/Opt"
 import ActionDef from "./ActionDef"
 import OptSBOLVersion from "./opt/OptSBOLVersion"
@@ -17,7 +17,7 @@ let createSequenceAction:ActionDef = {
     name: 'create-sequence',
     description: 'Creates a sequence',
     category: 'object-cd',
-    opts: [  
+    namedOpts: [
         {
             name: '',
             type: OptIdentity
@@ -35,6 +35,8 @@ let createSequenceAction:ActionDef = {
             type: OptString
         }
     ],
+    positionalOpts: [
+    ],
     run: createSequence,
     help: `
 If the sequence identity is not specified, a default identity will be created from the component identity with \`_seq\` appended to its displayId.
@@ -47,9 +49,9 @@ If such inference is not possible (e.g. no component is specified, or the specif
 
 export default createSequenceAction
 
-async function createSequence(g:Graph, opts:Opt[]):Promise<ActionResult> {
+async function createSequence(g:Graph, namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
 
-    let [ optIdentity, optForComponentIdentity, optSource, optEncoding ] = opts
+    let [ optIdentity, optForComponentIdentity, optSource, optEncoding ] = namedOpts
 
     assert(optIdentity instanceof OptIdentity)
     assert(optForComponentIdentity instanceof OptIdentity)
@@ -62,7 +64,7 @@ async function createSequence(g:Graph, opts:Opt[]):Promise<ActionResult> {
     if(identity.sbolVersion === SBOLVersion.SBOL1) {
         
         if(!identity.parentURI) {
-            throw new ActionResult(true, text('DnaSequence must have a parent in SBOL1, as unlike Sequence in SBOL2/3, it is not designated as top-level'))
+            throw new ActionResult(text('DnaSequence must have a parent in SBOL1, as unlike Sequence in SBOL2/3, it is not designated as top-level'), Outcome.Abort)
         }
 
         let gv = new SBOL1GraphView(g)
@@ -73,5 +75,5 @@ async function createSequence(g:Graph, opts:Opt[]):Promise<ActionResult> {
 
     }
 
-    return new ActionResult(false)
+    return new ActionResult()
 }

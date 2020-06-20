@@ -13,16 +13,18 @@ import Opt from "./opt/Opt"
 let vcValidateAction:ActionDef = {
     name: 'vc-validate',
     category: 'vc',
-    opts: [
+    namedOpts: [
+    ],
+    positionalOpts: [
     ],
     run: vcValidate
 }
 
 export default vcValidateAction
 
-async function vcValidate(g:Graph, opts:Opt[]):Promise<ActionResult> {
+async function vcValidate(g:Graph,  namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
 
-    return new ActionResult(false, group([]))
+    return new ActionResult(group([]))
 }
 
 

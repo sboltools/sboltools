@@ -11,14 +11,16 @@ import Opt from "./opt/Opt"
 let renderAction:ActionDef = {
     name: 'synbiocad-render',
     category: 'other',
-    opts: [
+    namedOpts: [
+    ],
+    positionalOpts: [
     ],
     run: render
 }
 
 export default renderAction
 
-async function render(g:Graph, opts:Opt[]):Promise<ActionResult> {
+async function render(g:Graph,  namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
 
     // let format = opts.filter(o => o.name === 'format')[0]?.value
     // let filename = opts.filter(o => o.name === 'filename')[0]?.value
@@ -48,7 +50,7 @@ async function render(g:Graph, opts:Opt[]):Promise<ActionResult> {
 
     // return new ActionResult(false, text(`Rendered ${filename}`))
 
-    return new ActionResult(false, group([]))
+    return new ActionResult(group([]))
 
 }
 

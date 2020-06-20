@@ -12,16 +12,18 @@ let vcConvertAction:ActionDef = {
     name: 'vc-convert',
     category: 'vc',
     description: 'Converts SBOL using the online SBOL converter/validator',
-    opts: [
+    namedOpts: [
+    ],
+    positionalOpts: [
     ],
     run: vcConvert
 }
 
 export default vcConvertAction
 
-async function vcConvert(g:Graph, opts:Opt[]):Promise<ActionResult> {
+async function vcConvert(g:Graph,  namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
 
-    return new ActionResult(false, group([]))
+    return new ActionResult(group([]))
 }
 
 

@@ -1,11 +1,10 @@
 
 
-import actions from './actions'
+import actionDefs from './actions'
 import { trace } from './output/print'
 
 export class ArgvArgs {
     constructor(
-        public resources:string[],
         public globalOpts:ArgvOptionSet,
         public actions:ArgvAction[]
     ) {
@@ -15,12 +14,13 @@ export class ArgvArgs {
 export class ArgvAction {
     constructor(
         public name:string,
-        public options:ArgvOptionSet
+        public namedOpts:ArgvOptionSet,
+        public positionalOpts:string[]
     ) {
     }
 }
 
-export class ArgvOption {
+export class ArgvNamedOption {
     constructor(
         public name?:string,
         public value?:string
@@ -30,7 +30,7 @@ export class ArgvOption {
 
 export class ArgvOptionSet {
     constructor(
-        public opts:ArgvOption[]
+        public opts:ArgvNamedOption[]
     ) {
     }
 
@@ -56,25 +56,21 @@ export default function parseArgv(argv:string[]):ArgvArgs {
     let args = argv.slice(2)
 
 
-    let resources:string[] = []
-    let globalOpts:ArgvOption[] = []
+    let globalOpts:ArgvNamedOption[] = []
     let actions:ArgvAction[] = []
 
 
-    // Global opts and resources
+    // Global opts
 
     while(args.length > 0) {
 
         let { type, name } = parseToken(args[0])
 
-        if(type === TokenType.Action)
-            break
-
         if(type === TokenType.Option) {
 
             args.shift()
 
-            let option:ArgvOption = { name }
+            let option:ArgvNamedOption = { name }
 
             if(parseToken(args[0]).type === TokenType.Other) {
                 option.value = args.shift()
@@ -83,9 +79,12 @@ export default function parseArgv(argv:string[]):ArgvArgs {
             globalOpts.push(option)
 
             continue
-        }
 
-        resources.push(args.shift() as string)
+        } else {
+
+            break
+
+        }
     }
 
 
@@ -97,38 +96,51 @@ export default function parseArgv(argv:string[]):ArgvArgs {
 
     }
 
-    return new ArgvArgs(resources, new ArgvOptionSet(globalOpts), actions)
+    return new ArgvArgs(new ArgvOptionSet(globalOpts), actions)
 
 
     function parseAction():ArgvAction {
         
         let name = args.shift() as string
-        let options:ArgvOption[] = []
+        let def = actionDefs.filter(a => a.name === name)[0]
+        let namedOpts:ArgvNamedOption[] = []
+        let positionalOpts:string[] = []
+
+        let nPositionalRemaining = def?.positionalOpts.length
 
         for(;;) {
 
             let { name, type } = parseToken(args[0])
 
-            if(type !== TokenType.Option)
-                break
+            if(type !== TokenType.Option) {
+
+                if(nPositionalRemaining > 0) {
+                    -- nPositionalRemaining
+                    positionalOpts.push(args[0])
+                    args.shift()
+                    continue
+                } else {
+                    break
+                }
+            }
 
             args.shift()
 
-            let option: ArgvOption = { name }
+            let option: ArgvNamedOption = { name }
 
             if(parseToken(args[0]).type === TokenType.Other) {
                 option.value = args.shift()
             }
 
-            options.push(option)
+            namedOpts.push(option)
         }
 
-        return new ArgvAction(name, new ArgvOptionSet(options))
+        return new ArgvAction(name, new ArgvOptionSet(namedOpts), positionalOpts)
     }
 }
 
 function isAction(str) {
-    return actions.filter(a => a.name === str).length > 0
+    return actionDefs.filter(a => a.name === str).length > 0
 }
 
 function parseToken(str):{type:TokenType, name?:string} {

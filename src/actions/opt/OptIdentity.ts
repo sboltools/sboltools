@@ -3,7 +3,7 @@ import ActionDef, { OptDef } from "../ActionDef";
 import { Graph, identifyFiletype } from "rdfoo";
 import Identity from "../../identity/Identity";
 import { ArgvOptionSet } from "../../parse-argv";
-import ActionResult from "../ActionResult";
+import ActionResult, { actionResultAbort } from "../ActionResult";
 import { text, indent, spacer, group, tabulated } from "../../output/output";
 import { getConsensusSBOLVersion, ConsensusVersion } from "./helper/get-consensus-sbol-version";
 import { SBOLVersion } from "../../util/get-sbol-version-from-graph";
@@ -46,7 +46,7 @@ export default class OptIdentity extends Opt {
             sbolVersion = SBOLVersion.SBOL3
         } else {
             if(!inferSBOLVersion) {
-                throw new ActionResult(true, text(`Please specify --${paramPrefix}sbol-version 1/2/3`))
+                throw actionResultAbort(text(`Please specify --${paramPrefix}sbol-version 1/2/3`))
             }
             let consensus = getConsensusSBOLVersion(g)
     
@@ -57,7 +57,7 @@ export default class OptIdentity extends Opt {
             else if(consensus === ConsensusVersion.SBOL3)
                 sbolVersion = SBOLVersion.SBOL3
             else {
-                throw new ActionResult(true, text(`Could not infer input SBOL version from current graph (is it empty, or does it contain mixed SBOL versions?); please specify --${paramPrefix}sbol-version 1/2/3`))
+                throw actionResultAbort(text(`Could not infer input SBOL version from current graph (is it empty, or does it contain mixed SBOL versions?); please specify --${paramPrefix}sbol-version 1/2/3`))
             }
         }
 
@@ -138,7 +138,7 @@ export default class OptIdentity extends Opt {
 
 function badCombo(action:string, paramPrefix:string):ActionResult {
     let paramName = paramPrefix.slice(0, -1)
-    return new ActionResult(true, group([
+    return actionResultAbort(group([
         text(`Please specify a valid combination of identity parameters${paramPrefix ? ' for --' + paramName : ''}.  The following combinations are supported:`),
         spacer(),
         tabulated([

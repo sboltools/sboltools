@@ -13,16 +13,18 @@ import ActionDef from "./ActionDef"
     let vcDiffAction:ActionDef = {
         name: 'vc-diff',
         category: 'vc',
-        opts: [
+        namedOpts: [
+        ],
+        positionalOpts: [
         ],
         run: vcDiff
     }
     
     export default vcDiffAction
     
-    async function vcDiff(g:Graph, opts:Opt[]):Promise<ActionResult> {
+    async function vcDiff(g:Graph,  namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
     
-        return new ActionResult(false, group([]))
+        return new ActionResult(group([]))
     }
     
 

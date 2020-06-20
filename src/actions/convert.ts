@@ -2,7 +2,7 @@
 import { text, group, spacer, header, indent, conditional } from "../output/output"
 import { Graph } from "rdfoo"
 import { SBOLConverter } from "sbolgraph"
-import ActionResult from "./ActionResult"
+import ActionResult, { Outcome } from "./ActionResult"
 import ActionDef from "./ActionDef"
 import OptSBOLVersion from "./opt/OptSBOLVersion"
 import Opt from "./opt/Opt"
@@ -13,7 +13,7 @@ import { SBOLVersion } from "../util/get-sbol-version-from-graph"
 let convertAction:ActionDef = {
     name: 'convert',
     category: 'local-conversion',
-    opts: [
+    namedOpts: [
         {
             name: 'target',
             type: OptSBOLVersion,
@@ -22,14 +22,16 @@ let convertAction:ActionDef = {
             }
         }
     ],
+    positionalOpts: [
+    ],
     run: convert
 }
 
 export default convertAction
 
-async function convert(g:Graph, opts:Opt[]):Promise<ActionResult> {
+async function convert(g:Graph, namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
 
-    let [ target ] = opts
+    let [ target ] = namedOpts
 
     assert(target instanceof OptSBOLVersion)
 
@@ -37,7 +39,7 @@ async function convert(g:Graph, opts:Opt[]):Promise<ActionResult> {
 
     if(sbolVersion === SBOLVersion.SBOL1) {
 
-        return new ActionResult(true, text('Conversion to SBOL1 is not yet implemented; please use the online validator via vc-convert'))
+        return new ActionResult(text('Conversion to SBOL1 is not yet implemented; please use the online validator via vc-convert'), Outcome.Abort)
 
     } else if(sbolVersion === SBOLVersion.SBOL2) {
 
@@ -51,8 +53,8 @@ async function convert(g:Graph, opts:Opt[]):Promise<ActionResult> {
 
     } else {
 
-        return new ActionResult(true, text('convert: target must be one of sbol1, sbol2, sbol3'))
+        return new ActionResult(text('convert: target must be one of sbol1, sbol2, sbol3'), Outcome.Abort)
     }
 
-    return new ActionResult(false, group([]))
+    return new ActionResult(group([]))
 }

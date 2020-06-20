@@ -13,14 +13,16 @@ import Opt from "./opt/Opt"
 let componentsAction:ActionDef = {
     name: 'components',
     category: 'other',
-    opts: [
+    namedOpts: [
+    ],
+    positionalOpts: [
     ],
     run: components
 }
 
 export default componentsAction
 
-async function components(g:Graph, opts:Opt[]):Promise<ActionResult> {
+async function components(g:Graph, namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
 
     let output:OutputNode[] = []
 
@@ -67,6 +69,6 @@ async function components(g:Graph, opts:Opt[]):Promise<ActionResult> {
         ]))
     }
 
-    return new ActionResult(true, group(output))
+    return new ActionResult(group(output))
 }
 

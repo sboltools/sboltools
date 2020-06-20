@@ -2,7 +2,7 @@
 
 import { text, group, spacer, header, indent, conditional } from "../output/output"
 import { Graph, node } from "rdfoo"
-import ActionResult from "./ActionResult"
+import ActionResult, { Outcome } from "./ActionResult"
 import Opt from "./opt/Opt"
 import ActionDef from "./ActionDef"
 import OptSBOLVersion from "./opt/OptSBOLVersion"
@@ -18,7 +18,7 @@ let createComponentAction:ActionDef = {
     name: 'create-component',
     description: 'Creates a component',
     category: 'object-cd',
-    opts: [  
+    namedOpts: [  
         {
             name: '',
             type: OptIdentity
@@ -29,14 +29,16 @@ let createComponentAction:ActionDef = {
             optional: true
         }
     ],
+    positionalOpts: [  
+    ],
     run: createComponent
 }
 
 export default createComponentAction
 
-async function createComponent(g:Graph, opts:Opt[]):Promise<ActionResult> {
+async function createComponent(g:Graph, namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
 
-    let [ optIdentity, optWithinComponentIdentity ] = opts
+    let [ optIdentity, optWithinComponentIdentity ] = namedOpts
 
     assert(optIdentity instanceof OptIdentity)
     assert(optWithinComponentIdentity instanceof OptIdentity)
@@ -45,7 +47,7 @@ async function createComponent(g:Graph, opts:Opt[]):Promise<ActionResult> {
     assert(identity !== undefined)
 
     if(identity.parentURI) {
-        throw new ActionResult(true, text('Components cannot have parents, as they are designated top-level. To specify a component-subcomponent relationship, use the --within-component option.'))
+        throw new ActionResult(text('Components cannot have parents, as they are designated top-level. To specify a component-subcomponent relationship, use the --within-component option.'), Outcome.Abort)
     }
 
     if(identity.sbolVersion === SBOLVersion.SBOL1) {
@@ -64,7 +66,7 @@ async function createComponent(g:Graph, opts:Opt[]):Promise<ActionResult> {
         if(withinComponentIdentity !== undefined) {
 
             if(!g.hasMatch(withinComponentIdentity.uri, Predicates.a, Types.SBOL1.DnaComponent)) {
-                throw new ActionResult(true, text(`DnaComponent with URI ${withinComponentIdentity.uri} not found for --within-component`))
+                throw new ActionResult(text(`DnaComponent with URI ${withinComponentIdentity.uri} not found for --within-component`), Outcome.Abort)
             }
 
             let annoURI = g.generateURI(withinComponentIdentity.uri + '_anno$n$')
@@ -94,6 +96,6 @@ async function createComponent(g:Graph, opts:Opt[]):Promise<ActionResult> {
 
 
 
-    return new ActionResult(false)
+    return new ActionResult()
 }
 

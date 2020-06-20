@@ -1,7 +1,7 @@
 
 import { Graph } from "rdfoo";
 import Identity from "./Identity";
-import ActionResult from "../actions/ActionResult";
+import ActionResult, { actionResultAbort } from "../actions/ActionResult";
 import { text } from "../output/output";
 import IdentityFactory from "./IdentityFactory";
 import { SBOLVersion } from "../util/get-sbol-version-from-graph";
@@ -32,7 +32,7 @@ export default class IdentityFactorySBOL3 extends IdentityFactory {
 
 
 function sbol3VersionError() {
-    return new ActionResult(true, text(`--version option is not supported for SBOL3.
+    return actionResultAbort(text(`--version option is not supported for SBOL3.
     (7.3.) SBOL 3.x does not specify an explicit versioning scheme. Rather it is left for experimentation across different 2 tools.
     This allows version information to be included in the root (e.g., GitHub style: “igem/HEAD/”), collection 3 structure (e.g., “promoters/constitutive/2/”),
     in tool-specific conventions on displayId (e.g., “BBa_J23101_v2”) or 4 in information outside of the

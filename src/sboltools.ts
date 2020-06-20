@@ -9,7 +9,7 @@ import parseArgv from './parse-argv'
 
 import helptext from './help'
 import summarize from './summarize'
-import ActionResult from './actions/ActionResult'
+import ActionResult, { Outcome } from './actions/ActionResult'
 import chalk = require('chalk')
 import { text, spacer, group } from './output/output'
 import { extractPrefixesFromGraph } from './identity/helpers/extractPrefixesFromGraph'
@@ -24,8 +24,7 @@ export default async function sboltools(args:string[]):Promise<string|undefined>
     // console.dir(argv)
 
 
-    if((argv.actions.length === 0 &&
-            argv.resources.length === 0) ||
+    if(argv.actions.length === 0 ||
             (argv.globalOpts.getFlag('help') || argv.globalOpts.getFlag('h'))) {
 
         help()
@@ -38,29 +37,10 @@ export default async function sboltools(args:string[]):Promise<string|undefined>
         trace(text('sboltools trace output is enabled'))
     }
 
-    let input = argv.globalOpts.getString('input', '')
     let output = argv.globalOpts.getString('output', 'summary')
 
     let g = new Graph()
 
-    for(let resource of argv.resources) {
-
-        switch(input) {
-            case 'sbol1':
-                g.addAll(await SBOLImporter.sbol1GraphFromFilenameOrURL(resource))
-                break
-            case 'sbol2':
-                g.addAll(await SBOLImporter.sbol2GraphFromFilenameOrURL(resource))
-                break
-            case 'sbol3':
-                g.addAll(await SBOLImporter.sbol3GraphFromFilenameOrURL(resource))
-                break
-            default:
-                await g.loadFilenameOrURL(resource)
-                break
-        }
-
-    }
 
     let aborted = false
 
@@ -73,26 +53,16 @@ export default async function sboltools(args:string[]):Promise<string|undefined>
             break
         }
 
-        if(action.options.getFlag('help') || action.options.getFlag('h')) {
-
-            print(group([
-                text(def2usage(actDef).trim()),
-                spacer(),
-                actDef.description ? text(actDef.description) : spacer(),
-                spacer(),
-                actDef.help ? text(actDef.help) : spacer()
-            ]))
-            
-
-            aborted = true
+        if(action.namedOpts.getFlag('help') || action.namedOpts.getFlag('h')) {
+            help()
             break
         }
 
-        let opts = actDef.opts.map(optDef => new optDef.type(actDef, optDef, action.options))
+        let namedOpts = actDef.namedOpts.map(optDef => new optDef.type(actDef, optDef, action.namedOpts))
         let err = false
 
         try {
-            var actionResult:ActionResult = await actDef.run(g, opts)
+            var actionResult:ActionResult = await actDef.run(g, namedOpts, action.positionalOpts)
         } catch(e) {
             if(e instanceof ActionResult) {
                 actionResult = e
@@ -112,9 +82,24 @@ export default async function sboltools(args:string[]):Promise<string|undefined>
             }
         }
 
-        if(actionResult.abort) {
+        if(actionResult.outcome === Outcome.Abort) {
             aborted = true
             break
+        }
+        if(actionResult.outcome === Outcome.ShowHelp) {
+            help()
+            break
+        }
+
+        function help() {
+            print(group([
+                text(def2usage(actDef).trim()),
+                spacer(),
+                actDef.description ? text(actDef.description) : spacer(),
+                spacer(),
+                actDef.help ? text(actDef.help) : spacer()
+            ]))
+            aborted = true
         }
     }
 

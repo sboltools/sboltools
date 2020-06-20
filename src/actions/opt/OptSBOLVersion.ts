@@ -2,7 +2,7 @@ import Opt from "./Opt";
 import { SBOLVersion } from "../../util/get-sbol-version-from-graph";
 import { Predicates, Prefixes } from "bioterms";
 import { triple, Graph } from "sbolgraph";
-import ActionResult from "../ActionResult";
+import ActionResult, { actionResultAbort } from "../ActionResult";
 import { text } from "../../output/output";
 import ActionDef, { OptDef } from "../ActionDef";
 import { getConsensusSBOLVersion, ConsensusVersion } from "./helper/get-consensus-sbol-version";
@@ -27,7 +27,7 @@ export default class OptSBOLVersion extends Opt {
             return SBOLVersion.SBOL3
         } else {
             if(!infer) {
-                throw new ActionResult(true, text(`Please specify --${paramPrefix}sbol-version 1/2/3`))
+                throw actionResultAbort(text(`Please specify --${paramPrefix}sbol-version 1/2/3`))
             }
             let consensus = getConsensusSBOLVersion(g)
     
@@ -38,7 +38,7 @@ export default class OptSBOLVersion extends Opt {
             else if(consensus === ConsensusVersion.SBOL3)
                 return SBOLVersion.SBOL3
             else {
-                throw new ActionResult(true, text(`Could not infer input SBOL version from current graph (does it contain mixed SBOL versions?); please specify  --${paramPrefix}sbol-version 1/2/3`))
+                throw actionResultAbort(text(`Could not infer input SBOL version from current graph (does it contain mixed SBOL versions?); please specify  --${paramPrefix}sbol-version 1/2/3`))
             }
         }
     }
