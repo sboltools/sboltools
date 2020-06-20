@@ -1,5 +1,6 @@
 
 import tests_sbol1 from './sbol1'
+import tests_sbol2 from './sbol2'
 import Test from './Test'
 import { text, indent, spacer, group } from '../src/output/output'
 import { print, beginCaptureOutput, endCaptureOutput } from '../src/output/print'
@@ -8,7 +9,8 @@ import stringArgv from 'string-argv'
 import { fail } from 'yargs'
 
 let tests:Test[] = [
-    ...tests_sbol1
+    ...tests_sbol1,
+    ...tests_sbol2
 ]
 
 runTests()
