@@ -12,6 +12,7 @@ import OptIdentity from "./opt/OptIdentity"
 import { Predicates, Types } from "bioterms"
 import OptURL from "./opt/OptURL"
 import OptString from "./opt/OptString"
+import { Existence } from "../identity/IdentityFactory"
 
 let createSequenceAction:ActionDef = {
     name: 'create-sequence',
@@ -58,7 +59,7 @@ async function createSequence(g:Graph, namedOpts:Opt[], positionalOpts:string[])
     assert(optSource instanceof OptURL)
     assert(optEncoding instanceof OptString)
 
-    let identity = optIdentity.getIdentity(g)
+    let identity = optIdentity.getIdentity(g, Existence.MustExist)
     assert(identity !== undefined)
 
     if(identity.sbolVersion === SBOLVersion.SBOL1) {

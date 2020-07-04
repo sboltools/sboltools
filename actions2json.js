@@ -12,7 +12,7 @@ actions = require('./dist/src/actions/index')['default']
             category: action.category,
             help: action.help,
             usage: def2usage(action),
-            options: action.opts.map((opt) => {
+            options: action.namedOpts.map((opt) => {
 
                 return {
                     name: opt.name,
@@ -21,6 +21,15 @@ actions = require('./dist/src/actions/index')['default']
                 }
 
             })
+            .concat(action.positionalOpts.map((opt) => {
+
+                return {
+                    name: opt.name,
+                    type: opt.type.name,
+                    optional: opt.optional
+                }
+
+            }))
         }
     })
 

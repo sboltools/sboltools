@@ -8,6 +8,8 @@ import vcDiff from './vc-diff'
 import vcValidate from './vc-validate'
 import createComponent from './create-component'
 import render from './render'
+import annotate_range from './annotate-range'
+import addSubcomponent from './add-subcomponent'
 
 export default [
     _import,
@@ -18,6 +20,8 @@ export default [
     vcValidate,
     createComponent,
     create_sequence,
-    render
+    render,
+    annotate_range,
+    addSubcomponent
 ]
 

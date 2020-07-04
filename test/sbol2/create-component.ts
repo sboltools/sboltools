@@ -1,7 +1,7 @@
 
 import { Graph, GraphView } from "rdfoo"
 import { SBOL2GraphView } from "sbolgraph"
-import Test from "./Test"
+import Test from "../Test"
 import { strict as assert } from 'assert'
 
 let tests:Test[] = [

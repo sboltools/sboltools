@@ -12,7 +12,6 @@ import summarize from './summarize'
 import ActionResult, { Outcome } from './actions/ActionResult'
 import chalk = require('chalk')
 import { text, spacer, group } from './output/output'
-import { extractPrefixesFromGraph } from './identity/helpers/extractPrefixesFromGraph'
 import ActionDef, { def2usage } from './actions/ActionDef'
 import Opt from './actions/opt/Opt'
 export default async function sboltools(args:string[]):Promise<string|undefined> {

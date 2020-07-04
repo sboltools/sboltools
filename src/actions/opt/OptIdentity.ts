@@ -8,6 +8,7 @@ import { text, indent, spacer, group, tabulated } from "../../output/output";
 import { getConsensusSBOLVersion, ConsensusVersion } from "./helper/get-consensus-sbol-version";
 import { SBOLVersion } from "../../util/get-sbol-version-from-graph";
 import { trace } from "../../output/print";
+import { Existence } from "../../identity/IdentityFactory";
 
 export default class OptIdentity extends Opt {
 
@@ -15,19 +16,19 @@ export default class OptIdentity extends Opt {
         super(actDef, optDef, argv)
     }
 
-    getIdentity(g:Graph):Identity|undefined {
+    getIdentity(g:Graph, existence:Existence):Identity|undefined {
 
         let paramPrefix = this.optDef.name !== '' ? this.optDef.name + '-' : ''
 
         let namespace = this.argv.getString(paramPrefix + 'namespace', '')
         let displayId = this.argv.getString(paramPrefix + 'displayId', '')
-        let version = this.argv.getString(paramPrefix + 'version', '')
+        let version = this.argv.getStringOrUndefined(paramPrefix + 'version')
         let context = this.argv.getString(paramPrefix + 'context', '')
         let identity = this.argv.getString(paramPrefix + 'identity', '')
         let sbolversion = this.argv.getString(paramPrefix + 'sbol-version', '')
 
 
-        if(!namespace && !displayId && !version && !context && !identity && !sbolversion) {
+        if(!namespace && !displayId && version === undefined && !context && !identity && !sbolversion) {
             if(this.optDef.optional === true) {
                 return 
             }
@@ -70,10 +71,10 @@ export default class OptIdentity extends Opt {
         let anyCombinations:IdentityParamCombination[] = [
 
             { namespace, identity, // TL or child (child only possible if identity is chain which indicates context)
-                getIdentity:() => Identity.from_namespace_and_identity(sbolVersion, g, namespace, identity, version)  },
+                getIdentity:() => Identity.from_namespace_and_identity(existence, sbolVersion, g, namespace, identity, version)  },
 
             { identity, // TL or child (has to be only one namespace in graph; child only possible if identity is chain which indicates context)
-                getIdentity:() => Identity.from_identity(sbolVersion, g, identity, version)
+                getIdentity:() => Identity.from_identity(existence, sbolVersion, g, identity, version)
             }
 
         ]
@@ -81,22 +82,22 @@ export default class OptIdentity extends Opt {
         let tlCombinations:IdentityParamCombination[] = [
 
             { namespace, displayId, // TL
-                getIdentity:() => Identity.toplevel_from_namespace_displayId(sbolVersion, g, namespace, displayId, version)
+                getIdentity:() => Identity.toplevel_from_namespace_displayId(existence, sbolVersion, g, namespace, displayId, version)
             },
 
             { displayId, // TL (has to be only one namespace in graph)
-                getIdentity: () => Identity.toplevel_from_displayId(sbolVersion, g, displayId, version)
+                getIdentity: () => Identity.toplevel_from_displayId(existence, sbolVersion, g, displayId, version)
             }
         ]
 
         let childCombinations:IdentityParamCombination[] = [
 
             { namespace, context, displayId, // child
-                getIdentity:() => Identity.child_from_namespace_context_displayId(sbolVersion, g, namespace, context, displayId, version)
+                getIdentity:() => Identity.child_from_namespace_context_displayId(existence, sbolVersion, g, namespace, context, displayId, version)
             },
 
             { context, displayId, // child
-                getIdentity: () => Identity.child_from_context_displayId(sbolVersion, g, context, displayId, version)
+                getIdentity: () => Identity.child_from_context_displayId(existence, sbolVersion, g, context, displayId, version)
             }
         ]
 

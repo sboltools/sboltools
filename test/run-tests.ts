@@ -49,7 +49,7 @@ async function runTests() {
         try {
             await test.validate(output)
         } catch(e) {
-            print(indent([spacer(),text('--- ' + test.id + ' failed at validation stage: ' + e, 'red bold')]))
+            print(indent([spacer(),text('--- ' + test.id + ' failed at validation stage: ' + e.stack, 'red bold')]))
             pass = false
         }
 

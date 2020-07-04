@@ -33,6 +33,10 @@ export class ArgvOptionSet {
         public opts:ArgvNamedOption[]
     ) {
     }
+    getStringOrUndefined(opt:string):string|undefined {
+        let value = this.opts.filter(o => o.name === opt)[0]?.value
+        return value
+    }
 
     getString(opt:string, def:string):string {
         let value = this.opts.filter(o => o.name === opt)[0]?.value

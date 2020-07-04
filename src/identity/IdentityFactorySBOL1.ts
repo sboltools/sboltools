@@ -2,12 +2,11 @@ import { Graph, identifyFiletype } from "rdfoo";
 import Identity from "./Identity";
 import ActionResult, { actionResultAbort } from "../actions/ActionResult";
 import { text } from "../output/output";
-import IdentityFactory from "./IdentityFactory";
+import IdentityFactory, { Existence } from "./IdentityFactory";
 import { SBOLVersion } from "../util/get-sbol-version-from-graph";
 import joinURIFragments from "../util/join-uri-fragments";
-import { SBOL1GraphView, S1Facade, S1DnaComponent } from "sbolgraph";
+import { SBOL1GraphView, S1Facade, S1DnaComponent, sbol1 } from "sbolgraph";
 import { Predicates } from "bioterms";
-import inventUriPrefix from "./helpers/inventURIPrefix";
 import { strict as assert } from 'assert'
 import { identityErrorGeneric, identityErrorUnguessableNamespace, identityErrorChildIdentityMissingContext, identityErrorEmptyChain } from "./helpers/errors";
 import { validateDisplayId, validateNamespaceIsPrefix } from "./helpers/validation";
@@ -17,7 +16,7 @@ import { trace } from "../output/print";
 export default class IdentityFactorySBOL1 extends IdentityFactory {
 
     from_namespace_and_identity(
-        g:Graph, namespace:string, identity:string, version?:string):Identity
+        existence:Existence, g:Graph, namespace:string, identity:string, version?:string):Identity
     {
         if (version) {
             throw sbol1VersionError()
@@ -34,11 +33,11 @@ export default class IdentityFactorySBOL1 extends IdentityFactory {
             if(Chain.tokens(identity).length === 1) {
 
                 return this.toplevel_from_namespace_displayId(
-                    g, namespace, Chain.displayId(identity) as string, undefined)
+                    existence, g, namespace, Chain.displayId(identity) as string, undefined)
                 
             } else {
                 return this.child_from_namespace_context_displayId(
-                    g, namespace, Chain.context(identity) as string, Chain.displayId(identity) as string, undefined)
+                    existence, g, namespace, Chain.context(identity) as string, Chain.displayId(identity) as string, undefined)
             }
 
         } else {
@@ -54,7 +53,7 @@ export default class IdentityFactorySBOL1 extends IdentityFactory {
     }
 
     from_identity(
-        g:Graph, identity:string, version?:string):Identity
+        existence:Existence, g:Graph, identity:string, version?:string):Identity
     {
         trace(text(`SBOL1 from_identity: identity ${identity}, version ${version}`))
 
@@ -75,7 +74,7 @@ export default class IdentityFactorySBOL1 extends IdentityFactory {
                 throw identityErrorUnguessableNamespace(prefixes)
             }
 
-            return this.from_namespace_and_identity(g, prefixes[0], identity, undefined)
+            return this.from_namespace_and_identity(existence, g, prefixes[0], identity, undefined)
 
         } else {
 
@@ -84,14 +83,14 @@ export default class IdentityFactorySBOL1 extends IdentityFactory {
             // No namespace supplied and identity is a URI
             // Invent a namespace from the URI
 
-            let namespace = inventUriPrefix(identity)
+            let namespace = inventUriPrefixSBOL1(identity)
 
-            return this.from_namespace_and_identity(g, namespace, identity, undefined)
+            return this.from_namespace_and_identity(existence, g, namespace, identity, undefined)
         }
     }
 
     toplevel_from_displayId(
-        g:Graph, displayId:string, version?:string):Identity
+        existence:Existence, g:Graph, displayId:string, version?:string):Identity
     {
         trace(text(`SBOL1 toplevel_from_displayId: displayId ${displayId}, version ${version}`))
 
@@ -105,12 +104,12 @@ export default class IdentityFactorySBOL1 extends IdentityFactory {
             throw identityErrorUnguessableNamespace(prefixes)
         }
 
-        return this.toplevel_from_namespace_displayId(g, prefixes[0], displayId, undefined)
+        return this.toplevel_from_namespace_displayId(existence, g, prefixes[0], displayId, undefined)
 
     }
 
     toplevel_from_namespace_displayId(
-        g:Graph, namespace:string, displayId:string, version?:string):Identity
+        existence:Existence, g:Graph, namespace:string, displayId:string, version?:string):Identity
     {
         trace(text(`SBOL1 toplevel_from_namespace_displayId: namespace ${namespace}, displayId ${displayId}, version ${version}`))
 
@@ -122,104 +121,73 @@ export default class IdentityFactorySBOL1 extends IdentityFactory {
     }
 
     child_from_namespace_context_displayId(
-        g:Graph, namespace:string, context:string, displayId:string, version?:string):Identity
-    {
-        return this._child_from_context_displayId_optional_namespace(g, namespace, context, displayId, version)
-
-    }
-
-    child_from_context_displayId(g: Graph, context: string, displayId: string, version?: string): Identity {
-
-        return this._child_from_context_displayId_optional_namespace(g, undefined, context, displayId, version)
-    }
-    
-    private _child_from_context_displayId_optional_namespace(
-        g:Graph, namespace:string|undefined, context:string, displayId:string, version?:string):Identity
+        existence:Existence, g:Graph, namespace:string, contextIdentity:string, displayId:string, version?:string):Identity
     {
         if (version !== undefined) {
             throw sbol1VersionError()
         }
 
-        if(!Chain.isChain(context)) {
+        let context = this.from_namespace_and_identity(Existence.MustExist, g, namespace, contextIdentity, undefined)
+        assert(context.namespace === namespace)
 
-            // Context is a URI
+        // base case TL:C = context is a top level
+        // recursive case C:C = context is a child
+        // who cares context is a shit that has a shitting uri
 
-            if(namespace === undefined) {
-                namespace = inventUriPrefix(context) 
-            } else {
-                validateNamespaceIsPrefix(namespace, context)
-            }
+        let parent = sbol1(g).uriToFacade(context.uri)
 
-            return new Identity(SBOLVersion.SBOL1, namespace, displayId, undefined, context, joinURIFragments([namespace, displayId]))
+        let children: S1Facade[] = []
+        if (parent instanceof S1DnaComponent) {
+            children = children.concat(parent.annotations)
+            children = children.concat(parent.subComponents)
         }
 
-        // Need to traverse the graph to find the parent URI.
+        let match = children.filter((child) => child.getStringProperty(Predicates.SBOL1.displayId) === displayId)[0]
 
-        let contextDisplayIds = Chain.tokens(context)
+        // TODO: does supplied version match object?
 
-        let v = new SBOL1GraphView(g)
-
-        let parent: S1Facade | undefined = undefined
-
-        for (let n = 0; n < contextDisplayIds.length; ++n) {
-
-            let contextDisplayId = contextDisplayIds[n]
-
-            if (parent) {
-                let children: S1Facade[] = []
-                if (parent instanceof S1DnaComponent) {
-                    children = children.concat(parent.annotations)
-                    children = children.concat(parent.subComponents)
-                }
-                parent = children.filter(tl => tl.getStringProperty(Predicates.SBOL1.displayId) === contextDisplayId)[0]
-
-            } else {
-                let matchingTopLevels = v.topLevels.filter(tl => tl.getStringProperty(Predicates.SBOL1.displayId) === contextDisplayId)
-
-                if(matchingTopLevels.length === 0) {
-                    throw actionResultAbort(text('no top level found with displayId ' + displayId))
-                }
-
-                if(namespace !== undefined) {
-                    matchingTopLevels = matchingTopLevels.filter(tl => {
-                        return tl.uri.indexOf(namespace as string) === 0
-                    })
-                }
-
-                if(matchingTopLevels.length > 1) {
-                    throw actionResultAbort(text('more than one possible match for displayId ' + displayId))
-                }
-
-                parent = matchingTopLevels[0]
-            }
-
-            if (!parent) {
-                throw actionResultAbort(text('displayId not found: ' + displayId))
-            }
-        }
-
-        if (parent === undefined) {
-            throw new Error('???')
-        }
-
-        let ns = namespace || inventUriPrefix(parent.uri)
-
-        return this.child_from_namespace_context_displayId(g, ns, parent.uri, displayId, undefined)
+        return this.from_namespace_and_identity(existence, g, namespace, match.uri, version)
     }
 
+    child_from_context_displayId(existence:Existence, g: Graph, contextIdentity: string, displayId: string, version?: string): Identity {
+
+        if (version !== undefined) {
+            throw sbol1VersionError()
+        }
+
+        let context = this.from_identity(Existence.MustExist, g, contextIdentity, undefined)
+
+        let parent = sbol1(g).uriToFacade(context.uri)
+
+        if(!parent) {
+            throw actionResultAbort(text(`Context object with identity ${contextIdentity} not found`))
+        }
+
+        let children: S1Facade[] = []
+        if (parent instanceof S1DnaComponent) {
+            children = children.concat(parent.annotations)
+            children = children.concat(parent.subComponents)
+        }
+
+        let match = children.filter((child) => child.getStringProperty(Predicates.SBOL1.displayId) === displayId)[0]
+
+        return this.from_namespace_and_identity(existence, g, context.namespace, match.uri, version)
+    }
+    
 }
 
 function sbol1VersionError() {
     return actionResultAbort(text(`Version is only supported in SBOL2`))
 }
 
-export function extractPrefixesFromGraphSBOL1(g:Graph) {
+function extractPrefixesFromGraphSBOL1(g:Graph) {
 
-    let subjects = g.subjects
+    let v = new SBOL1GraphView(g)
+    let topLevels = v.topLevels
     let prefixes = new Set<string>()
 
-    for(let s of subjects) {
-        let prefix = inventUriPrefix(s)
+    for(let t of topLevels) {
+        let prefix = inventUriPrefixSBOL1(t.uri)
 
         if(prefix)
             prefixes.add(prefix)
@@ -229,3 +197,16 @@ export function extractPrefixesFromGraphSBOL1(g:Graph) {
     arr.sort((a, b) => a.length - b.length)
     return arr
 }
+
+function inventUriPrefixSBOL1(uri:string) {
+    let slash = uri.lastIndexOf('/')
+    let hash = uri.lastIndexOf('#')
+    if(slash !== -1) {
+        return uri.slice(0, slash + 1)
+    }
+    if(hash !== -1) {
+        return uri.slice(0, hash + 1)
+    }
+    return ''
+}
+
