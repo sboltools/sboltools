@@ -1,17 +1,17 @@
 
 import { Graph, GraphView } from "rdfoo"
-import { SBOL2GraphView } from "sbolgraph"
+import { SBOL3GraphView } from "sbolgraph"
 import Test from "../Test"
 import { strict as assert } from 'assert'
 
 let tests:Test[] = [
     {
-        id: 'sbol2-001',
-        name: 'Create SBOL2 component',
+        id: 'sbol3-001',
+        name: 'Create SBOL3 component',
         command: `
             --trace
             --output sbol1
-            create-component --sbol-version 2 --namespace "http://example.com/" --displayId lac_inverter
+            create-component --sbol-version 3 --namespace "http://example.com/" --displayId lac_inverter
         `,
         validate: async (r:string|undefined) => {
 
@@ -20,9 +20,9 @@ let tests:Test[] = [
             }
 
             let g = await Graph.loadString(r)
-            let gv = new SBOL2GraphView(g)
+            let gv = new SBOL3GraphView(g)
 
-            let matches = gv.componentDefinitions.filter(c => {
+            let matches = gv.components.filter(c => {
                 return c.uri === 'http://example.com/lac_inverter' &&
                     c.displayId === 'lac_inverter'
             })
@@ -32,12 +32,12 @@ let tests:Test[] = [
     },
 
     {
-        id: 'sbol2-002',
-        name: 'Create SBOL2 component with a subcomponent with a sequence',
+        id: 'sbol3-002',
+        name: 'Create SBOL3 component with a subcomponent with a sequence',
         command: `
             --trace
             --output sbol1
-            create-component --sbol-version 2 --namespace "http://example.com/" --displayId lac_inverter
+            create-component --sbol-version 3 --namespace "http://example.com/" --displayId lac_inverter
             dump-graph
             create-component --within-component-displayId lac_inverter --displayId pLac
         `,
@@ -48,9 +48,9 @@ let tests:Test[] = [
             }
 
             let g = await Graph.loadString(r)
-            let gv = new SBOL2GraphView(g)
+            let gv = new SBOL3GraphView(g)
 
-            let matches = gv.componentDefinitions.filter(c => {
+            let matches = gv.components.filter(c => {
                 return c.uri === 'http://example.com/lac_inverter' &&
                     c.displayId === 'lac_inverter'
             })
@@ -61,8 +61,8 @@ let tests:Test[] = [
 
             let c = matches[0]
 
-            assert(c.components.length === 1)
-            assert(c.components[0].definition.displayId === 'pLac')
+            assert(c.subComponents.length === 1)
+            assert(c.subComponents[0].instanceOf.displayId === 'pLac')
         }
     }
 ]

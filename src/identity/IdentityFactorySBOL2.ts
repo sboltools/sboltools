@@ -99,7 +99,7 @@ export default class IdentityFactorySBOL2 extends IdentityFactory {
             }
 
 
-            return new Identity(SBOLVersion.SBOL1, namespace, displayId, version, undefined, identity)
+            return new Identity(SBOLVersion.SBOL2, namespace, displayId, version, undefined, identity)
         }
     }
     from_identity(existence:Existence, g: Graph, identity: string, version?: string | undefined): Identity {
@@ -296,7 +296,7 @@ export default class IdentityFactorySBOL2 extends IdentityFactory {
             children = children.concat(parent.containedObjects)
         }
 
-        let matches = children.filter((child) => child.getStringProperty(Predicates.SBOL1.displayId) === displayId)
+        let matches = children.filter((child) => child.getStringProperty(Predicates.SBOL2.displayId) === displayId)
 
         if(version !== undefined) {
             matches = matches.filter(match => match.version === version)
@@ -337,7 +337,7 @@ export default class IdentityFactorySBOL2 extends IdentityFactory {
             children = children.concat(parent.containedObjects)
         }
 
-        let matches = children.filter((child) => child.getStringProperty(Predicates.SBOL1.displayId) === displayId)
+        let matches = children.filter((child) => child.getStringProperty(Predicates.SBOL2.displayId) === displayId)
 
         if(version !== undefined) {
             matches = matches.filter(match => match.version === version)

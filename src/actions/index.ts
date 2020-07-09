@@ -10,6 +10,7 @@ import createComponent from './create-component'
 import render from './render'
 import annotate_range from './annotate-range'
 import addSubcomponent from './add-subcomponent'
+import dumpGraph from './dump-graph'
 
 export default [
     _import,
@@ -22,6 +23,7 @@ export default [
     create_sequence,
     render,
     annotate_range,
-    addSubcomponent
+    addSubcomponent,
+    dumpGraph
 ]
 

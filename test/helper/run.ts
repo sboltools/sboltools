@@ -1,10 +1,10 @@
 
 import sboltools from '../../src/sboltools'
 import stringArgv from 'string-argv'
-import { beginCaptureOutput, endCaptureOutput } from '../../src/output/print'
+import { beginCaptureOutput, endCaptureOutput, CapturedNode } from '../../src/output/print'
 import chalk = require('chalk')
 
-export default async function run(argv:string):Promise<{ result:string|undefined, log:string }> {
+export default async function run(argv:string):Promise<{ result:string|undefined, log:CapturedNode[] }> {
 
     console.log(chalk.bold('===== TEST: Running: ') + 'sbol ' + argv)
 

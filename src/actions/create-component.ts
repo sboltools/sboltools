@@ -8,13 +8,16 @@ import ActionDef from "./ActionDef"
 import OptSBOLVersion from "./opt/OptSBOLVersion"
 import { strict as assert } from 'assert'
 import { SBOLVersion } from "../util/get-sbol-version-from-graph"
-import { SBOL1GraphView, S1DnaComponent, SBOL2GraphView } from "sbolgraph"
+import { SBOL1GraphView, S1DnaComponent, SBOL2GraphView, SBOL3GraphView } from "sbolgraph"
 import OptIdentity from "./opt/OptIdentity"
 import { Predicates, Types } from "bioterms"
 import OptURL from "./opt/OptURL"
 import OptString from "./opt/OptString"
 import { Existence } from "../identity/IdentityFactory"
 import Identity from "../identity/Identity"
+import sbol2CompliantConcat from "../util/sbol2-compliant-concat"
+import joinURIFragments from "../util/join-uri-fragments"
+import { trace } from "../output/print";
 
 let createComponentAction:ActionDef = {
     name: 'create-component',
@@ -40,25 +43,33 @@ export default createComponentAction
 
 async function createComponent(g:Graph, namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
 
+    trace(text('createComponent'))
+
     let [ optIdentity, optWithinComponentIdentity ] = namedOpts
 
     assert(optIdentity instanceof OptIdentity)
     assert(optWithinComponentIdentity instanceof OptIdentity)
 
-    let identity = optIdentity.getIdentity(g, Existence.MustNotExist)
+
+    trace(text(`Getting withinComponentIdentity`))
+    let withinComponentIdentity = optWithinComponentIdentity.getIdentity(g, Existence.MustExist)
+    trace(text(`Got withinComponentIdentity: ${withinComponentIdentity}`))
+
+
+    let identity = optIdentity.getIdentity(g, Existence.MustNotExist, withinComponentIdentity)
     assert(identity !== undefined)
 
     if(identity.parentURI) {
         throw new ActionResult(text('Components cannot have parents, as they are designated top-level. To specify a component-subcomponent relationship, use the --within-component option.'), Outcome.Abort)
     }
 
-    let withinComponentIdentity = optWithinComponentIdentity.getIdentity(g, Existence.MustExist)
-
     switch(identity.sbolVersion) {
         case SBOLVersion.SBOL1:
             return createComponentSBOL1(g, identity, withinComponentIdentity)
         case SBOLVersion.SBOL2:
             return createComponentSBOL2(g, identity, withinComponentIdentity)
+        case SBOLVersion.SBOL3:
+            return createComponentSBOL3(g, identity, withinComponentIdentity)
         default:
             throw new ActionResult(text('Unsupported SBOL version for create-component'))
     }
@@ -117,7 +128,7 @@ function createComponentSBOL2(g:Graph, identity:Identity, withinComponentIdentit
             throw new ActionResult(text(`ComponentDefinition with URI ${withinComponentIdentity.uri} not found for --within-component`), Outcome.Abort)
         }
 
-        let scURI = g.generateURI(withinComponentIdentity.uri + '_subcomponent$n$')
+        let scURI = g.generateURI(sbol2CompliantConcat(g, withinComponentIdentity.uri, 'subcomponent$n$'))
 
         g.insertProperties(withinComponentIdentity.uri, {
             [Predicates.SBOL2.component]: node.createUriNode(scURI),
@@ -126,6 +137,52 @@ function createComponentSBOL2(g:Graph, identity:Identity, withinComponentIdentit
         g.insertProperties(scURI, {
             [Predicates.a]: node.createUriNode(Types.SBOL2.Component),
             [Predicates.SBOL2.definition]: node.createUriNode(identity.uri),
+        })
+    }
+
+    return new ActionResult()
+}
+
+
+function createComponentSBOL3(g:Graph, identity:Identity, withinComponentIdentity:Identity|undefined):ActionResult {
+
+    let gv = new SBOL3GraphView(g)
+
+
+
+    let namespace = identity.namespace
+    assert(namespace)
+
+    g.insertProperties(namespace, {
+        [Predicates.a]: node.createUriNode(Types.SBOL3.Namespace),
+        [Predicates.SBOL3.member]: node.createUriNode(identity.uri),
+    })
+
+
+
+
+    g.insertProperties(identity.uri, {
+        [Predicates.a]: node.createUriNode(Types.SBOL3.Component),
+        [Predicates.SBOL3.displayId]: node.createStringNode(identity.displayId)
+    })
+
+
+
+    if(withinComponentIdentity !== undefined) {
+
+        if(!g.hasMatch(withinComponentIdentity.uri, Predicates.a, Types.SBOL3.Component)) {
+            throw new ActionResult(text(`Component with URI ${withinComponentIdentity.uri} not found for --within-component`), Outcome.Abort)
+        }
+
+        let scURI = g.generateURI(joinURIFragments([withinComponentIdentity.uri, 'subcomponent$n$']))
+
+        g.insertProperties(withinComponentIdentity.uri, {
+            [Predicates.SBOL3.subComponent]: node.createUriNode(scURI),
+        })
+
+        g.insertProperties(scURI, {
+            [Predicates.a]: node.createUriNode(Types.SBOL3.Component),
+            [Predicates.SBOL3.instanceOf]: node.createUriNode(identity.uri),
         })
     }
 

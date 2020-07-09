@@ -11,6 +11,8 @@ import OutputNodeTabulated from "./OutputNodeTabulated";
 import OutputNodeJSONTree from "./OutputNodeJSONTree";
 
 import colorizeJSON = require('json-colorizer')
+import OutputNodeMultiline from "./OutputNodeMultiline";
+import OutputNodeTrace from "./OutputNodeTrace";
 
 let INDENT_SIZE = 4
 
@@ -34,6 +36,9 @@ export default function tostring(indent:number, node:Node):string {
             return
         } else if(node instanceof OutputNodeText) {
             printTextNode(node, depth)
+            return
+        } else if(node instanceof OutputNodeMultiline) {
+            printMultilineNode(node, depth)
             return
         } else if(node instanceof OutputNodeSpacer) {
             printSpacerNode(node, depth)
@@ -73,6 +78,18 @@ export default function tostring(indent:number, node:Node):string {
 
         for(let child of node.children) {
             printNode(child, depth + 1)
+        }
+
+    }
+
+    function printMultilineNode(node:OutputNodeMultiline, depth:number) {
+
+        lastWasSpace = false
+
+        let indentstr = ' '.repeat(depth * INDENT_SIZE) 
+
+        for(let line of node.text.split('\n')) {
+            out.push(indentstr + applyStyles(line, node.style))
         }
 
     }

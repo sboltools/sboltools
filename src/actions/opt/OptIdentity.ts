@@ -16,7 +16,7 @@ export default class OptIdentity extends Opt {
         super(actDef, optDef, argv)
     }
 
-    getIdentity(g:Graph, existence:Existence):Identity|undefined {
+    getIdentity(g:Graph, existence:Existence, relatedIdentity?:Identity|undefined):Identity|undefined {
 
         let paramPrefix = this.optDef.name !== '' ? this.optDef.name + '-' : ''
 
@@ -26,6 +26,17 @@ export default class OptIdentity extends Opt {
         let context = this.argv.getString(paramPrefix + 'context', '')
         let identity = this.argv.getString(paramPrefix + 'identity', '')
         let sbolversion = this.argv.getString(paramPrefix + 'sbol-version', '')
+
+
+        trace(text(`get identity: relatedIdentity ${relatedIdentity}`))
+
+        if(relatedIdentity) {
+            if(!namespace) {
+                trace(text(`No namespace was specified, so using namespace of related identity ${relatedIdentity.namespace}`))
+                namespace = relatedIdentity.namespace
+            }
+        }
+
 
 
         if(!namespace && !displayId && version === undefined && !context && !identity && !sbolversion) {
@@ -46,19 +57,27 @@ export default class OptIdentity extends Opt {
         } else if(sbolversion === '3') {
             sbolVersion = SBOLVersion.SBOL3
         } else {
+
             if(!inferSBOLVersion) {
                 throw actionResultAbort(text(`Please specify --${paramPrefix}sbol-version 1/2/3`))
             }
-            let consensus = getConsensusSBOLVersion(g)
-    
-            if(consensus === ConsensusVersion.SBOL1)
-                sbolVersion = SBOLVersion.SBOL1
-            else if(consensus === ConsensusVersion.SBOL2)
-                sbolVersion = SBOLVersion.SBOL2
-            else if(consensus === ConsensusVersion.SBOL3)
-                sbolVersion = SBOLVersion.SBOL3
-            else {
-                throw actionResultAbort(text(`Could not infer input SBOL version from current graph (is it empty, or does it contain mixed SBOL versions?); please specify --${paramPrefix}sbol-version 1/2/3`))
+
+            if(relatedIdentity) {
+                sbolVersion = relatedIdentity.sbolVersion
+            } else {
+
+                let consensus = getConsensusSBOLVersion(g)
+        
+                if(consensus === ConsensusVersion.SBOL1)
+                    sbolVersion = SBOLVersion.SBOL1
+                else if(consensus === ConsensusVersion.SBOL2)
+                    sbolVersion = SBOLVersion.SBOL2
+                else if(consensus === ConsensusVersion.SBOL3)
+                    sbolVersion = SBOLVersion.SBOL3
+                else {
+                    throw actionResultAbort(text(`Could not infer input SBOL version from current graph (is it empty, or does it contain mixed SBOL versions?); please specify --${paramPrefix}sbol-version 1/2/3`))
+                }
+
             }
         }
 

@@ -10,9 +10,15 @@ export function identityErrorGeneric(): ActionResult {
 
 
 export function identityErrorUnguessableNamespace(namespaces:string[]): ActionResult {
-    return actionResultAbort(
-        text(`No namespace was specified, and cannot default to a single existing namespace as there are ${namespaces.length} different namespaces in use in the knowledge graph: ${namespaces.join(', ')}`)
-    )
+    if(namespaces.length > 0) {
+        return actionResultAbort(
+            text(`No namespace was specified, and cannot default to a single existing namespace as there are ${namespaces.length} different namespaces in use in the knowledge graph: ${namespaces.join(', ')}`)
+        )
+    } else {
+        return actionResultAbort(
+            text(`No namespace was specified, and cannot default to a single existing namespace as the knowledge graph appears to be empty`)
+        )
+    }
 }
 
 export function identityErrorChildIdentityMissingContext():ActionResult {

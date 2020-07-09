@@ -1,16 +1,20 @@
 
 import tests_sbol1 from './sbol1'
 import tests_sbol2 from './sbol2'
+import tests_sbol3 from './sbol3'
 import Test from './Test'
-import { text, indent, spacer, group } from '../src/output/output'
-import { print, beginCaptureOutput, endCaptureOutput } from '../src/output/print'
+import { text, indent, spacer, group, multiline } from '../src/output/output'
+import { print, beginCaptureOutput, endCaptureOutput, CapturedNode } from '../src/output/print'
 import sboltools from '../src/sboltools'
 import stringArgv from 'string-argv'
 import { fail } from 'yargs'
+import tostring from '../src/output/tostring'
+import chalk = require('chalk')
 
 let tests:Test[] = [
     ...tests_sbol1,
-    ...tests_sbol2
+    ...tests_sbol2,
+    ...tests_sbol3
 ]
 
 runTests()
@@ -36,10 +40,24 @@ async function runTests() {
         //     pass = false
         // }
 
-        let stderr = endCaptureOutput()
+        let captured:CapturedNode[] = endCaptureOutput()
 
-        let stderrLines = stderr.trim().split('\n').map((line) => text(line))
-        print(indent(stderrLines))
+        print(
+            indent(
+                captured.map(node => {
+                    if(node.type === 'trace') {
+                        let t = tostring(0, node.node)
+                        t = t.trim().split('\n').map(line => '[trace] ' + line).join('\n')
+                        t = chalk.dim(t)
+                        return multiline(t)
+                    } else {
+                        return node.node
+                    }
+                })
+            )
+        )
+
+
 
         if(output) {
             let lines = output.trim().split('\n').map((line) => text(line))
