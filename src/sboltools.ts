@@ -136,6 +136,7 @@ function help() {
         helptext
                 .replace(/\*\*(.*)\*\*/g, (w, str:string) => chalk.white.underline.bold(str.toUpperCase()))
                 .replace(/\*(.*)\*/g, (w, str:string) => chalk.white.bold(str))
+                .replace('%actions%', actions.map(a => '    ' + a.name).join('\n'))
        )
    )
 }

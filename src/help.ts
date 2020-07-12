@@ -14,6 +14,14 @@ This tool allows the manipulation of files describing biological systems using
 the Synthetic Biology Open Language (SBOL) and other related standards such as
 FASTA and GenBank.
 
-For docs, check out http://sboltools.github.io
+Available actions:
+
+%actions%
+
+For help with a specific action, try:
+
+    sbol <action> --help
+
+For comprehensive documentation, check out http://sboltools.github.io
 `
 .trim()
