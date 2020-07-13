@@ -6,11 +6,11 @@ import { strict as assert } from 'assert'
 
 let tests:Test[] = [
     {
-        id: 'sbol2-001',
+        id: 'sbol2-create-component-001',
         name: 'Create SBOL2 component',
         command: `
             --trace
-            --output sbol1
+            --output sbol2
             create-component --sbol-version 2 --namespace "http://example.com/" --displayId lac_inverter
         `,
         validate: async (r:string|undefined) => {
@@ -32,11 +32,11 @@ let tests:Test[] = [
     },
 
     {
-        id: 'sbol2-002',
+        id: 'sbol2-create-component-002',
         name: 'Create SBOL2 component with a subcomponent with a sequence',
         command: `
             --trace
-            --output sbol1
+            --output sbol2
             create-component --sbol-version 2 --namespace "http://example.com/" --displayId lac_inverter
             dump-graph
             create-component --within-component-displayId lac_inverter --displayId pLac

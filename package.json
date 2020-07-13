@@ -16,6 +16,8 @@
     "@types/yargs": "^15.0.4",
     "bioterms": "^0.15.0",
     "chalk": "^4.0.0",
+    "glob": "^7.1.6",
+    "glob-promise": "^3.4.0",
     "json-colorizer": "^2.2.2",
     "node-fetch": "^2.6.0",
     "promise-fs": "^2.1.1",

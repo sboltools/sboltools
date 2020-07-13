@@ -10,11 +10,14 @@ import stringArgv from 'string-argv'
 import { fail } from 'yargs'
 import tostring from '../src/output/tostring'
 import chalk = require('chalk')
+import glob = require('glob-promise')
+import { globalAgent } from 'http'
+import OutputNode from '../src/output/OutputNode'
 
 let tests:Test[] = [
-    ...tests_sbol1,
+    //...tests_sbol1,
     ...tests_sbol2,
-    ...tests_sbol3
+    //...tests_sbol3
 ]
 
 runTests()
@@ -26,15 +29,71 @@ async function runTests() {
 
     for(let test of tests) {
 
-        print(text('===== TEST: ' + test.id + ': ' + test.name, 'white bold'))
-        print(text('      command: ' + test.command, 'white bold'))
+        let pass = true
 
-        beginCaptureOutput()
+        if(test.glob) {
+
+            let files:string[] = []
+
+            for(let g of test.glob) {
+                files = files.concat(await glob(g))
+            }
+
+            let n:OutputNode[] = []
+
+            n.push(text('Glob ' + test.glob))
+            n.push(text(files.length + ' file(s)'))
+
+            for(let file of files) {
+
+                let c = (test.command as any)(file) 
+
+                n.push(text('===== TEST: ' + test.id + ': ' + test.name + ' ' + file, 'white bold'))
+                n.push(text('      command: ' + c, 'white bold'))
+
+                await run(test, test.id + '#' + file.split('/').pop(), c)
+
+            }
+
+        } else {
+
+            print(text('===== TEST: ' + test.id + ': ' + test.name, 'white bold'))
+            print(text('      command: ' + test.command, 'white bold'))
+
+            await run(test, test.id, test.command)
+        }
+
+    }
+
+    print(group([
+        text(`===== PASSING:`, 'white bold'),
+        spacer(),
+        indent(passes.map(t => text(t, 'green'))),
+        spacer(),
+        text(`===== FAILING:`, 'white bold'),
+        spacer(),
+        indent(fails.map(t => text(t, 'red'))),
+        spacer()
+    ]))
+
+    print(text(`===== SUMMARY: ${passes.length} test(s) passed, ${fails.length} test(s) failed`, 'white bold'))
+
+    if(fails.length > 0) {
+        process.exitCode = 1
+    }
+
+
+
+
+
+    async function run(test, id, command) {
 
         let pass = true
 
+        beginCaptureOutput()
+
         // try {
-            var output = await sboltools(['node', 'just.a.unit.test'].concat(stringArgv(test.command)))
+            var output = await sboltools(['node', 'just.a.unit.test'].concat(stringArgv(command)))
         // } catch(e) {
         //     print(indent([spacer(),text('--- ' + test.id + ' failed at execution stage: ' + e, 'red bold')]))
         //     pass = false
@@ -67,39 +126,30 @@ async function runTests() {
         try {
             await test.validate(output)
         } catch(e) {
-            print(indent([spacer(),text('--- ' + test.id + ' failed at validation stage: ' + e.stack, 'red bold')]))
+            print(indent([spacer(),text('--- ' + id + ' failed at validation stage: ' + e.stack, 'red bold')]))
             pass = false
         }
 
         if(pass) {
             print(spacer())
-            print(text('✅ Passed: ' + test.id, 'green bold'))
+            print(text('✅ Passed: ' + id, 'green bold'))
             print(spacer())
-            passes.push(test.id)
+            passes.push(id)
         } else {
             print(spacer())
-            print(text('❌ Failed: ' + test.id, 'red bold'))
+            print(text('❌ Failed: ' + id, 'red bold'))
             print(spacer())
-            fails.push(test.id)
+            fails.push(id)
         }
+        
+        return pass
     }
 
-    print(group([
-        text(`===== PASSING:`, 'white bold'),
-        spacer(),
-        indent(passes.map(t => text(t, 'green'))),
-        spacer(),
-        text(`===== FAILING:`, 'white bold'),
-        spacer(),
-        indent(fails.map(t => text(t, 'red'))),
-        spacer()
-    ]))
 
-    print(text(`===== SUMMARY: ${passes.length} test(s) passed, ${fails.length} test(s) failed`, 'white bold'))
 
-    if(fails.length > 0) {
-        process.exitCode = 1
-    }
+
+
+
 
 }
 

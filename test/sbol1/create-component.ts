@@ -6,7 +6,7 @@ import { strict as assert } from 'assert'
 
 let tests:Test[] = [
     {
-        id: 'sbol1-001',
+        id: 'sbol1-create-component-001',
         name: 'Create SBOL1 component',
         command: `
             --trace
@@ -32,7 +32,7 @@ let tests:Test[] = [
     },
 
     {
-        id: 'sbol1-002',
+        id: 'sbol1-create-component-002',
         name: 'Create SBOL1 component with a subcomponent with a sequence',
         command: `
             --trace

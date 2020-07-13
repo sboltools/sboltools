@@ -5,7 +5,9 @@ export default interface Test {
 
     name:string
 
-    command:string
+    glob?:string[]
+
+    command:string|((filename:string)=>string)
 
     validate:(output:string|undefined) => Promise<void>
 
