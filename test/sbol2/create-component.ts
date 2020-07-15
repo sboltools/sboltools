@@ -38,7 +38,6 @@ let tests:Test[] = [
             --trace
             --output sbol2
             create-component --sbol-version 2 --namespace "http://example.com/" --displayId lac_inverter
-            dump-graph
             create-component --within-component-displayId lac_inverter --displayId pLac
         `,
         validate: async (r:string|undefined) => {

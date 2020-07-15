@@ -14,6 +14,7 @@ import OptURL from "./opt/OptURL"
 import OptString from "./opt/OptString"
 import Opt1BasedInt from "./opt/Opt1BasedInt"
 import { Existence } from "../identity/IdentityFactory"
+import GraphMap from "../GraphMap"
 
 let annotateRangeAction:ActionDef = {
     name: 'annotate-range',
@@ -50,9 +51,11 @@ let annotateRangeAction:ActionDef = {
 
 export default annotateRangeAction
 
-async function annotateRange(g: Graph, namedOpts: Opt[], positionalOpts: string[]): Promise<ActionResult> {
+async function annotateRange(gm: GraphMap, namedOpts: Opt[], positionalOpts: string[]): Promise<ActionResult> {
 
     let [ optIdentity, optInComponentIdentity, optSource, optEncoding ] = namedOpts
+
+    let g = gm.getCurrentGraph()
 
     assert(optIdentity instanceof OptIdentity)
     assert(optInComponentIdentity instanceof OptIdentity)

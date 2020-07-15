@@ -14,6 +14,7 @@ import { Predicates, Types } from "bioterms"
 import OptURL from "./opt/OptURL"
 import OptString from "./opt/OptString"
 import { Existence } from "../identity/IdentityFactory"
+import GraphMap from "../GraphMap"
 
 let addSubcomponentAction:ActionDef = {
     name: 'create-component',
@@ -37,7 +38,7 @@ let addSubcomponentAction:ActionDef = {
 
 export default addSubcomponentAction
 
-async function addSubcomponent(g:Graph, namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
+async function addSubcomponent(gm:GraphMap, namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
 
     // let [ optIdentity, optWithinComponentIdentity ] = namedOpts
 

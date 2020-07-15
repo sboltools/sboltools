@@ -18,6 +18,7 @@ import Identity from "../identity/Identity"
 import sbol2CompliantConcat from "../util/sbol2-compliant-concat"
 import joinURIFragments from "../util/join-uri-fragments"
 import { trace } from "../output/print";
+import GraphMap from "../GraphMap"
 
 let createComponentAction:ActionDef = {
     name: 'create-component',
@@ -41,7 +42,9 @@ let createComponentAction:ActionDef = {
 
 export default createComponentAction
 
-async function createComponent(g:Graph, namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
+async function createComponent(gm:GraphMap, namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
+
+    let g = gm.getCurrentGraph()
 
     trace(text('createComponent'))
 

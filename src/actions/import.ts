@@ -12,6 +12,7 @@ import OptIdentity from "./opt/OptIdentity"
 import { Predicates, Types } from "bioterms"
 import OptURL from "./opt/OptURL"
 import OptString from "./opt/OptString"
+import GraphMap from "../GraphMap"
 
 let createSequenceAction:ActionDef = {
     name: 'import',
@@ -44,7 +45,9 @@ would result in a graph containing foo.fasta converted to SBOL1 RDF.
 
 export default createSequenceAction
 
-async function _import(g:Graph,  namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
+async function _import(gm:GraphMap,  namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
+
+    let g = gm.getCurrentGraph()
 
     let [ source ] = positionalOpts
     let [ _as ] = namedOpts

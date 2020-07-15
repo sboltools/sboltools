@@ -9,12 +9,23 @@ let tests:Test[] = [
         id: 'sbol2-1to2conversion-001',
         name: 'Convert SBOL1 to SBOL2',
         glob: [
-             'SBOLTestSuite/SBOL2/*.xml'
+             'SBOLTestSuite/SBOL1/*.xml'
         ],
         command: (filename) => `
             --trace
-            --output sbol2
-            import ${filename}
+            --output none
+
+            graph orig
+                import ${filename}
+
+            graph converted
+                merge --from orig
+                convert --target-sbol-version 2
+
+            graph roundtripped
+                merge --from converted
+                convert --target-sbol-version 1
+                compare --to orig
         `,
         validate: async (r:string|undefined) => {
 

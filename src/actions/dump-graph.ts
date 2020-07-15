@@ -9,10 +9,11 @@ import ActionDef from "./ActionDef"
 import Opt from "./opt/Opt"
 import { trace } from "../output/print"
 import { SBOL3GraphView } from "sbolgraph"
+import GraphMap from "../GraphMap"
 
 let action:ActionDef = {
-    name: 'dump-graph',
-    category: 'other',
+    name: 'graph-dump',
+    category: 'graphops',
     namedOpts: [
     ],
     positionalOpts: [
@@ -22,7 +23,9 @@ let action:ActionDef = {
 
 export default action
 
-async function dumpGraph(g:Graph,  namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
+async function dumpGraph(gm:GraphMap,  namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
+
+    let g = gm.getCurrentGraph()
 
     trace(group([
         header('Graph dump'),

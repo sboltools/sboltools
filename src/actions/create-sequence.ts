@@ -13,6 +13,7 @@ import { Predicates, Types } from "bioterms"
 import OptURL from "./opt/OptURL"
 import OptString from "./opt/OptString"
 import { Existence } from "../identity/IdentityFactory"
+import GraphMap from "../GraphMap"
 
 let createSequenceAction:ActionDef = {
     name: 'create-sequence',
@@ -50,7 +51,9 @@ If such inference is not possible (e.g. no component is specified, or the specif
 
 export default createSequenceAction
 
-async function createSequence(g:Graph, namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
+async function createSequence(gm:GraphMap, namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
+
+    let g = gm.getCurrentGraph()
 
     let [ optIdentity, optForComponentIdentity, optSource, optEncoding ] = namedOpts
 

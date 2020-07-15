@@ -9,6 +9,7 @@ import OutputNode from "../output/OutputNode"
 import ActionResult from "./ActionResult"
 import ActionDef from "./ActionDef"
 import Opt from "./opt/Opt"
+import GraphMap from "../GraphMap"
 
 let componentsAction:ActionDef = {
     name: 'components',
@@ -22,7 +23,9 @@ let componentsAction:ActionDef = {
 
 export default componentsAction
 
-async function components(g:Graph, namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
+async function components(gm:GraphMap, namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
+
+    let g = gm.getCurrentGraph()
 
     let output:OutputNode[] = []
 

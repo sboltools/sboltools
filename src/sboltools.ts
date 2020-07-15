@@ -14,6 +14,7 @@ import chalk = require('chalk')
 import { text, spacer, group } from './output/output'
 import ActionDef, { def2usage } from './actions/ActionDef'
 import Opt from './actions/opt/Opt'
+import GraphMap from './GraphMap'
 export default async function sboltools(args:string[]):Promise<string|undefined> {
 
     // console.dir(args)
@@ -38,7 +39,9 @@ export default async function sboltools(args:string[]):Promise<string|undefined>
 
     let output = argv.globalOpts.getString('output', 'summary')
 
-    let g = new Graph()
+    let graphs:Map<string,Graph> = new Map()
+
+    let gm = new GraphMap()
 
 
     let aborted = false
@@ -61,7 +64,7 @@ export default async function sboltools(args:string[]):Promise<string|undefined>
         let err = false
 
         try {
-            var actionResult:ActionResult = await actDef.run(g, namedOpts, action.positionalOpts)
+            var actionResult:ActionResult = await actDef.run(gm, namedOpts, action.positionalOpts)
         } catch(e) {
             if(e instanceof ActionResult) {
                 actionResult = e
@@ -107,19 +110,21 @@ export default async function sboltools(args:string[]):Promise<string|undefined>
     } else {
         switch(output) {
             case 'summary':
-                summarize(g)
+                summarize(gm.getCurrentGraph())
                 break
             case 'sbol1':
-                return new SBOL1GraphView(g).serializeXML()
+                return new SBOL1GraphView(gm.getCurrentGraph()).serializeXML()
             case 'sbol2':
-                return new SBOL2GraphView(g).serializeXML()
+                return new SBOL2GraphView(gm.getCurrentGraph()).serializeXML()
             case 'sbol3':
-                return new SBOL3GraphView(g).serializeXML()
+                return new SBOL3GraphView(gm.getCurrentGraph()).serializeXML()
             case 'fasta':
                 print(text(chalk.red('FASTA output not yet supported')))
                 break
             case 'genbank':
                 print(text(chalk.red('GenBank output not yet supported')))
+                break
+            case 'none':
                 break
             default:
                 print(text(chalk.red('Unknown output type: ' + output)))

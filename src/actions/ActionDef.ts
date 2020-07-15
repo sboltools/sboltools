@@ -2,6 +2,7 @@ import ActionResult from "./ActionResult";
 import { Graph } from "sbolgraph";
 import Opt from "./opt/Opt";
 import { ArgvOptionSet } from "../parse-argv";
+import GraphMap from "../GraphMap";
 
 export default interface ActionDef {
     name: string,
@@ -15,13 +16,14 @@ export default interface ActionDef {
         | 'object-cd'
         | 'rel-cd'
         | 'seq-anno'
+        | 'graphops'
         | 'other'
 
 
     namedOpts: OptDef[],
     positionalOpts: OptDef[],
 
-    run: (g: Graph, namedOpts: Opt[], positionalOpts: string[]) => Promise<ActionResult>
+    run: (gm: GraphMap, namedOpts: Opt[], positionalOpts: string[]) => Promise<ActionResult>
 }
 
 export interface OptDef {

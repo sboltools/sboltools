@@ -7,6 +7,7 @@ import ActionResult from "./ActionResult"
 import OutputNode from "../output/OutputNode"
 import ActionDef from "./ActionDef"
 import Opt from "./opt/Opt"
+import GraphMap from "../GraphMap"
 
 
 
@@ -22,7 +23,7 @@ let vcValidateAction:ActionDef = {
 
 export default vcValidateAction
 
-async function vcValidate(g:Graph,  namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
+async function vcValidate(g:GraphMap,  namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
 
     return new ActionResult(group([]))
 }
