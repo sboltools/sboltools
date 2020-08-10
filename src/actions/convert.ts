@@ -13,7 +13,8 @@ import OptFlag from "./opt/OptFlag"
 import action from "./dump-graph"
 import OutputNode from "../output/OutputNode"
 import fetch from 'node-fetch'
-
+import { getSBOLVersionFromGraph } from '../util/get-sbol-version-from-graph'
+import { trace } from "../output/print"
 
 let convertAction:ActionDef = {
     name: 'convert',
@@ -94,6 +95,23 @@ async function convertVC(g:Graph, sbolVersion:SBOLVersion):Promise<ActionResult>
     // let version = opts.getString('version', '')
     // let insert_type = opts.getBoolean('insert-type', false)
 
+    let sourceVersion:SBOLVersion = getSBOLVersionFromGraph(g)
+    let xml = ''
+
+    if(sourceVersion === SBOLVersion.SBOL1) {
+        xml = new SBOL1GraphView(g).serializeXML()
+    } else if(sourceVersion === SBOLVersion.SBOL2) {
+        xml = new SBOL2GraphView(g).serializeXML()
+    } else if(sourceVersion === SBOLVersion.SBOL3) {
+        throw new ActionResult(text('convert: cannot convert from SBOL3 using the online validator/converter'), Outcome.Abort)
+    } else if(sourceVersion === SBOLVersion.Mixed) {
+        throw new ActionResult(text('convert: graph has mixed SBOL versions so cannot use online validator/converter'), Outcome.Abort)
+    } else if(sourceVersion === SBOLVersion.Empty) {
+        xml = new SBOL2GraphView(g).serializeXML()
+    } else {
+        throw new ActionResult(text('convert: unknown source SBOLVersion ' + sourceVersion))
+    }
+
     let target = ''
 
     if(sbolVersion === SBOLVersion.SBOL1) {
@@ -101,30 +119,31 @@ async function convertVC(g:Graph, sbolVersion:SBOLVersion):Promise<ActionResult>
     } else if(sbolVersion === SBOLVersion.SBOL2) {
         target = 'sbol2'
     } else if(sbolVersion === SBOLVersion.SBOL3) {
-        target = 'sbol3'
+        throw new ActionResult(text('convert: cannot convert to SBOL3 using the online validator/converter'), Outcome.Abort)
     } else {
-        assert(false)
+        throw new ActionResult(text('convert: unknown SBOLVersion ' + sbolVersion))
     }
+
+    trace(text(`convert: target language sent to validator/converter is ${target.toUpperCase()}`))
 
     let body = {
         options: {
-            language: target, // output language
+            language: target.toUpperCase(), // output language
             test_equality: false,
             check_uri_compliance: false,
             check_completeness: false,
             check_best_practices: false,
             fail_on_first_error: false,
-            provide_detailed_stack_trace: true,
+            provide_detailed_stack_trace: false,
             subset_uri: '',
             uri_prefix: '',
             version: '',
-            insert_type: '',
+            insert_type: false,
             main_file_name: 'main file',
             diff_file_name: 'comparison file'
         },
-        main_file: new SBOL3GraphView(g).serializeXML(),
-        return_file: false,
-        diff_file: ''
+        main_file: xml,
+        return_file: true
     }
 
     let r = await fetch('https://validator.sbolstandard.org/validate/', {
@@ -156,37 +175,33 @@ async function convertVC(g:Graph, sbolVersion:SBOLVersion):Promise<ActionResult>
 
     errors = errors.filter(e => e.trim() != '')
 
-    if(errors.length > 0) {
-        output.push(spacer())
-        output.push(group(errors.map(e => text('Online validator error: ' + e))))
-        output.push(spacer())
+    if(!valid) {
+        if(errors.length > 0) {
+            output.push(spacer())
+            output.push(group(errors.map(e => text('Online validator error: ' + e))))
+            output.push(spacer())
+        }
     }
 
     if(result) {
 
-        if(sbolVersion === SBOLVersion.SBOL1) {
+        // console.log('before delete')
+        // console.log(new SBOL3GraphView(g).serializeXML())
+
+        if(sourceVersion === SBOLVersion.SBOL1) {
             for(let topLevel of new SBOL1GraphView(g).topLevels) {
                 topLevel.destroy()
             }
-            g.addAll(
-                await SBOLImporter.sbol1GraphFromString(result, false, 'application/rdf+xml')
-            )
-        } else if(sbolVersion === SBOLVersion.SBOL2) {
+        } else if(sourceVersion === SBOLVersion.SBOL2) {
             for(let topLevel of new SBOL2GraphView(g).topLevels) {
                 topLevel.destroy()
             }
-            g.addAll(
-                await SBOLImporter.sbol2GraphFromString(result, false, 'application/rdf+xml')
-            )
-        } else if(sbolVersion === SBOLVersion.SBOL3) {
-            for(let topLevel of new SBOL3GraphView(g).topLevels) {
-                topLevel.destroy()
-            }
-            g.addAll(
-                await SBOLImporter.sbol3GraphFromString(result, false, 'application/rdf+xml')
-            )
         }
 
+        // console.log('after delete')
+        // console.log(new SBOL3GraphView(g).serializeXML())
+
+        g.addAll(await Graph.loadString(result, 'http://dummyprefix/', 'application/rdf+xml'))
     }
 
     return actionResult(group(output))

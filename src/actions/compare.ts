@@ -1,6 +1,6 @@
 
-import { text, group, spacer, header, indent, conditional } from "../output/output"
-import ActionResult, { actionResult } from "./ActionResult"
+import { text, group, spacer, header, indent, conditional, tabulated } from "../output/output"
+import ActionResult, { actionResult, actionResultAbort } from "./ActionResult"
 
 import fs = require('fs')
 import ActionDef from "./ActionDef"
@@ -40,28 +40,52 @@ async function graphCompare(gm:GraphMap,  namedOpts:Opt[], positionalOpts:string
     assert(toGraph)
 
     let equal = true
-    let diffs:OutputNode[] = []
+    let inFromOnly:string[][] = []
+    let inToOnly:string[][] = []
 
     for(let triple of fromGraph.toArray()) {
         if(!toGraph.hasMatch(triple.subject, triple.predicate, triple.object)) {
             equal = false
-            diffs.push(text('Triple ' + JSON.stringify(triple) + ' is in current graph but not in comparison graph'))
+            inFromOnly.push([triple.subject.nominalValue, triple.predicate.nominalValue, triple.object.nominalValue])
         }
     }
 
     for(let triple of toGraph.toArray()) {
         if(!fromGraph.hasMatch(triple.subject, triple.predicate, triple.object)) {
             equal = false
-            diffs.push(text('Triple ' + JSON.stringify(triple) + ' is in comparison graph but not in current graph'))
+            inToOnly.push([triple.subject.nominalValue, triple.predicate.nominalValue, triple.object.nominalValue])
         }
     }
 
+    let out:OutputNode[] = []
+
     if(equal) {
-        diffs.push(text('Graphs were equal'))
+        out.push(text('Graphs were equal'))
+        return actionResult(group(out))
     } else {
-        diffs.push(text('Graphs were not equal'))
+        out.push(text('Graphs were not equal'))
+        out.push(spacer())
+
+
+        if(inFromOnly.length > 0) {
+            out.push(spacer())
+            out.push(text('In current graph but not comparison graph:'))
+            out.push(indent([
+                tabulated(inFromOnly)
+            ]))
+        }
+
+
+        if(inToOnly.length > 0) {
+            out.push(spacer())
+            out.push(text('In comparison graph but not current graph:'))
+            out.push(indent([
+                tabulated(inToOnly)
+            ]))
+        }
+
+        return actionResultAbort(group(out))
     }
 
-    return actionResult()
 }
 

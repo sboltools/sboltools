@@ -6,6 +6,7 @@
   "scripts": {
     "clean": "rm -rf dist",
     "build": "./node_modules/typescript/bin/tsc -d -p . --outDir dist",
+    "watch": "./node_modules/typescript/bin/tsc --watch -d -p . --outDir dist",
     "package": "./node_modules/webpack/bin/webpack.js",
     "makedist": "node ./makedist.js",
     "test": "NODE_PATH=dist node dist/test/run-tests.js"

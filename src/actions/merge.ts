@@ -10,6 +10,7 @@ import OptString from "./opt/OptString"
 import OptGraph from "./opt/OptGraph"
 import { strict as assert } from 'assert'
 import OutputNode from "../output/OutputNode"
+import { trace } from "../output/print"
 
 let action:ActionDef = {
     name: 'merge',

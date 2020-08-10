@@ -12,6 +12,7 @@ import dumpGraph from './dump-graph'
 import graph from './graph'
 import graphCompare from './compare'
 import graphMerge from './merge'
+import graphInsert from './insert'
 
 export default [
     _import,
@@ -26,6 +27,7 @@ export default [
     dumpGraph,
     graph,
     graphCompare,
-    graphMerge
+    graphMerge,
+    graphInsert
 ]
 

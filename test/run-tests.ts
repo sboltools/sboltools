@@ -1,4 +1,5 @@
 
+import tests_graphops from './graph-ops'
 import tests_sbol1 from './sbol1'
 import tests_sbol2 from './sbol2'
 import tests_sbol3 from './sbol3'
@@ -15,6 +16,7 @@ import { globalAgent } from 'http'
 import OutputNode from '../src/output/OutputNode'
 
 let tests:Test[] = [
+    //...tests_graphops
     //...tests_sbol1,
     ...tests_sbol2,
     //...tests_sbol3
