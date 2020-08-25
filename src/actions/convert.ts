@@ -28,7 +28,7 @@ let convertAction:ActionDef = {
             }
         },
         {
-            name: 'offline',
+            name: 'online',
             type: OptFlag,
             optional: true
         }
@@ -44,17 +44,17 @@ async function convert(gm:GraphMap, namedOpts:Opt[], positionalOpts:string[]):Pr
 
     let g = gm.getCurrentGraph()
 
-    let [ target, offline ] = namedOpts
+    let [ target, online ] = namedOpts
 
     assert(target instanceof OptSBOLVersion)
-    assert(offline instanceof OptFlag)
+    assert(online instanceof OptFlag)
 
     let sbolVersion = target.getSBOLVersion(g)
 
-    if(offline.isSet() || sbolVersion === SBOLVersion.SBOL3) {
-        return convertOffline(g, sbolVersion)
-    } else {
+    if(online.isSet()) {
         return convertVC(g, sbolVersion)
+    } else {
+        return convertOffline(g, sbolVersion)
     }
 }
 
@@ -62,7 +62,8 @@ async function convertOffline(g:Graph, sbolVersion:SBOLVersion):Promise<ActionRe
 
     if(sbolVersion === SBOLVersion.SBOL1) {
 
-        return new ActionResult(text('Offline conversion to SBOL1 is not yet implemented'), Outcome.Abort)
+        await SBOLConverter.convert3to2(g)
+        await SBOLConverter.convert2to1(g)
 
     } else if(sbolVersion === SBOLVersion.SBOL2) {
 

@@ -21,7 +21,7 @@ export function dnaComponentTree(gv:SBOL1GraphView):OutputNode {
             { 'foo': 'bar' },
             c.subComponents.map(dnaComponentToNode)
                 .concat(
-                    c.dnaSequences.map(dnaSequenceToNode)
+                    [c.dnaSequence].filter((seq) => seq !== undefined).map(dnaSequenceToNode)
                 )
         )
     }
