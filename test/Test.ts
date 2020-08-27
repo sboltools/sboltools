@@ -6,6 +6,7 @@ export default interface Test {
     name:string
 
     glob?:string[]
+    globExclude?:string[]
 
     command:string|((filename:string)=>string)
 

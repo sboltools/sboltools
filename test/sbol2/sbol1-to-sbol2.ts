@@ -10,7 +10,9 @@ let tests:Test[] = [
         name: 'Convert SBOL1 to SBOL2',
         glob: [
             'SBOLTestSuite/SBOL1/*.xml'
-            // 'SBOLTestSuite/SBOL1/labhost_All.xml'
+        ],
+        globExclude: [
+            'SBOLTestSuite/SBOL1/pACPc_invF.xml'
         ],
         command: (filename) => `
             --trace

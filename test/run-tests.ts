@@ -41,17 +41,21 @@ async function runTests() {
                 files = files.concat(await glob(g))
             }
 
-            let n:OutputNode[] = []
+            if(test.globExclude !== undefined) {
+                files = files.filter(f => {
+                    return test.globExclude?.indexOf(f) === -1
+                })
+            }
 
-            n.push(text('Glob ' + test.glob))
-            n.push(text(files.length + ' file(s)'))
+            print(text('Glob ' + test.glob))
+            print(text(files.length + ' file(s)'))
 
             for(let file of files) {
 
                 let c = (test.command as any)(file) 
 
-                n.push(text('===== TEST: ' + test.id + ': ' + test.name + ' ' + file, 'white bold'))
-                n.push(text('      command: ' + c, 'white bold'))
+                print(text('===== TEST: ' + test.id + ': ' + test.name + ' ' + file, 'white bold'))
+                print(text('      command: ' + c, 'white bold'))
 
                 await run(test, test.id + '#' + file.split('/').pop(), c)
 
@@ -94,12 +98,12 @@ async function runTests() {
 
         beginCaptureOutput()
 
-        // try {
+        try {
             var output = await sboltools(['node', 'just.a.unit.test'].concat(stringArgv(command)))
-        // } catch(e) {
-        //     print(indent([spacer(),text('--- ' + test.id + ' failed at execution stage: ' + e, 'red bold')]))
-        //     pass = false
-        // }
+        } catch(e) {
+            print(indent([spacer(),text('--- ' + test.id + ' failed at execution stage: ' + e, 'red bold')]))
+            pass = false
+        }
 
         let captured:CapturedNode[] = endCaptureOutput()
 
@@ -112,7 +116,8 @@ async function runTests() {
                         t = chalk.dim(t)
                         return multiline(t)
                     } else {
-                        return node.node
+                        let t = tostring(0, node.node)
+                        return multiline(t)
                     }
                 })
             )

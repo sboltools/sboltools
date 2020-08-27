@@ -27,15 +27,14 @@ async function dumpGraph(gm:GraphMap,  namedOpts:Opt[], positionalOpts:string[])
 
     let g = gm.getCurrentGraph()
 
-    trace(group([
+    return actionResult(group([
+        spacer(),
         header('Graph dump'),
         spacer(),
         indent([
             text(new SBOL3GraphView(g).serializeXML())
         ])
     ]))
-
-    return actionResult()
 
 }
 
