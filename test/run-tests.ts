@@ -16,10 +16,10 @@ import { globalAgent } from 'http'
 import OutputNode from '../src/output/OutputNode'
 
 let tests:Test[] = [
-    //...tests_graphops
+    // ...tests_graphops
     //...tests_sbol1,
-    ...tests_sbol2,
-    //...tests_sbol3
+    //...tests_sbol2,
+    ...tests_sbol3
 ]
 
 runTests()

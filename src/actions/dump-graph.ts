@@ -10,11 +10,17 @@ import Opt from "./opt/Opt"
 import { trace } from "../output/print"
 import { SBOL3GraphView } from "sbolgraph"
 import GraphMap from "../GraphMap"
+import OptString from "./opt/OptString"
 
 let action:ActionDef = {
     name: 'graph-dump',
     category: 'graphops',
     namedOpts: [
+        {
+            name: 'title',
+            type: OptString,
+            optional: true
+        }
     ],
     positionalOpts: [
     ],
@@ -27,9 +33,17 @@ async function dumpGraph(gm:GraphMap,  namedOpts:Opt[], positionalOpts:string[])
 
     let g = gm.getCurrentGraph()
 
+    let [ titleOpt ] = namedOpts
+
+    let title = 'Graph dump'
+
+    if(titleOpt) {
+        title += ': ' + (titleOpt as OptString).getString(g)
+    }
+
     return actionResult(group([
         spacer(),
-        header('Graph dump'),
+        header(title),
         spacer(),
         indent([
             text(new SBOL3GraphView(g).serializeXML())

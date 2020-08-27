@@ -62,15 +62,21 @@ async function convertOffline(g:Graph, sbolVersion:SBOLVersion):Promise<ActionRe
 
     if(sbolVersion === SBOLVersion.SBOL1) {
 
+        trace(text('Offline converting 3->2 and 2->1'))
+
         await SBOLConverter.convert3to2(g)
         await SBOLConverter.convert2to1(g)
 
     } else if(sbolVersion === SBOLVersion.SBOL2) {
 
+        trace(text('Offline converting 1->2 and 3->2'))
+
         await SBOLConverter.convert1to2(g)
         await SBOLConverter.convert3to2(g)
 
     } else if(sbolVersion === SBOLVersion.SBOL3) {
+
+        trace(text('Offline converting 1->2 and 2->3'))
 
         await SBOLConverter.convert1to2(g)
         await SBOLConverter.convert2to3(g)

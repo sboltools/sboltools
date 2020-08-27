@@ -74,14 +74,14 @@ async function graphCompare(gm:GraphMap,  namedOpts:Opt[], positionalOpts:string
     let typesInTo:string[][] = []
 
     for(let subject of subjects) {
-        let type = triple.objectUri(fromGraph.match(subject, Predicates.a, null)[0]) + ''
+        let type = triple.objectUri(fromGraph.match(subject, Predicates.a, null)[0])
 
         if(type)
             typesInFrom.push([ subject, 'a', type ])
     }
 
     for(let subject of subjects) {
-        let type = triple.objectUri(toGraph.match(subject, Predicates.a, null)[0]) + ''
+        let type = triple.objectUri(toGraph.match(subject, Predicates.a, null)[0])
 
         if(type)
             typesInTo.push([ subject, 'a', type ])
