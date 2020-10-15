@@ -1,6 +1,9 @@
 
 name: sboltools docs workflow
-on: push
+on:
+  push:
+    branches:
+      - master
 jobs:
   build:
     name: sboltools docs job
@@ -38,7 +41,8 @@ jobs:
             mkdir -p _data
             cp ../actions.json _data/
             git add _data
-            git config user.name "sbolbot" && git config user.email "sbolbot@sboltools.org"
+            git config user.name "GitHub Actions" && git config user.email "actions@users.noreply.github.com"
             git commit -m "Update generated docs via GitHub action"
+            git config -l | grep 'http\..*\.extraheader' | cut -d= -f1 | xargs -L1 git config --unset-all
             git push https://sbolbot:$GITHUB_TOKEN@github.com/sboltools/sboltools.github.io.git master
 
