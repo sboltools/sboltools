@@ -17,8 +17,8 @@ import OutputNode from '../src/output/OutputNode'
 
 let tests:Test[] = [
     // ...tests_graphops
-    //...tests_sbol1,
-    //...tests_sbol2,
+    // ...tests_sbol1,
+    // ...tests_sbol2,
     ...tests_sbol3
 ]
 
@@ -101,7 +101,7 @@ async function runTests() {
         try {
             var output = await sboltools(['node', 'just.a.unit.test'].concat(stringArgv(command)))
         } catch(e) {
-            print(indent([spacer(),text('--- ' + test.id + ' failed at execution stage: ' + e, 'red bold')]))
+            print(indent([spacer(),text('--- ' + test.id + ' failed at execution stage: ' + e, 'red bold'),indent([multiline(e.stack, 'red bold')])]))
             pass = false
         }
 

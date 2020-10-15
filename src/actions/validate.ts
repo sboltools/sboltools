@@ -1,7 +1,7 @@
 
 import { text, group, spacer, header, indent, conditional } from "../output/output"
 import { Graph } from "rdfoo"
-import { SBOL1GraphView, SBOL2GraphView, SBOLImporter, SBOL3GraphView } from "sbolgraph"
+import { SBOL1GraphView, SBOL2GraphView, SBOL3GraphView } from "sbolgraph"
 import fetch = require('node-fetch')
 import ActionResult, { actionResult, Outcome } from "./ActionResult"
 import OutputNode from "../output/OutputNode"

@@ -1,6 +1,6 @@
 
 
-import { SBOL3GraphView, Graph, SBOL1GraphView, SBOL2GraphView, SBOLImporter } from 'sbolgraph'
+import { SBOL3GraphView, Graph, SBOL1GraphView, SBOL2GraphView } from 'sbolgraph'
 
 import { print, enableTrace, trace } from './output/print'
 

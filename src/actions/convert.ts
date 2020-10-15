@@ -1,7 +1,7 @@
 
 import { text, group, spacer, header, indent, conditional } from "../output/output"
 import { Graph } from "rdfoo"
-import { SBOLConverter, SBOL3GraphView, SBOL2GraphView, SBOL1GraphView, SBOLImporter } from "sbolgraph"
+import { SBOLConverter, SBOL3GraphView, SBOL2GraphView, SBOL1GraphView } from "sbolgraph"
 import ActionResult, { Outcome, actionResult } from "./ActionResult"
 import ActionDef from "./ActionDef"
 import OptSBOLVersion from "./opt/OptSBOLVersion"

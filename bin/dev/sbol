@@ -1,3 +1,3 @@
 #!/usr/bin/env node
 
-require(__dirname + '/../../dist/main')
+require(__dirname + '/../../dist/src/main')

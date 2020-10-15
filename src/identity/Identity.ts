@@ -1,4 +1,4 @@
-import { Graph, SBOLImporter, triple, SBOL1GraphView, S1DnaComponent, S1Collection, S2Identified, SBOL2GraphView, SBOL3GraphView, S3Identified } from "sbolgraph"
+import { Graph, triple, SBOL1GraphView, S1DnaComponent, S1Collection, S2Identified, SBOL2GraphView, SBOL3GraphView, S3Identified } from "sbolgraph"
 import { SBOLVersion } from "../util/get-sbol-version-from-graph"
 import joinURIFragments from "../util/join-uri-fragments"
 import { Predicates, Types } from "bioterms"
