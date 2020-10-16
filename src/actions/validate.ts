@@ -7,7 +7,7 @@ import ActionResult, { actionResult, Outcome } from "./ActionResult"
 import OutputNode from "../output/OutputNode"
 import ActionDef from "./ActionDef"
 import Opt from "./opt/Opt"
-import GraphMap from "../GraphMap"
+import Context from "../Context"
 import { SBOLVersion, getSBOLVersionFromGraph } from "../util/get-sbol-version-from-graph"
 import OptSBOLVersion from "./opt/OptSBOLVersion"
 import assert = require("assert")
@@ -27,7 +27,7 @@ let vcValidateAction:ActionDef = {
 
 export default vcValidateAction
 
-async function vcValidate(gm:GraphMap,  namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
+async function vcValidate(ctx:Context,  namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
 
     // let target = opts.getString('target', 'sbol2').toUpperCase()
     // let check_uri_compliance = opts.getBoolean('check-uri-compliance', true)
@@ -40,7 +40,7 @@ async function vcValidate(gm:GraphMap,  namedOpts:Opt[], positionalOpts:string[]
     // let version = opts.getString('version', '')
     // let insert_type = opts.getBoolean('insert-type', false)
 
-    let g = gm.getCurrentGraph()
+    let g = ctx.getCurrentGraph()
 
     let sourceVersion:SBOLVersion = getSBOLVersionFromGraph(g)
     let xml = ''

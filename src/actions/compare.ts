@@ -5,7 +5,7 @@ import ActionResult, { actionResult, actionResultAbort } from "./ActionResult"
 import fs = require('fs')
 import ActionDef from "./ActionDef"
 import Opt from "./opt/Opt"
-import GraphMap from "../GraphMap"
+import Context from "../Context"
 import OptString from "./opt/OptString"
 import OptGraph from "./opt/OptGraph"
 import { strict as assert } from 'assert'
@@ -31,14 +31,14 @@ let action:ActionDef = {
 
 export default action
 
-async function graphCompare(gm:GraphMap,  namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
+async function graphCompare(ctx:Context,  namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
 
     let [ to ] = namedOpts
 
     assert(to instanceof OptGraph)
 
-    let fromGraph = gm.getCurrentGraph()
-    let toGraph = (to as OptGraph).getGraph(gm)
+    let fromGraph = ctx.getCurrentGraph()
+    let toGraph = (to as OptGraph).getGraph(ctx)
 
     assert(toGraph)
 

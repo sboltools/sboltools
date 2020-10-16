@@ -8,7 +8,7 @@ import OptSBOLVersion from "./opt/OptSBOLVersion"
 import Opt from "./opt/Opt"
 import { strict as assert } from 'assert'
 import { SBOLVersion } from "../util/get-sbol-version-from-graph"
-import GraphMap from "../GraphMap"
+import Context from "../Context"
 import OptFlag from "./opt/OptFlag"
 import action from "./dump-graph"
 import OutputNode from "../output/OutputNode"
@@ -40,9 +40,9 @@ let convertAction:ActionDef = {
 
 export default convertAction
 
-async function convert(gm:GraphMap, namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
+async function convert(ctx:Context, namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
 
-    let g = gm.getCurrentGraph()
+    let g = ctx.getCurrentGraph()
 
     let [ target, online ] = namedOpts
 

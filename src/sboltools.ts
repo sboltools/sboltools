@@ -14,7 +14,9 @@ import chalk = require('chalk')
 import { text, spacer, group } from './output/output'
 import ActionDef, { def2usage } from './actions/ActionDef'
 import Opt from './actions/opt/Opt'
-import GraphMap from './GraphMap'
+import Context from './Context'
+
+
 export default async function sboltools(args:string[]):Promise<string|undefined> {
 
     // console.dir(args)
@@ -41,7 +43,7 @@ export default async function sboltools(args:string[]):Promise<string|undefined>
 
     let graphs:Map<string,Graph> = new Map()
 
-    let gm = new GraphMap()
+    let ctx = new Context()
 
 
     let aborted = false
@@ -52,6 +54,7 @@ export default async function sboltools(args:string[]):Promise<string|undefined>
 
         if(actDef === undefined) {
             print(text('Unknown action: ' + action.name))
+            aborted = true
             break
         }
 
@@ -64,7 +67,7 @@ export default async function sboltools(args:string[]):Promise<string|undefined>
         let err = false
 
         try {
-            var actionResult:ActionResult = await actDef.run(gm, namedOpts, action.positionalOpts)
+            var actionResult:ActionResult = await actDef.run(ctx, namedOpts, action.positionalOpts)
         } catch(e) {
             if(e instanceof ActionResult) {
                 actionResult = e
@@ -110,14 +113,14 @@ export default async function sboltools(args:string[]):Promise<string|undefined>
     } else {
         switch(output) {
             case 'summary':
-                summarize(gm.getCurrentGraph())
+                summarize(ctx.getCurrentGraph())
                 break
             case 'sbol1':
-                return new SBOL1GraphView(gm.getCurrentGraph()).serializeXML()
+                return new SBOL1GraphView(ctx.getCurrentGraph()).serializeXML()
             case 'sbol2':
-                return new SBOL2GraphView(gm.getCurrentGraph()).serializeXML()
+                return new SBOL2GraphView(ctx.getCurrentGraph()).serializeXML()
             case 'sbol3':
-                return new SBOL3GraphView(gm.getCurrentGraph()).serializeXML()
+                return new SBOL3GraphView(ctx.getCurrentGraph()).serializeXML()
             case 'fasta':
                 print(text(chalk.red('FASTA output not yet supported')))
                 break

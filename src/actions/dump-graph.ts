@@ -9,7 +9,7 @@ import ActionDef from "./ActionDef"
 import Opt from "./opt/Opt"
 import { trace } from "../output/print"
 import { SBOL3GraphView } from "sbolgraph"
-import GraphMap from "../GraphMap"
+import Context from "../Context"
 import OptString from "./opt/OptString"
 
 let action:ActionDef = {
@@ -29,9 +29,9 @@ let action:ActionDef = {
 
 export default action
 
-async function dumpGraph(gm:GraphMap,  namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
+async function dumpGraph(ctx:Context,  namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
 
-    let g = gm.getCurrentGraph()
+    let g = ctx.getCurrentGraph()
 
     let [ titleOpt ] = namedOpts
 

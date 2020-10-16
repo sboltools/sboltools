@@ -7,7 +7,7 @@ import ActionResult from "./ActionResult"
 import fs = require('fs')
 import ActionDef from "./ActionDef"
 import Opt from "./opt/Opt"
-import GraphMap from "../GraphMap"
+import Context from "../Context"
 
 let renderAction:ActionDef = {
     name: 'synbiocad-render',
@@ -21,7 +21,7 @@ let renderAction:ActionDef = {
 
 export default renderAction
 
-async function render(gm:GraphMap,  namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
+async function render(ctx:Context,  namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
 
     // let format = opts.filter(o => o.name === 'format')[0]?.value
     // let filename = opts.filter(o => o.name === 'filename')[0]?.value

@@ -14,6 +14,7 @@ import { match } from "assert";
 import { assert } from "console";
 import { exists } from "fs";
 import { trace } from "../output/print";
+import sbol2CompliantConcat from "../util/sbol2-compliant-concat";
 
 export default class IdentityFactorySBOL2 extends IdentityFactory {
     from_namespace_and_identity(existence:Existence, g: Graph, namespace: string, identity: string, version?: string | undefined): Identity {
@@ -274,7 +275,7 @@ export default class IdentityFactorySBOL2 extends IdentityFactory {
 
         trace(text(`SBOL2 child_from_namespace_context_displayId: namespace ${namespace}, context ${contextIdentity}, displayId ${displayId}`))
 
-        let context = this.from_namespace_and_identity(existence, g, namespace, contextIdentity, undefined)
+        let context = this.from_namespace_and_identity(Existence.MustExist, g, namespace, contextIdentity, undefined)
         assert(context.namespace === namespace)
 
 
@@ -303,21 +304,37 @@ export default class IdentityFactorySBOL2 extends IdentityFactory {
         }
 
         if(matches.length === 0) {
-            throw actionResultAbort(text(`No object with displayId ${displayId} and version ${version} found in context ${context}`))
+
+            // does not exist
+            if(existence === Existence.MustExist) {
+                throw actionResultAbort(text(`No object with displayId ${displayId} and version ${version} found in context ${context}`))
+            }
+
+            let childUri = sbol2CompliantConcat(g, parent.uri, displayId)
+
+            return new Identity(SBOLVersion.SBOL2, context.namespace, displayId, version, parent.uri, childUri)
+
+        } else {
+
+            assert(matches.length === 1)
+
+            if(existence === Existence.MustNotExist) {
+                throw actionResultAbort(text(`Object with displayId ${displayId} and version ${version} already exists in context ${context}`))
+            }
+            
+            let match = matches[0]
+
+            return new Identity(SBOLVersion.SBOL2, context.namespace, displayId, version, context.uri, match.uri)
+
         }
 
-        assert(matches.length === 1)
-        
-        let match = matches[0]
-
-        return new Identity(SBOLVersion.SBOL2, namespace, displayId, version, context.uri, match.uri)
     }
 
     child_from_context_displayId(existence:Existence, g: Graph, contextIdentity: string, displayId: string, version?: string | undefined): Identity {
 
         trace(text(`SBOL2 child_from_context_displayId: context ${contextIdentity}, displayId ${displayId}`))
 
-        let context = this.from_identity(existence, g, contextIdentity, undefined)
+        let context = this.from_identity(Existence.MustExist, g, contextIdentity, undefined)
 
         let parent = sbol2(g).uriToFacade(context.uri)
 
@@ -344,14 +361,29 @@ export default class IdentityFactorySBOL2 extends IdentityFactory {
         }
 
         if(matches.length === 0) {
-            throw actionResultAbort(text(`No object with displayId ${displayId} and version ${version} found in context ${context}`))
+
+            // does not exist
+            if(existence === Existence.MustExist) {
+                throw actionResultAbort(text(`No object with displayId ${displayId} and version ${version} found in context ${context}`))
+            }
+
+            let childUri = sbol2CompliantConcat(g, parent.uri, displayId)
+
+            return new Identity(SBOLVersion.SBOL2, context.namespace, displayId, version, parent.uri, childUri)
+
+        } else {
+
+            assert(matches.length === 1)
+
+            if(existence === Existence.MustNotExist) {
+                throw actionResultAbort(text(`Object with displayId ${displayId} and version ${version} already exists in context ${context}`))
+            }
+            
+            let match = matches[0]
+
+            return new Identity(SBOLVersion.SBOL2, context.namespace, displayId, version, context.uri, match.uri)
+
         }
-
-        assert(matches.length === 1)
-        
-        let match = matches[0]
-
-        return new Identity(SBOLVersion.SBOL2, context.namespace, displayId, version, context.uri, match.uri)
 
     }
 

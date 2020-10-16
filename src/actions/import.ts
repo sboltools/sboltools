@@ -12,7 +12,7 @@ import OptIdentity from "./opt/OptIdentity"
 import { Predicates, Types } from "bioterms"
 import OptURL from "./opt/OptURL"
 import OptString from "./opt/OptString"
-import GraphMap from "../GraphMap"
+import Context from "../Context"
 import * as fs from 'fs'
 import fetch from 'node-fetch'
 
@@ -48,9 +48,9 @@ for FASTA/GenBank imports defaults to SBOL3.
 
 export default createSequenceAction
 
-async function _import(gm:GraphMap,  namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
+async function _import(ctx:Context,  namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
 
-    let g = gm.getCurrentGraph()
+    let g = ctx.getCurrentGraph()
 
     let [ source ] = positionalOpts
     let [ _as ] = namedOpts

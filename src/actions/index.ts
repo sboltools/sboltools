@@ -5,6 +5,9 @@ import create_sequence from './create-sequence'
 import components from './components'
 import vcValidate from './validate'
 import createComponent from './create-component'
+import createModule from './create-module'
+import createInteraction from './create-interaction'
+import createParticipation from './create-participation'
 import render from './render'
 import annotate_range from './annotate-range'
 import addSubcomponent from './add-subcomponent'
@@ -13,6 +16,8 @@ import graph from './graph'
 import graphCompare from './compare'
 import graphMerge from './merge'
 import graphInsert from './insert'
+import namespace from './namespace'
+import sbolVersion from './sbol-version'
 
 export default [
     _import,
@@ -20,6 +25,9 @@ export default [
     components,
     vcValidate,
     createComponent,
+    createModule,
+    createInteraction,
+    createParticipation,
     create_sequence,
     render,
     annotate_range,
@@ -28,6 +36,8 @@ export default [
     graph,
     graphCompare,
     graphMerge,
-    graphInsert
+    graphInsert,
+    namespace,
+    sbolVersion
 ]
 

@@ -5,7 +5,7 @@ import ActionResult, { actionResult } from "./ActionResult"
 import fs = require('fs')
 import ActionDef from "./ActionDef"
 import Opt from "./opt/Opt"
-import GraphMap from "../GraphMap"
+import Context from "../Context"
 import OptString from "./opt/OptString"
 import OptGraph from "./opt/OptGraph"
 import { strict as assert } from 'assert'
@@ -29,14 +29,14 @@ let action:ActionDef = {
 
 export default action
 
-async function graphMerge(gm:GraphMap,  namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
+async function graphMerge(ctx:Context,  namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
 
     let [ from ] = namedOpts
 
     assert(from instanceof OptGraph)
 
-    let toGraph = gm.getCurrentGraph()
-    let fromGraph = (from as OptGraph).getGraph(gm)
+    let toGraph = ctx.getCurrentGraph()
+    let fromGraph = (from as OptGraph).getGraph(ctx)
 
     assert(fromGraph)
 

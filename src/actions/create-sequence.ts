@@ -13,7 +13,7 @@ import { Predicates, Types } from "bioterms"
 import OptURL from "./opt/OptURL"
 import OptString from "./opt/OptString"
 import { Existence } from "../identity/IdentityFactory"
-import GraphMap from "../GraphMap"
+import Context from "../Context"
 
 let createSequenceAction:ActionDef = {
     name: 'create-sequence',
@@ -51,9 +51,9 @@ If such inference is not possible (e.g. no component is specified, or the specif
 
 export default createSequenceAction
 
-async function createSequence(gm:GraphMap, namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
+async function createSequence(ctx:Context, namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
 
-    let g = gm.getCurrentGraph()
+    let g = ctx.getCurrentGraph()
 
     let [ optIdentity, optForComponentIdentity, optSource, optEncoding ] = namedOpts
 
@@ -62,7 +62,7 @@ async function createSequence(gm:GraphMap, namedOpts:Opt[], positionalOpts:strin
     assert(optSource instanceof OptURL)
     assert(optEncoding instanceof OptString)
 
-    let identity = optIdentity.getIdentity(g, Existence.MustExist)
+    let identity = optIdentity.getIdentity(ctx, Existence.MustExist)
     assert(identity !== undefined)
 
     if(identity.sbolVersion === SBOLVersion.SBOL1) {

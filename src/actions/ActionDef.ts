@@ -2,7 +2,7 @@ import ActionResult from "./ActionResult";
 import { Graph } from "sbolgraph";
 import Opt from "./opt/Opt";
 import { ArgvOptionSet } from "../parse-argv";
-import GraphMap from "../GraphMap";
+import Context from "../Context";
 
 export default interface ActionDef {
     name: string,
@@ -23,7 +23,7 @@ export default interface ActionDef {
     namedOpts: OptDef[],
     positionalOpts: OptDef[],
 
-    run: (gm: GraphMap, namedOpts: Opt[], positionalOpts: string[]) => Promise<ActionResult>
+    run: (ctx: Context, namedOpts: Opt[], positionalOpts: string[]) => Promise<ActionResult>
 }
 
 export interface OptDef {

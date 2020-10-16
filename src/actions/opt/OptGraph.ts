@@ -7,7 +7,7 @@ import { text } from "../../output/output";
 import ActionDef, { OptDef } from "../ActionDef";
 import { getConsensusSBOLVersion, ConsensusVersion } from "./helper/get-consensus-sbol-version";
 import { ArgvOptionSet } from "../../parse-argv";
-import GraphMap from "../../GraphMap";
+import Context from "../../Context";
 
 export default class OptGraphName extends Opt {
 
@@ -16,9 +16,9 @@ export default class OptGraphName extends Opt {
     }
 
 
-    getGraph(gm:GraphMap):Graph|undefined {
+    getGraph(ctx:Context):Graph|undefined {
         let s = this.argv.getString(this.optDef.name, '')
-        let g = gm.getGraph(s)
+        let g = ctx.getGraph(s)
         return g
     }
 

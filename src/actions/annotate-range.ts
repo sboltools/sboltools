@@ -14,7 +14,7 @@ import OptURL from "./opt/OptURL"
 import OptString from "./opt/OptString"
 import Opt1BasedInt from "./opt/Opt1BasedInt"
 import { Existence } from "../identity/IdentityFactory"
-import GraphMap from "../GraphMap"
+import Context from "../Context"
 
 let annotateRangeAction:ActionDef = {
     name: 'annotate-range',
@@ -51,18 +51,18 @@ let annotateRangeAction:ActionDef = {
 
 export default annotateRangeAction
 
-async function annotateRange(gm: GraphMap, namedOpts: Opt[], positionalOpts: string[]): Promise<ActionResult> {
+async function annotateRange(ctx: Context, namedOpts: Opt[], positionalOpts: string[]): Promise<ActionResult> {
 
     let [ optIdentity, optInComponentIdentity, optSource, optEncoding ] = namedOpts
 
-    let g = gm.getCurrentGraph()
+    let g = ctx.getCurrentGraph()
 
     assert(optIdentity instanceof OptIdentity)
     assert(optInComponentIdentity instanceof OptIdentity)
     assert(optSource instanceof OptURL)
     assert(optEncoding instanceof OptString)
 
-    let identity = optIdentity.getIdentity(g, Existence.MustExist)
+    let identity = optIdentity.getIdentity(ctx, Existence.MustExist)
     assert(identity !== undefined)
 
     if(identity.sbolVersion === SBOLVersion.SBOL1) {

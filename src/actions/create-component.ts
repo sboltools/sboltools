@@ -18,7 +18,7 @@ import Identity from "../identity/Identity"
 import sbol2CompliantConcat from "../util/sbol2-compliant-concat"
 import joinURIFragments from "../util/join-uri-fragments"
 import { trace } from "../output/print";
-import GraphMap from "../GraphMap"
+import Context from "../Context"
 
 let createComponentAction:ActionDef = {
     name: 'create-component',
@@ -42,9 +42,9 @@ let createComponentAction:ActionDef = {
 
 export default createComponentAction
 
-async function createComponent(gm:GraphMap, namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
+async function createComponent(ctx:Context, namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
 
-    let g = gm.getCurrentGraph()
+    let g = ctx.getCurrentGraph()
 
     trace(text('createComponent'))
 
@@ -55,11 +55,11 @@ async function createComponent(gm:GraphMap, namedOpts:Opt[], positionalOpts:stri
 
 
     trace(text(`Getting withinComponentIdentity`))
-    let withinComponentIdentity = optWithinComponentIdentity.getIdentity(g, Existence.MustExist)
+    let withinComponentIdentity = optWithinComponentIdentity.getIdentity(ctx, Existence.MustExist)
     trace(text(`Got withinComponentIdentity: ${withinComponentIdentity}`))
 
 
-    let identity = optIdentity.getIdentity(g, Existence.MustNotExist, withinComponentIdentity)
+    let identity = optIdentity.getIdentity(ctx, Existence.MustNotExist, withinComponentIdentity)
     assert(identity !== undefined)
 
     if(identity.parentURI) {

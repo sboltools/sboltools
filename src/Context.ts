@@ -1,14 +1,19 @@
 import { Graph } from "rdfoo";
+import { SBOLVersion } from "./util/get-sbol-version-from-graph";
 
-export default class GraphMap {
+export default class Context {
 
     graphs:Map<string,Graph>
     currentGraph:Graph
+    currentNamespace:string
+    sbolVersion:SBOLVersion
 
     constructor() {
         this.graphs = new Map()
         this.currentGraph = new Graph()
         this.graphs.set('default', this.currentGraph)
+        this.currentNamespace = ''
+        this.sbolVersion = SBOLVersion.Empty
     }
 
     getCurrentGraph():Graph {
