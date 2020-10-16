@@ -19,6 +19,7 @@ import sbol2CompliantConcat from "../util/sbol2-compliant-concat"
 import joinURIFragments from "../util/join-uri-fragments"
 import { trace } from "../output/print";
 import Context from "../Context"
+import OptTerm, { TermType } from "./opt/OptTerm"
 
 let createInteractionAction:ActionDef = {
     name: 'create-interaction',
@@ -33,6 +34,11 @@ let createInteractionAction:ActionDef = {
             name: 'within-component',
             type: OptIdentity,
             optional: true
+        },
+        {
+            name: 'role',
+            type: OptTerm,
+            optional: false
         }
     ],
     positionalOpts: [  
@@ -48,10 +54,11 @@ async function createInteraction(ctx:Context, namedOpts:Opt[], positionalOpts:st
 
     trace(text('createInteraction'))
 
-    let [ optIdentity, optWithinComponentIdentity ] = namedOpts
+    let [ optIdentity, optWithinComponentIdentity, optRole ] = namedOpts
 
     assert(optIdentity instanceof OptIdentity)
     assert(optWithinComponentIdentity instanceof OptIdentity)
+    assert(optRole instanceof OptTerm)
 
 
     
@@ -73,11 +80,14 @@ async function createInteraction(ctx:Context, namedOpts:Opt[], positionalOpts:st
         throw new ActionResult(text('Components cannot have parents, as they are designated top-level. To specify a component-subcomponent relationship, use the --within-component option.'), Outcome.Abort)
     }
 
+    let role = optRole.getTerm(TermType.Role)
+    assert(role)
+
     switch(identity.sbolVersion) {
         case SBOLVersion.SBOL2:
-            return createInteractionSBOL2(g, identity, withinComponentIdentity)
+            return createInteractionSBOL2(g, identity, withinComponentIdentity, role)
         case SBOLVersion.SBOL3:
-            return createInteractionSBOL3(g, identity, withinComponentIdentity)
+            return createInteractionSBOL3(g, identity, withinComponentIdentity, role)
         default:
             throw new ActionResult(text('Unsupported SBOL version for create-component'))
     }
@@ -85,13 +95,14 @@ async function createInteraction(ctx:Context, namedOpts:Opt[], positionalOpts:st
     return new ActionResult()
 }
 
-function createInteractionSBOL2(g:Graph, identity:Identity, withinComponentIdentity:Identity):ActionResult {
+function createInteractionSBOL2(g:Graph, identity:Identity, withinComponentIdentity:Identity, role:string):ActionResult {
 
     let gv = new SBOL2GraphView(g)
 
     g.insertProperties(identity.uri, {
         [Predicates.a]: node.createUriNode(Types.SBOL2.Interaction),
-        [Predicates.SBOL2.displayId]: node.createStringNode(identity.displayId)
+        [Predicates.SBOL2.displayId]: node.createStringNode(identity.displayId),
+        [Predicates.SBOL2.role]: node.createUriNode(role)
     })
 
     if(identity.version !== undefined) {
@@ -108,7 +119,7 @@ function createInteractionSBOL2(g:Graph, identity:Identity, withinComponentIdent
 }
 
 
-function createInteractionSBOL3(g:Graph, identity:Identity, withinComponentIdentity:Identity):ActionResult {
+function createInteractionSBOL3(g:Graph, identity:Identity, withinComponentIdentity:Identity, role:string):ActionResult {
 
     let gv = new SBOL3GraphView(g)
 
@@ -120,6 +131,7 @@ function createInteractionSBOL3(g:Graph, identity:Identity, withinComponentIdent
     g.insertProperties(namespace, {
         [Predicates.a]: node.createUriNode(Types.SBOL3.Namespace),
         [Predicates.SBOL3.member]: node.createUriNode(identity.uri),
+        [Predicates.SBOL3.role]: node.createUriNode(role)
     })
 
     g.insertProperties(identity.uri, {

@@ -37,15 +37,28 @@ export default class OptIdentity extends Opt {
 
 
 
+
         if(this.optDef.name === '') {
+
+            // anon identity (default identity for an action, like create-component .some.identity)
 
             let anonIdChain = this.argv.getIdentityChain()
 
             if(anonIdChain !== undefined) {
                 identity = anonIdChain
             }
-        }
 
+
+        } else {
+
+            // param identity (identity for an action param, like create-component --within-component .some.identity)
+
+            let identityOpt = this.argv.getString(this.optDef.name, '')
+
+            if(identityOpt) {
+                identity = identityOpt
+            }
+        }
 
         trace(text(`get identity: relatedIdentity ${relatedIdentity}`))
 
@@ -123,6 +136,8 @@ export default class OptIdentity extends Opt {
 
         let allOptions = { namespace, displayId, context, identity }
 
+        trace(text('allOptions: ' + JSON.stringify(allOptions)))
+
         let anyCombinations:IdentityParamCombination[] = [
 
             { namespace, identity, // TL or child (child only possible if identity is chain which indicates context)
@@ -193,19 +208,26 @@ export default class OptIdentity extends Opt {
 }
 
 function badCombo(action:string, paramPrefix:string):ActionResult {
+
     let paramName = paramPrefix.slice(0, -1)
+
+    let opts = [
+        [`--${paramPrefix}identity`, `Identifies a top-level, or a child if --${paramPrefix}identity is an identity chain and provides context`],
+        [`--${paramPrefix}namespace, --${paramPrefix}displayId`, `Identifies a top-level`],
+        [`--${paramPrefix}namespace, --${paramPrefix}identity`, `Identifies a top-level, or a child if --${paramPrefix}identity is an identity chain and provides context`],
+        [`--${paramPrefix}displayId`, `Identifies a top-level`],
+        [`--${paramPrefix}namespace, --${paramPrefix}context, --${paramPrefix}displayId`, `Identifies a child object`],
+        [`--${paramPrefix}context, --${paramPrefix}displayId`, `Identifies a child object`]
+    ]
+
+    if(paramName) {
+        opts.unshift([`--${paramName}`, `Identifies a top-level, or a child if --${paramName} is an identity chain and provides context`])
+    }
+
     return actionResultAbort(group([
         text(`Please specify a valid combination of identity parameters${paramPrefix ? ' for --' + paramName : ''}.  The following combinations are supported:`),
         spacer(),
-        tabulated([
-                [ `--${paramPrefix}namespace, --${paramPrefix}identity`, `Identifies a top-level, or a child if --${paramPrefix}identity is an identity chain and provides context` ],
-                [ `--${paramPrefix}identity`, `Identifies a top-level, or a child if --${paramPrefix}identity is an identity chain and provides context` ],
-                [ `--${paramPrefix}namespace, --${paramPrefix}displayId`, `Identifies a top-level` ],
-                [ `--${paramPrefix}displayId`, `Identifies a top-level` ],
-                [ `--${paramPrefix}namespace, --${paramPrefix}context, --${paramPrefix}displayId`, `Identifies a child object` ],
-                [ `--${paramPrefix}context, --${paramPrefix}displayId`, `Identifies a child object` ]
-            ]
-        )
+        tabulated(opts)
     ]))
 
 }

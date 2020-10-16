@@ -15,6 +15,7 @@ import { assert } from "console";
 import { exists } from "fs";
 import { trace } from "../output/print";
 import sbol2CompliantConcat from "../util/sbol2-compliant-concat";
+import isTopLevelType from "../util/is-toplevel-type";
 
 export default class IdentityFactorySBOL2 extends IdentityFactory {
     from_namespace_and_identity(existence:Existence, g: Graph, namespace: string, identity: string, version?: string | undefined): Identity {
@@ -103,6 +104,7 @@ export default class IdentityFactorySBOL2 extends IdentityFactory {
             return new Identity(SBOLVersion.SBOL2, namespace, displayId, version, undefined, identity)
         }
     }
+
     from_identity(existence:Existence, g: Graph, identity: string, version?: string | undefined): Identity {
 
         trace(text(`SBOL2 from_identity: identity ${identity}, version ${version}`))
@@ -198,6 +200,13 @@ export default class IdentityFactorySBOL2 extends IdentityFactory {
         if(version !== undefined) {
             matches = matches.filter(uri => g.hasMatch(uri as string, Predicates.SBOL2.version, node.createStringNode(version)))
         }
+
+        matches = matches.filter(uri => {
+            let type = triple.objectUri(
+                g.matchOne(uri as string, Predicates.a, null)
+            )
+            return isTopLevelType(type as string)
+        })
             
         if(matches.length > 0) {
 

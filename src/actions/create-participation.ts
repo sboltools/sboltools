@@ -19,6 +19,7 @@ import sbol2CompliantConcat from "../util/sbol2-compliant-concat"
 import joinURIFragments from "../util/join-uri-fragments"
 import { trace } from "../output/print";
 import Context from "../Context"
+import OptTerm, { TermType } from "./opt/OptTerm"
 
 let createParticipationAction:ActionDef = {
     name: 'create-participation',
@@ -33,6 +34,16 @@ let createParticipationAction:ActionDef = {
             name: 'within-interaction',
             type: OptIdentity,
             optional: true
+        },
+        {
+            name: 'participant',
+            type: OptIdentity,
+            optional: true
+        },
+        {
+            name: 'role',
+            type: OptTerm,
+            optional: false
         }
     ],
     positionalOpts: [  
@@ -48,10 +59,12 @@ async function createParticipation(ctx:Context, namedOpts:Opt[], positionalOpts:
 
     trace(text('createParticipation'))
 
-    let [ optIdentity, optWithinInteractionIdentity ] = namedOpts
+    let [ optIdentity, optWithinInteractionIdentity, optParticipant, optRole ] = namedOpts
 
     assert(optIdentity instanceof OptIdentity)
     assert(optWithinInteractionIdentity instanceof OptIdentity)
+    assert(optParticipant instanceof OptIdentity)
+    assert(optRole instanceof OptTerm)
 
 
     
@@ -73,11 +86,23 @@ async function createParticipation(ctx:Context, namedOpts:Opt[], positionalOpts:
         throw new ActionResult(text('Components cannot have parents, as they are designated top-level. To specify a component-subcomponent relationship, use the --within-component option.'), Outcome.Abort)
     }
 
+
+
+    let participantIdentity = optParticipant.getIdentity(ctx, Existence.MustExist, withinInteractionIdentity)
+    assert(participantIdentity)
+
+
+
+    let role = optRole.getTerm(TermType.ParticipationRole)
+    assert(role)
+
+
+
     switch(identity.sbolVersion) {
         case SBOLVersion.SBOL2:
-            return createParticipationSBOL2(g, identity, withinInteractionIdentity)
+            return createParticipationSBOL2(g, identity, withinInteractionIdentity, participantIdentity, role)
         case SBOLVersion.SBOL3:
-            return createParticipationSBOL3(g, identity, withinInteractionIdentity)
+            return createParticipationSBOL3(g, identity, withinInteractionIdentity, participantIdentity, role)
         default:
             throw new ActionResult(text('Unsupported SBOL version for create-component'))
     }
@@ -85,13 +110,14 @@ async function createParticipation(ctx:Context, namedOpts:Opt[], positionalOpts:
     return new ActionResult()
 }
 
-function createParticipationSBOL2(g:Graph, identity:Identity, withinInteractionIdentity:Identity):ActionResult {
+function createParticipationSBOL2(g:Graph, identity:Identity, withinInteractionIdentity:Identity, participantIdentity:Identity, role:string):ActionResult {
 
     let gv = new SBOL2GraphView(g)
 
     g.insertProperties(identity.uri, {
-        [Predicates.a]: node.createUriNode(Types.SBOL2.ComponentDefinition),
-        [Predicates.SBOL2.displayId]: node.createStringNode(identity.displayId)
+        [Predicates.a]: node.createUriNode(Types.SBOL2.Participation),
+        [Predicates.SBOL2.displayId]: node.createStringNode(identity.displayId),
+        [Predicates.SBOL2.role]: node.createUriNode(role)
     })
 
     if(identity.version !== undefined) {
@@ -104,11 +130,17 @@ function createParticipationSBOL2(g:Graph, identity:Identity, withinInteractionI
         [Predicates.SBOL2.participation]: node.createUriNode(identity.uri),
     })
 
+    if(participantIdentity) {
+        g.insertProperties(identity.uri, {
+            [Predicates.SBOL2.participant]: node.createUriNode(participantIdentity.uri)
+        })
+    }
+
     return new ActionResult()
 }
 
 
-function createParticipationSBOL3(g:Graph, identity:Identity, withinInteractionIdentity:Identity):ActionResult {
+function createParticipationSBOL3(g:Graph, identity:Identity, withinInteractionIdentity:Identity, participantIdentity:Identity, role:string):ActionResult {
 
     let gv = new SBOL3GraphView(g)
 
@@ -123,13 +155,20 @@ function createParticipationSBOL3(g:Graph, identity:Identity, withinInteractionI
     })
 
     g.insertProperties(identity.uri, {
-        [Predicates.a]: node.createUriNode(Types.SBOL3.Component),
-        [Predicates.SBOL3.displayId]: node.createStringNode(identity.displayId)
+        [Predicates.a]: node.createUriNode(Types.SBOL3.Participation),
+        [Predicates.SBOL3.displayId]: node.createStringNode(identity.displayId),
+        [Predicates.SBOL3.role]: node.createUriNode(role)
     })
 
     g.insertProperties(withinInteractionIdentity.uri, {
-        [Predicates.SBOL2.participation]: node.createUriNode(identity.uri),
+        [Predicates.SBOL3.participation]: node.createUriNode(identity.uri),
     })
+
+    if(participantIdentity) {
+        g.insertProperties(identity.uri, {
+            [Predicates.SBOL3.participant]: node.createUriNode(participantIdentity.uri)
+        })
+    }
 
     return new ActionResult()
 }
