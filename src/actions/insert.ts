@@ -40,7 +40,7 @@ let action:ActionDef = {
 
 export default action
 
-async function graphInsert(ctx:Context,  namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
+async function graphInsert(ctx:Context,  namedOpts:Opt[], positionalOpts:Opt[]):Promise<ActionResult> {
 
     let [ subject, predicate, object ] = namedOpts
 

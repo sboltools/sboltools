@@ -7,6 +7,8 @@ import { text } from "../../output/output";
 import ActionDef, { OptDef } from "../ActionDef";
 import { getConsensusSBOLVersion, ConsensusVersion } from "./helper/get-consensus-sbol-version";
 import { ArgvOptionSet } from "../../parse-argv";
+import { trace } from "../../output/print";
+import * as fs from 'fs'
 
 export default class OptURL extends Opt {
 
@@ -15,8 +17,53 @@ export default class OptURL extends Opt {
     }
 
 
-    getURL(g:Graph):string {
+    getURL():string {
         return this.argv.getString(this.optDef.name, '')
     }
+    
+    async downloadToString():Promise<string> {
 
+        let url = this.getURL()
+
+        if(!url) {
+            return ''
+        }
+
+        trace(text('Downloading ' + url + '...'))
+
+        if (url.indexOf('http://') === 0 || url.indexOf('https://') === 0) {
+
+            let res = await fetch(url)
+            return await res.text()
+
+        } else if(url.indexOf('file:///') === 0) {
+
+            let res = await loadFile(url.split('file:///')[1])
+            return res + ''
+
+        } else {
+
+            // treat everything else as a filename
+
+            let res = await loadFile(url)
+            return res + ''
+
+        }
+
+    }
+
+}
+
+function loadFile(filename) {
+
+    return new Promise((resolve, reject) => {
+
+        fs.readFile(filename, (err, file) => {
+            if(err)
+                reject(err)
+            else
+                resolve(file)
+        })
+
+    })
 }

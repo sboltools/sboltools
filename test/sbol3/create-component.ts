@@ -11,7 +11,7 @@ let tests:Test[] = [
         command: `
             --trace
             --output sbol1
-            create-component --sbol-version 3 --namespace "http://example.com/" --displayId lac_inverter
+            component --sbol-version 3 --namespace "http://example.com/" --displayId lac_inverter
         `,
         validate: async (r:string|undefined) => {
 
@@ -37,9 +37,9 @@ let tests:Test[] = [
         command: `
             --trace
             --output sbol1
-            create-component --sbol-version 3 --namespace "http://example.com/" --displayId lac_inverter
+            component --sbol-version 3 --namespace "http://example.com/" --displayId lac_inverter
             dump-graph
-            create-component --within-component-displayId lac_inverter --displayId pLac
+            component --within-component-displayId lac_inverter --displayId pLac
         `,
         validate: async (r:string|undefined) => {
 

@@ -20,7 +20,7 @@ import isTopLevelType from "../util/is-toplevel-type";
 export default class IdentityFactorySBOL2 extends IdentityFactory {
     from_namespace_and_identity(existence:Existence, g: Graph, namespace: string, identity: string, version?: string | undefined): Identity {
 
-        trace(text(`SBOL2 from_namespace_and_identity: namespace ${namespace}, identity ${identity}, version ${version}`))
+        trace(text(`SBOL2 from_namespace_and_identity: existence ${existence}, namespace ${namespace}, identity ${identity}, version ${version}`))
 
         if (Chain.isChain(identity)) {
 
@@ -107,7 +107,7 @@ export default class IdentityFactorySBOL2 extends IdentityFactory {
 
     from_identity(existence:Existence, g: Graph, identity: string, version?: string | undefined): Identity {
 
-        trace(text(`SBOL2 from_identity: identity ${identity}, version ${version}`))
+        trace(text(`SBOL2 from_identity: existence ${existence}, identity ${identity}, version ${version}`))
 
         if (Chain.isChain(identity)) {
 
@@ -188,7 +188,7 @@ export default class IdentityFactorySBOL2 extends IdentityFactory {
 
     toplevel_from_namespace_displayId(existence:Existence, g: Graph, namespace: string, displayId: string, version?: string | undefined): Identity {
 
-        trace(text(`SBOL2 toplevel_from_namespace_displayId: namespace ${namespace}, displayId ${displayId}, version ${version}`))
+        trace(text(`SBOL2 toplevel_from_namespace_displayId: existence ${existence} namespace ${namespace}, displayId ${displayId}, version ${version}`))
 
         // It may already exist. Look for objects with that displayId, and check if prefixed with the supplied namespace.
         // TODO: this may not work correctly if there are namespaces prefixed with other namespaces?
@@ -282,7 +282,7 @@ export default class IdentityFactorySBOL2 extends IdentityFactory {
 
     child_from_namespace_context_displayId(existence:Existence, g: Graph, namespace: string, contextIdentity: string, displayId: string, version?: string | undefined): Identity {
 
-        trace(text(`SBOL2 child_from_namespace_context_displayId: namespace ${namespace}, context ${contextIdentity}, displayId ${displayId}`))
+        trace(text(`SBOL2 child_from_namespace_context_displayId: existence ${existence}, namespace ${namespace}, context ${contextIdentity}, displayId ${displayId}`))
 
         let context = this.from_namespace_and_identity(Existence.MustExist, g, namespace, contextIdentity, undefined)
         assert(context.namespace === namespace)
@@ -316,7 +316,7 @@ export default class IdentityFactorySBOL2 extends IdentityFactory {
 
             // does not exist
             if(existence === Existence.MustExist) {
-                throw actionResultAbort(text(`No object with displayId ${displayId} and version ${version} found in context ${context}`))
+                throw actionResultAbort(text(`No object with displayId ${displayId} and version ${version} found in context ${JSON.stringify(context)}`))
             }
 
             let childUri = sbol2CompliantConcat(g, parent.uri, displayId)
@@ -373,7 +373,7 @@ export default class IdentityFactorySBOL2 extends IdentityFactory {
 
             // does not exist
             if(existence === Existence.MustExist) {
-                throw actionResultAbort(text(`No object with displayId ${displayId} and version ${version} found in context ${context}`))
+                throw actionResultAbort(text(`No object with displayId ${displayId} and version ${version} found in context ${JSON.stringify(context)}`))
             }
 
             let childUri = sbol2CompliantConcat(g, parent.uri, displayId)

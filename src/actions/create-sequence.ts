@@ -7,16 +7,20 @@ import ActionDef from "./ActionDef"
 import OptSBOLVersion from "./opt/OptSBOLVersion"
 import { strict as assert } from 'assert'
 import { SBOLVersion } from "../util/get-sbol-version-from-graph"
-import { SBOL1GraphView } from "sbolgraph"
+import { S2ComponentDefinition, SBOL1GraphView, SBOL2GraphView, SBOL3GraphView } from "sbolgraph"
 import OptIdentity from "./opt/OptIdentity"
-import { Predicates, Types } from "bioterms"
+import { Predicates, Specifiers, Types } from "bioterms"
 import OptURL from "./opt/OptURL"
 import OptString from "./opt/OptString"
 import { Existence } from "../identity/IdentityFactory"
 import Context from "../Context"
+import Identity from "../identity/Identity"
+import OptTerm, { TermType } from "./opt/OptTerm"
+import importToGraph from "./helpers/import-to-graph"
+import { trace } from "../output/print"
 
 let createSequenceAction:ActionDef = {
-    name: 'create-sequence',
+    name: 'sequence',
     description: 'Creates a sequence',
     category: 'object-cd',
     namedOpts: [
@@ -34,7 +38,7 @@ let createSequenceAction:ActionDef = {
         },
         {
             name: 'encoding',
-            type: OptString
+            type: OptTerm
         }
     ],
     positionalOpts: [
@@ -51,33 +55,147 @@ If such inference is not possible (e.g. no component is specified, or the specif
 
 export default createSequenceAction
 
-async function createSequence(ctx:Context, namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
+async function createSequence(ctx:Context, namedOpts:Opt[], positionalOpts:Opt[]):Promise<ActionResult> {
 
     let g = ctx.getCurrentGraph()
 
     let [ optIdentity, optForComponentIdentity, optSource, optEncoding ] = namedOpts
 
     assert(optIdentity instanceof OptIdentity)
-    assert(optForComponentIdentity instanceof OptIdentity)
     assert(optSource instanceof OptURL)
-    assert(optEncoding instanceof OptString)
+    assert(optForComponentIdentity instanceof OptIdentity)
+    assert(optEncoding instanceof OptTerm)
 
-    let identity = optIdentity.getIdentity(ctx, Existence.MustExist)
+    let forComponentIdentity = optForComponentIdentity.getIdentity(ctx, Existence.MustExist)
+
+    let identity = optIdentity.getIdentity(ctx, Existence.MustNotExist)
     assert(identity !== undefined)
 
-    if(identity.sbolVersion === SBOLVersion.SBOL1) {
-        
-        if(!identity.parentURI) {
-            throw new ActionResult(text('DnaSequence must have a parent in SBOL1, as unlike Sequence in SBOL2/3, it is not designated as top-level'), Outcome.Abort)
+
+    let source = await optSource.downloadToString()
+    let sourceG = new Graph()
+    await importToGraph(sourceG, source, 'sbol3')
+    let sourceGV = new SBOL3GraphView(sourceG)
+
+    if(sourceGV.sequences.length !== 1) {
+        throw new ActionResult(text('Source did not evaluate to exactly one sequence'))
+    }
+
+    let elements = sourceGV.sequences[0].elements
+    assert(elements)
+
+
+    switch(identity.sbolVersion) {
+        case SBOLVersion.SBOL1:
+            return createSequenceSBOL1(g, identity, forComponentIdentity, encoding, elements)
+        case SBOLVersion.SBOL2:
+            var encoding = optEncoding.getTerm(TermType.SequenceEncodingSBOL2)
+            return createSequenceSBOL2(g, identity, forComponentIdentity, encoding, elements)
+        case SBOLVersion.SBOL3:
+            var encoding = optEncoding.getTerm(TermType.SequenceEncodingSBOL3)
+            assert(encoding)
+            return createSequenceSBOL3(g, identity, forComponentIdentity, encoding, elements)
+        default:
+            throw new ActionResult(text('Unsupported SBOL version for create-component'), Outcome.Abort)
+    }
+}
+
+function createSequenceSBOL1(g:Graph, identity:Identity, forComponentIdentity:Identity|undefined, encoding:string|undefined, elements:string):ActionResult {
+
+    let gv = new SBOL1GraphView(g)
+
+    if (!identity.parentURI) {
+        throw new ActionResult(text('DnaSequence must have a parent in SBOL1, as unlike Sequence in SBOL2/3, it is not designated as top-level'), Outcome.Abort)
+    }
+
+    g.insertProperties(identity.uri, {
+        [Predicates.a]: node.createUriNode(Types.SBOL1.DnaSequence),
+        [Predicates.SBOL1.nucleotides]: node.createStringNode(elements)
+    })
+
+    g.insertProperties(identity.parentURI, {
+        [Predicates.SBOL1.dnaSequence]: node.createUriNode(identity.uri)
+    })
+
+    return new ActionResult()
+}
+
+
+function createSequenceSBOL2(g:Graph, identity:Identity, forComponentIdentity:Identity|undefined, encoding:string|undefined, elements:string):ActionResult {
+
+    let gv = new SBOL2GraphView(g)
+
+    if (identity.parentURI) {
+        throw new ActionResult(text('Sequence cannot have a parent in SBOL2/3, as unlike DnaSequence in SBOL1, it is not designated as top-level. Consider using the --for-component option instead to attach the sequence to a component upon creation.'), Outcome.Abort)
+    }
+
+    if(!encoding) {
+        if(forComponentIdentity !== undefined) {
+            let component = gv.uriToFacade(forComponentIdentity.uri)
+            assert(component instanceof S2ComponentDefinition)
+
+            trace(text('Attempting to infer seq encoding from component with types ' + component.types.join(', ')))
+            trace(text(Specifiers.SBOL2.Type.DNA))
+            trace(text(Specifiers.SBOL2.SequenceEncoding.NucleicAcid))
+
+            encoding = typesToEncoding(component.types)
         }
+    }
 
-        let gv = new SBOL1GraphView(g)
+    if(!encoding) {
+        throw new ActionResult(text('Cannot infer sequence encoding from component type; please specify an encoding'), Outcome.Abort)
+    }
 
+    g.insertProperties(identity.uri, {
+        [Predicates.a]: node.createUriNode(Types.SBOL2.Sequence),
+        [Predicates.SBOL2.displayId]: node.createStringNode(identity.displayId),
+        [Predicates.SBOL2.encoding]: node.createUriNode(encoding),
+        [Predicates.SBOL2.elements]: node.createStringNode(elements)
+    })
+
+    if(identity.version) {
         g.insertProperties(identity.uri, {
-            [Predicates.a]: node.createUriNode(Types.SBOL1.DnaSequence)
+            [Predicates.SBOL2.version]: node.createStringNode(identity.version)
         })
+    }
 
+    if(forComponentIdentity !== undefined) {
+        g.insertProperties(forComponentIdentity.uri, {
+            [Predicates.SBOL2.sequence]: node.createUriNode(identity.uri)
+        })
     }
 
     return new ActionResult()
 }
+
+function createSequenceSBOL3(g:Graph, identity:Identity, forComponentIdentity:Identity|undefined, encoding:string|undefined, elements:string):ActionResult {
+
+
+    return new ActionResult()
+}
+
+function typesToEncoding(types:string[]):string {
+
+    if (types.indexOf('http://www.biopax.org/release/biopax-level3.owl#Dna') !== -1) {
+        return Specifiers.SBOL2.SequenceEncoding.NucleicAcid
+    } else if (types.indexOf('http://www.biopax.org/release/biopax-level3.owl#DnaRegion') !== -1) {
+        return Specifiers.SBOL2.SequenceEncoding.NucleicAcid
+    } else if (types.indexOf('http://www.biopax.org/release/biopax-level3.owl#Rna') !== -1) {
+        return Specifiers.SBOL2.SequenceEncoding.NucleicAcid
+    } else if (types.indexOf('http://www.biopax.org/release/biopax-level3.owl#RnaRegion') !== -1) {
+        return Specifiers.SBOL2.SequenceEncoding.NucleicAcid
+    } else if (types.indexOf('http://www.biopax.org/release/biopax-level3.owl#Protein') !== -1) {
+        return Specifiers.SBOL2.SequenceEncoding.AminoAcid
+    } else if (types.indexOf('http://www.biopax.org/release/biopax-level3.owl#Protein') !== -1) {
+        return Specifiers.SBOL2.SequenceEncoding.AminoAcid
+    } else if (types.indexOf('https://identifiers.org/SBO:0000251') !== -1) {
+        return Specifiers.SBOL2.SequenceEncoding.NucleicAcid
+    } else if (types.indexOf('https://identifiers.org/SBO:0000251') !== -1) {
+        return Specifiers.SBOL2.SequenceEncoding.NucleicAcid
+    } else if (types.indexOf('https://identifiers.org/SBO:0000252') !== -1) {
+        return Specifiers.SBOL2.SequenceEncoding.AminoAcid
+    }
+
+    assert(false)
+}
+

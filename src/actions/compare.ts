@@ -31,7 +31,7 @@ let action:ActionDef = {
 
 export default action
 
-async function graphCompare(ctx:Context,  namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
+async function graphCompare(ctx:Context,  namedOpts:Opt[], positionalOpts:Opt[]):Promise<ActionResult> {
 
     let [ to ] = namedOpts
 

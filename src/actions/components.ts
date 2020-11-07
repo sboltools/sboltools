@@ -23,7 +23,7 @@ let componentsAction:ActionDef = {
 
 export default componentsAction
 
-async function components(ctx:Context, namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
+async function components(ctx:Context, namedOpts:Opt[], positionalOpts:Opt[]):Promise<ActionResult> {
 
     let g = ctx.getCurrentGraph()
 

@@ -4,6 +4,7 @@ import convert from './convert'
 import create_sequence from './create-sequence'
 import components from './components'
 import vcValidate from './validate'
+import createConstraint from './create-constraint'
 import createComponent from './create-component'
 import createModule from './create-module'
 import createInteraction from './create-interaction'
@@ -25,6 +26,7 @@ export default [
     components,
     vcValidate,
     createComponent,
+    createConstraint,
     createModule,
     createInteraction,
     createParticipation,

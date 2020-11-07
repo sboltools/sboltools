@@ -21,7 +21,7 @@ let renderAction:ActionDef = {
 
 export default renderAction
 
-async function render(ctx:Context,  namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
+async function render(ctx:Context,  namedOpts:Opt[], positionalOpts:Opt[]):Promise<ActionResult> {
 
     // let format = opts.filter(o => o.name === 'format')[0]?.value
     // let filename = opts.filter(o => o.name === 'filename')[0]?.value

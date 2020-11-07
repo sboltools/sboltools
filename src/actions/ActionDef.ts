@@ -23,7 +23,7 @@ export default interface ActionDef {
     namedOpts: OptDef[],
     positionalOpts: OptDef[],
 
-    run: (ctx: Context, namedOpts: Opt[], positionalOpts: string[]) => Promise<ActionResult>
+    run: (ctx: Context, namedOpts: Opt[], positionalOpts: Opt[]) => Promise<ActionResult>
 }
 
 export interface OptDef {

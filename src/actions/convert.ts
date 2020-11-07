@@ -40,7 +40,7 @@ let convertAction:ActionDef = {
 
 export default convertAction
 
-async function convert(ctx:Context, namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
+async function convert(ctx:Context, namedOpts:Opt[], positionalOpts:Opt[]):Promise<ActionResult> {
 
     let g = ctx.getCurrentGraph()
 

@@ -13,6 +13,7 @@ import OptIdentity from "./opt/OptIdentity"
 import { Predicates, Types } from "bioterms"
 import OptURL from "./opt/OptURL"
 import OptString from "./opt/OptString"
+import OptTerm, { TermType } from "./opt/OptTerm"
 import { Existence } from "../identity/IdentityFactory"
 import Identity from "../identity/Identity"
 import sbol2CompliantConcat from "../util/sbol2-compliant-concat"
@@ -21,7 +22,7 @@ import { trace } from "../output/print";
 import Context from "../Context"
 
 let createComponentAction:ActionDef = {
-    name: 'create-component',
+    name: 'component',
     description: 'Creates a component',
     category: 'object-cd',
     namedOpts: [  
@@ -30,9 +31,12 @@ let createComponentAction:ActionDef = {
             type: OptIdentity
         },
         {
-            name: 'within-component',
-            type: OptIdentity,
-            optional: true
+            name: 'type',
+            type: OptTerm
+        },
+        {
+            name: 'role',
+            type: OptTerm
         }
     ],
     positionalOpts: [  
@@ -42,37 +46,52 @@ let createComponentAction:ActionDef = {
 
 export default createComponentAction
 
-async function createComponent(ctx:Context, namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
+async function createComponent(ctx:Context, namedOpts:Opt[], positionalOpts:Opt[]):Promise<ActionResult> {
 
     let g = ctx.getCurrentGraph()
 
     trace(text('createComponent'))
 
-    let [ optIdentity, optWithinComponentIdentity ] = namedOpts
+    let [ optIdentity, optType, optRole ] = namedOpts
 
     assert(optIdentity instanceof OptIdentity)
-    assert(optWithinComponentIdentity instanceof OptIdentity)
+    assert(optType instanceof OptTerm)
+    assert(optRole instanceof OptTerm)
 
 
-    trace(text(`Getting withinComponentIdentity`))
-    let withinComponentIdentity = optWithinComponentIdentity.getIdentity(ctx, Existence.MustExist)
-    trace(text(`Got withinComponentIdentity: ${withinComponentIdentity}`))
-
-
-    let identity = optIdentity.getIdentity(ctx, Existence.MustNotExist, withinComponentIdentity)
+    let identity = optIdentity.getIdentity(ctx, Existence.MustNotExist)
     assert(identity !== undefined)
 
+
+    let parentURI = ''
+
+    /*
+        In order to enable the shorthand for creating subcomponents with their
+        components at the same time
+        the component creation action operates in two ways:
+        - If no parent is specified, we create a component with the identity
+        - If a parent is specified, we create two things:
+            (1) A Component top-level using only the namespace and displayId of the identity
+            (2) A SubComponent with the specified identity 
+                 which is an instanceOf the Component
+    */
     if(identity.parentURI) {
-        throw new ActionResult(text('Components cannot have parents, as they are designated top-level. To specify a component-subcomponent relationship, use the --within-component option.'), Outcome.Abort)
+
+        parentURI = identity.parentURI
+
+        identity = Identity.toplevel_from_namespace_displayId(
+            Existence.MustNotExist, identity.sbolVersion, g, identity.namespace,
+                identity.displayId, identity.version)
     }
+
 
     switch(identity.sbolVersion) {
         case SBOLVersion.SBOL1:
-            return createComponentSBOL1(g, identity, withinComponentIdentity)
+            return createComponentSBOL1(g, identity, optType, optRole, parentURI)
         case SBOLVersion.SBOL2:
-            return createComponentSBOL2(g, identity, withinComponentIdentity)
+            return createComponentSBOL2(g, identity, optType, optRole, parentURI)
         case SBOLVersion.SBOL3:
-            return createComponentSBOL3(g, identity, withinComponentIdentity)
+            return createComponentSBOL3(g, identity, optType, optRole, parentURI)
         default:
             throw new ActionResult(text('Unsupported SBOL version for create-component'))
     }
@@ -80,7 +99,7 @@ async function createComponent(ctx:Context, namedOpts:Opt[], positionalOpts:stri
     return new ActionResult()
 }
 
-function createComponentSBOL1(g:Graph, identity:Identity, withinComponentIdentity:Identity|undefined):ActionResult {
+function createComponentSBOL1(g:Graph, identity:Identity, optType:OptTerm, optRole:OptTerm, parentURI:string):ActionResult {
 
     let gv = new SBOL1GraphView(g)
 
@@ -89,15 +108,15 @@ function createComponentSBOL1(g:Graph, identity:Identity, withinComponentIdentit
         [Predicates.SBOL1.displayId]: node.createStringNode(identity.displayId)
     })
 
-    if(withinComponentIdentity !== undefined) {
+    if(parentURI) {
 
-        if(!g.hasMatch(withinComponentIdentity.uri, Predicates.a, Types.SBOL1.DnaComponent)) {
-            throw new ActionResult(text(`DnaComponent with URI ${withinComponentIdentity.uri} not found for --within-component`), Outcome.Abort)
+        if(!g.hasMatch(parentURI, Predicates.a, Types.SBOL1.DnaComponent)) {
+            throw new ActionResult(text(`Parent DnaComponent with URI ${identity.parentURI} not found`), Outcome.Abort)
         }
 
-        let annoURI = g.generateURI(withinComponentIdentity.uri + '_anno$n$')
+        let annoURI = g.generateURI(parentURI + '_anno$n$')
 
-        g.insertProperties(withinComponentIdentity.uri, {
+        g.insertProperties(parentURI, {
             [Predicates.SBOL1.annotation]: node.createUriNode(annoURI),
         })
 
@@ -110,12 +129,19 @@ function createComponentSBOL1(g:Graph, identity:Identity, withinComponentIdentit
     return new ActionResult()
 }
 
-function createComponentSBOL2(g:Graph, identity:Identity, withinComponentIdentity:Identity|undefined):ActionResult {
+function createComponentSBOL2(g:Graph, identity:Identity, optType:OptTerm, optRole:OptTerm, parentURI:string):ActionResult {
+
+    let type = optType.getTerm(TermType.Role)
+
+    if(!type) {
+        throw new ActionResult(text(`--type parameter is required for component create action`), Outcome.Abort)
+    }
 
     let gv = new SBOL2GraphView(g)
 
     g.insertProperties(identity.uri, {
         [Predicates.a]: node.createUriNode(Types.SBOL2.ComponentDefinition),
+        [Predicates.SBOL2.type]: node.createUriNode(type),
         [Predicates.SBOL2.displayId]: node.createStringNode(identity.displayId)
     })
 
@@ -125,15 +151,15 @@ function createComponentSBOL2(g:Graph, identity:Identity, withinComponentIdentit
         })
     }
 
-    if(withinComponentIdentity !== undefined) {
+    if(parentURI) {
 
-        if(!g.hasMatch(withinComponentIdentity.uri, Predicates.a, Types.SBOL2.ComponentDefinition)) {
-            throw new ActionResult(text(`ComponentDefinition with URI ${withinComponentIdentity.uri} not found for --within-component`), Outcome.Abort)
+        if(!g.hasMatch(parentURI, Predicates.a, Types.SBOL2.ComponentDefinition)) {
+            throw new ActionResult(text(`Parent ComponentDefinition with URI ${identity.parentURI} not found`), Outcome.Abort)
         }
 
-        let scURI = g.generateURI(sbol2CompliantConcat(g, withinComponentIdentity.uri, 'subcomponent$n$'))
+        let scURI = g.generateURI(sbol2CompliantConcat(g, parentURI, identity.displayId))
 
-        g.insertProperties(withinComponentIdentity.uri, {
+        g.insertProperties(parentURI, {
             [Predicates.SBOL2.component]: node.createUriNode(scURI),
         })
 
@@ -147,7 +173,13 @@ function createComponentSBOL2(g:Graph, identity:Identity, withinComponentIdentit
 }
 
 
-function createComponentSBOL3(g:Graph, identity:Identity, withinComponentIdentity:Identity|undefined):ActionResult {
+function createComponentSBOL3(g:Graph, identity:Identity, optType:OptTerm, optRole:OptTerm, parentURI:string):ActionResult {
+
+    let type = optType.getTerm(TermType.Role)
+
+    if(!type) {
+        throw new ActionResult(text(`--type parameter is required for component create action`), Outcome.Abort)
+    }
 
     let gv = new SBOL3GraphView(g)
 
@@ -166,25 +198,26 @@ function createComponentSBOL3(g:Graph, identity:Identity, withinComponentIdentit
 
     g.insertProperties(identity.uri, {
         [Predicates.a]: node.createUriNode(Types.SBOL3.Component),
+        [Predicates.SBOL2.type]: node.createUriNode(type),
         [Predicates.SBOL3.displayId]: node.createStringNode(identity.displayId)
     })
 
 
 
-    if(withinComponentIdentity !== undefined) {
+    if(parentURI) {
 
-        if(!g.hasMatch(withinComponentIdentity.uri, Predicates.a, Types.SBOL3.Component)) {
-            throw new ActionResult(text(`Component with URI ${withinComponentIdentity.uri} not found for --within-component`), Outcome.Abort)
+        if(!g.hasMatch(parentURI, Predicates.a, Types.SBOL3.Component)) {
+            throw new ActionResult(text(`Parent Component with URI ${identity.parentURI} not found`), Outcome.Abort)
         }
 
-        let scURI = g.generateURI(joinURIFragments([withinComponentIdentity.uri, 'subcomponent$n$']))
+        let scURI = g.generateURI(joinURIFragments([parentURI, 'subcomponent$n$']))
 
-        g.insertProperties(withinComponentIdentity.uri, {
+        g.insertProperties(parentURI, {
             [Predicates.SBOL3.subComponent]: node.createUriNode(scURI),
         })
 
         g.insertProperties(scURI, {
-            [Predicates.a]: node.createUriNode(Types.SBOL3.Component),
+            [Predicates.a]: node.createUriNode(Types.SBOL3.SubComponent),
             [Predicates.SBOL3.instanceOf]: node.createUriNode(identity.uri),
         })
     }

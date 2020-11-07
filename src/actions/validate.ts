@@ -27,7 +27,7 @@ let vcValidateAction:ActionDef = {
 
 export default vcValidateAction
 
-async function vcValidate(ctx:Context,  namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
+async function vcValidate(ctx:Context,  namedOpts:Opt[], positionalOpts:Opt[]):Promise<ActionResult> {
 
     // let target = opts.getString('target', 'sbol2').toUpperCase()
     // let check_uri_compliance = opts.getBoolean('check-uri-compliance', true)

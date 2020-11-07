@@ -23,6 +23,7 @@ export default class OptIdentity extends Opt {
         let g = ctx.getCurrentGraph()
         let currentNamespace = ctx.currentNamespace
         let defaultVersion = ctx.sbolVersion
+        trace(text('default sbol version: ' + defaultVersion))
 
 
 
@@ -32,7 +33,9 @@ export default class OptIdentity extends Opt {
         let displayId = this.argv.getString(paramPrefix + 'displayId', '')
         let version = this.argv.getStringOrUndefined(paramPrefix + 'version')
         let context = this.argv.getString(paramPrefix + 'context', '')
-        let identity = this.argv.getString(paramPrefix + 'identity', '')
+        let identity = 
+            this.argv.getString(this.optDef.name, '') || // e.g. --within-component
+                this.argv.getString(paramPrefix + 'identity', '') // e.g. --within-component-identity
         let sbolversion = this.argv.getString(paramPrefix + 'sbol-version', '')
 
 
@@ -120,7 +123,7 @@ export default class OptIdentity extends Opt {
                         else if(consensus === ConsensusVersion.SBOL3)
                             sbolVersion = SBOLVersion.SBOL3
                         else {
-                            throw actionResultAbort(text(`Could not infer input SBOL version from current graph (is it empty, or does it contain mixed SBOL versions?); please specify --${paramPrefix}sbol-version 1/2/3`))
+                            throw actionResultAbort(text(`Could not infer input SBOL version from current graph (is it empty, or does it contain mixed SBOL versions?); please specify --${paramPrefix}sbol-version 1/2/3 or set a global default SBOL version using the sbol-version action`))
                         }
 
                     }
@@ -225,7 +228,7 @@ function badCombo(action:string, paramPrefix:string):ActionResult {
     }
 
     return actionResultAbort(group([
-        text(`Please specify a valid combination of identity parameters${paramPrefix ? ' for --' + paramName : ''}.  The following combinations are supported:`),
+        text(`${action}: Please specify a valid combination of identity parameters${paramPrefix ? ' for --' + paramName : ''}.  The following combinations are supported:`),
         spacer(),
         tabulated(opts)
     ]))

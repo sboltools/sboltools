@@ -8,6 +8,7 @@ import Opt from "./opt/Opt"
 import Context from "../Context"
 import OptString from "./opt/OptString"
 import { SBOLVersion } from "../util/get-sbol-version-from-graph"
+import assert = require("assert")
 
 let action:ActionDef = {
     name: 'sbol-version',
@@ -16,7 +17,7 @@ let action:ActionDef = {
     ],
     positionalOpts: [
         {
-            name: 'sbol-version',
+            name: '',
             type: OptString,
             optional: false
         }
@@ -29,13 +30,16 @@ Sets the default SBOL version 1/2/3 for actions which create SBOL objects. This 
 
 export default action
 
-async function sbolVersion(ctx:Context,  namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
+async function sbolVersion(ctx:Context,  namedOpts:Opt[], positionalOpts:Opt[]):Promise<ActionResult> {
 
     if(positionalOpts.length !== 1) {
         throw new ActionResult(text('sbol-version action needs exactly one parameter: an SBOL version 1/2/3'))
     }
 
-    let version = positionalOpts[0]
+    let versionOpt = positionalOpts[0]
+    assert(versionOpt instanceof OptString)
+
+    let version = versionOpt.getString(ctx.getCurrentGraph())
 
     if(version === '1') {
         ctx.sbolVersion = SBOLVersion.SBOL1

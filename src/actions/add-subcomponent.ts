@@ -38,7 +38,7 @@ let addSubcomponentAction:ActionDef = {
 
 export default addSubcomponentAction
 
-async function addSubcomponent(ctx:Context, namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
+async function addSubcomponent(ctx:Context, namedOpts:Opt[], positionalOpts:Opt[]):Promise<ActionResult> {
 
     // let [ optIdentity, optWithinComponentIdentity ] = namedOpts
 

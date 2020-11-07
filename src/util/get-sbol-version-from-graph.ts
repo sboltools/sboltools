@@ -3,11 +3,11 @@ import { Graph, triple } from "rdfoo";
 import { Predicates, Prefixes } from 'bioterms'
 
 export enum SBOLVersion {
-    SBOL1,
-    SBOL2,
-    SBOL3,
-    Mixed,
-    Empty
+    SBOL1 = 'SBOL1',
+    SBOL2 = 'SBOL2',
+    SBOL3 = 'SBOL3',
+    Mixed = 'Mixed',
+    Empty = 'Empty'
 }
 
 export function getSBOLVersionFromGraph(g:Graph) {

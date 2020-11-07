@@ -4,9 +4,9 @@ import Identity from "./Identity"
 
 export enum Existence {
     // UltimatelyMeaningless,
-    MustExist,
-    MayExist,
-    MustNotExist
+    MustExist = 'MustExist',
+    MayExist = 'MayExist',
+    MustNotExist = 'MustNotExist'
 }
 
 export default abstract class IdentityFactory {

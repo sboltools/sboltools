@@ -5,7 +5,7 @@ import { SBOL3GraphView, Graph, SBOL1GraphView, SBOL2GraphView } from 'sbolgraph
 import { print, enableTrace, trace } from './output/print'
 
 import actions from './actions'
-import parseArgv from './parse-argv'
+import parseArgv, { ArgvNamedOption, ArgvOptionSet } from './parse-argv'
 
 import helptext from './help'
 import summarize from './summarize'
@@ -64,10 +64,19 @@ export default async function sboltools(args:string[]):Promise<string|undefined>
         }
 
         let namedOpts = actDef.namedOpts.map(optDef => new optDef.type(actDef, optDef, action.namedOpts))
+
+        // todo hacky af
+        let positionalOpts = actDef.positionalOpts.map((optDef, i) => new optDef.type(actDef, optDef, new ArgvOptionSet([
+            new ArgvNamedOption('', action.positionalOpts[i])
+        ], undefined)))
+
+        // console.dir('po')
+        // console.dir(positionalOpts)
+
         let err = false
 
         try {
-            var actionResult:ActionResult = await actDef.run(ctx, namedOpts, action.positionalOpts)
+            var actionResult:ActionResult = await actDef.run(ctx, namedOpts, positionalOpts)
         } catch(e) {
             if(e instanceof ActionResult) {
                 actionResult = e

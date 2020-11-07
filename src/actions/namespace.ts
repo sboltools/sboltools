@@ -7,6 +7,7 @@ import ActionDef from "./ActionDef"
 import Opt from "./opt/Opt"
 import Context from "../Context"
 import OptString from "./opt/OptString"
+import assert = require("assert")
 
 let action:ActionDef = {
     name: 'namespace',
@@ -15,7 +16,7 @@ let action:ActionDef = {
     ],
     positionalOpts: [
         {
-            name: 'uri',
+            name: '',
             type: OptString,
             optional: false
         }
@@ -28,13 +29,16 @@ Sets the default namespace for actions which accept an identity parameter. This 
 
 export default action
 
-async function namespace(ctx:Context,  namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
+async function namespace(ctx:Context,  namedOpts:Opt[], positionalOpts:Opt[]):Promise<ActionResult> {
 
     if(positionalOpts.length !== 1) {
         throw new ActionResult(text('namespace action needs exactly one parameter: the URI of a namespace to set as current'))
     }
 
-    let ns = positionalOpts[0]
+    let nsOpt = positionalOpts[0]
+    assert(nsOpt instanceof OptString)
+
+    let ns = nsOpt.getString(ctx.getCurrentGraph())
 
     ctx.currentNamespace = ns
 

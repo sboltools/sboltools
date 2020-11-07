@@ -22,7 +22,7 @@ import Context from "../Context"
 import OptTerm, { TermType } from "./opt/OptTerm"
 
 let createInteractionAction:ActionDef = {
-    name: 'create-interaction',
+    name: 'interaction',
     description: 'Creates an interaction',
     category: 'object-cd',
     namedOpts: [  
@@ -36,7 +36,7 @@ let createInteractionAction:ActionDef = {
             optional: true
         },
         {
-            name: 'role',
+            name: 'type',
             type: OptTerm,
             optional: false
         }
@@ -48,7 +48,7 @@ let createInteractionAction:ActionDef = {
 
 export default createInteractionAction
 
-async function createInteraction(ctx:Context, namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
+async function createInteraction(ctx:Context, namedOpts:Opt[], positionalOpts:Opt[]):Promise<ActionResult> {
 
     let g = ctx.getCurrentGraph()
 
@@ -69,7 +69,7 @@ async function createInteraction(ctx:Context, namedOpts:Opt[], positionalOpts:st
 
     if(!withinComponentIdentity) {
         if(identity.parentURI) {
-            withinComponentIdentity = Identity.from_namespace_and_identity(
+                withinComponentIdentity = Identity.from_namespace_and_identity(
                 Existence.MustExist, identity.sbolVersion, g, identity.namespace, identity.parentURI, identity.version)
         }
     }
@@ -80,7 +80,7 @@ async function createInteraction(ctx:Context, namedOpts:Opt[], positionalOpts:st
         throw new ActionResult(text('Components cannot have parents, as they are designated top-level. To specify a component-subcomponent relationship, use the --within-component option.'), Outcome.Abort)
     }
 
-    let role = optRole.getTerm(TermType.Role)
+    let role = optRole.getTerm(TermType.InteractionType)
     assert(role)
 
     switch(identity.sbolVersion) {
@@ -95,14 +95,14 @@ async function createInteraction(ctx:Context, namedOpts:Opt[], positionalOpts:st
     return new ActionResult()
 }
 
-function createInteractionSBOL2(g:Graph, identity:Identity, withinComponentIdentity:Identity, role:string):ActionResult {
+function createInteractionSBOL2(g:Graph, identity:Identity, withinComponentIdentity:Identity, type:string):ActionResult {
 
     let gv = new SBOL2GraphView(g)
 
     g.insertProperties(identity.uri, {
         [Predicates.a]: node.createUriNode(Types.SBOL2.Interaction),
         [Predicates.SBOL2.displayId]: node.createStringNode(identity.displayId),
-        [Predicates.SBOL2.role]: node.createUriNode(role)
+        [Predicates.SBOL2.type]: node.createUriNode(type)
     })
 
     if(identity.version !== undefined) {
@@ -119,7 +119,7 @@ function createInteractionSBOL2(g:Graph, identity:Identity, withinComponentIdent
 }
 
 
-function createInteractionSBOL3(g:Graph, identity:Identity, withinComponentIdentity:Identity, role:string):ActionResult {
+function createInteractionSBOL3(g:Graph, identity:Identity, withinComponentIdentity:Identity, type:string):ActionResult {
 
     let gv = new SBOL3GraphView(g)
 
@@ -131,7 +131,7 @@ function createInteractionSBOL3(g:Graph, identity:Identity, withinComponentIdent
     g.insertProperties(namespace, {
         [Predicates.a]: node.createUriNode(Types.SBOL3.Namespace),
         [Predicates.SBOL3.member]: node.createUriNode(identity.uri),
-        [Predicates.SBOL3.role]: node.createUriNode(role)
+        [Predicates.SBOL3.type]: node.createUriNode(type)
     })
 
     g.insertProperties(identity.uri, {

@@ -22,7 +22,7 @@ import Context from "../Context"
 import OptTerm, { TermType } from "./opt/OptTerm"
 
 let createParticipationAction:ActionDef = {
-    name: 'create-participation',
+    name: 'participation',
     description: 'Creates a participation',
     category: 'object-cd',
     namedOpts: [  
@@ -53,7 +53,7 @@ let createParticipationAction:ActionDef = {
 
 export default createParticipationAction
 
-async function createParticipation(ctx:Context, namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
+async function createParticipation(ctx:Context, namedOpts:Opt[], positionalOpts:Opt[]):Promise<ActionResult> {
 
     let g = ctx.getCurrentGraph()
 

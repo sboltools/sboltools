@@ -21,7 +21,7 @@ import { trace } from "../output/print";
 import Context from "../Context"
 
 let createModuleAction:ActionDef = {
-    name: 'create-module',
+    name: 'module',
     description: 'Creates a module (SBOL2 only)',
     category: 'object-cd',
     namedOpts: [  
@@ -42,7 +42,7 @@ let createModuleAction:ActionDef = {
 
 export default createModuleAction
 
-async function createModule(ctx:Context, namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
+async function createModule(ctx:Context, namedOpts:Opt[], positionalOpts:Opt[]):Promise<ActionResult> {
 
     let g = ctx.getCurrentGraph()
 

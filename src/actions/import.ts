@@ -15,6 +15,7 @@ import OptString from "./opt/OptString"
 import Context from "../Context"
 import * as fs from 'fs'
 import fetch from 'node-fetch'
+import importToGraph from "./helpers/import-to-graph"
 
 let createSequenceAction:ActionDef = {
     name: 'import',
@@ -48,106 +49,21 @@ for FASTA/GenBank imports defaults to SBOL3.
 
 export default createSequenceAction
 
-async function _import(ctx:Context,  namedOpts:Opt[], positionalOpts:string[]):Promise<ActionResult> {
+async function _import(ctx:Context,  namedOpts:Opt[], positionalOpts:Opt[]):Promise<ActionResult> {
 
     let g = ctx.getCurrentGraph()
 
     let [ source ] = positionalOpts
     let [ _as ] = namedOpts
 
+    assert(source instanceof OptURL)
     assert(!_as || _as instanceof OptString)
-
-    let url = source
-
-    if(url === undefined) {
-        return new ActionResult(group([]), Outcome.ShowHelp)
-    }
-
-    var src
-
-    if(isURL(url)) {
-        src = await (await fetch(url)).text()
-    } else {
-        src = fs.readFileSync(url) + ''
-    }
-
-    let ft = identifyFiletype(src, '')
-
 
     let format = _as ? _as.getString(g) : undefined
 
-    if(!format) {
+    let src = await source.downloadToString()
 
-        // Import as-is
-
-        if(ft === Filetype.RDFXML || ft === Filetype.NTriples) {
-            g.loadString(src)
-            return new ActionResult()
-        } else {
-
-            // GenBank/FASTA/etc
-            //
-            throw new ActionResult(text('Please specify a conversion target --as for GenBank/FASTA files'), Outcome.Abort)
-        }
-
-    }
-
-    // Convert on import
-    
-    let tempg = new Graph()
-
-    if(ft === Filetype.RDFXML || ft === Filetype.NTriples) {
-        tempg.loadString(src)
-    } else {
-
-        // import GenBank/FASTA as SBOL2 first
-        new SBOL2GraphView(tempg).loadString(src)
-    }
-
-
-    switch (format) {
-        case 'sbol1':
-            await SBOLConverter.convert3to2(tempg)
-            await SBOLConverter.convert2to1(tempg)
-            break
-        case 'sbol2':
-            await SBOLConverter.convert3to2(tempg)
-            await SBOLConverter.convert1to2(tempg)
-            break
-        case 'sbol3':
-        default:
-            await SBOLConverter.convert1to2(tempg)
-            await SBOLConverter.convert2to3(tempg)
-            break
-    }
-
-    g.addAll(tempg)
+    await importToGraph(g, src, format)
 
     return new ActionResult()
 }
-
-
-async function get(url:string):Promise<string> {
-
-    let r = await fetch(url)
-
-    return await r.text()
-
-}
-
-async function load(filename:string):Promise<string> {
-    return await new Promise((resolve, reject) => {
-        fs.readFile(filename, (err, file) => {
-            if (err)
-                reject(err)
-            else
-                resolve(file.toString())
-        })
-    })
-}
-
-function isURL(str:string):boolean {
-    return str.indexOf('://') !== -1 // TODO!
-}
-
-

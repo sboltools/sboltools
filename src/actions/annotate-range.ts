@@ -51,7 +51,7 @@ let annotateRangeAction:ActionDef = {
 
 export default annotateRangeAction
 
-async function annotateRange(ctx: Context, namedOpts: Opt[], positionalOpts: string[]): Promise<ActionResult> {
+async function annotateRange(ctx: Context, namedOpts: Opt[], positionalOpts: Opt[]): Promise<ActionResult> {
 
     let [ optIdentity, optInComponentIdentity, optSource, optEncoding ] = namedOpts
 
