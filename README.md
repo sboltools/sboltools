@@ -15,7 +15,7 @@ sboltools could be the toolkit for you!
 
 [Docs](http://sboltools.org/docs.html#installation)
 
-## Installation
+## Installation
 
 If you are only interested in using sboltools and not developing it, see the [installation instructions in the docs](http://sboltools.org/docs.html#installation).
 
