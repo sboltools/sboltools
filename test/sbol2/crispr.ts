@@ -33,6 +33,7 @@ let tests:Test[] = [
             component .EYFP_gene.CRP_b --type DNA --role Promoter
             sequence .CRP_b_seq --for-component .CRP_b --source ./test/data/CRP_b.fasta
             component .EYFP_gene.EYFP_cds --type DNA --role CDS
+            graph-dump
             constraint .EYFP_gene.EYFP_gene_constraint --subject .EYFP_gene.CRP_b --restriction Precedes --object .EYFP_gene.EYFP_cds
         `,
 

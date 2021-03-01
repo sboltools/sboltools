@@ -308,6 +308,15 @@ export default class IdentityFactorySBOL2 extends IdentityFactory {
 
         let matches = children.filter((child) => child.getStringProperty(Predicates.SBOL2.displayId) === displayId)
 
+        // also fine to use the definition's identifier
+        matches = matches.concat(
+            children.filter((child) => {
+                let definitionUri = child.getUriProperty(Predicates.SBOL2.definition)
+                return definitionUri &&
+                    triple.objectString(g.matchOne(definitionUri, Predicates.SBOL2.displayId, null)) === displayId
+            })
+        )
+
         if(version !== undefined) {
             matches = matches.filter(match => match.version === version)
         }
@@ -364,6 +373,15 @@ export default class IdentityFactorySBOL2 extends IdentityFactory {
         }
 
         let matches = children.filter((child) => child.getStringProperty(Predicates.SBOL2.displayId) === displayId)
+
+        // also fine to use the definition's identifier
+        matches = matches.concat(
+            children.filter((child) => {
+                let definitionUri = child.getUriProperty(Predicates.SBOL2.definition)
+                return definitionUri &&
+                    triple.objectString(g.matchOne(definitionUri, Predicates.SBOL2.displayId, null)) === displayId
+            })
+        )
 
         if(version !== undefined) {
             matches = matches.filter(match => match.version === version)

@@ -166,6 +166,7 @@ function createComponentSBOL2(g:Graph, identity:Identity, optType:OptTerm, optRo
         g.insertProperties(scURI, {
             [Predicates.a]: node.createUriNode(Types.SBOL2.Component),
             [Predicates.SBOL2.definition]: node.createUriNode(identity.uri),
+            [Predicates.SBOL2.displayId]: node.createStringNode(identity.displayId)
         })
     }
 
@@ -219,6 +220,7 @@ function createComponentSBOL3(g:Graph, identity:Identity, optType:OptTerm, optRo
         g.insertProperties(scURI, {
             [Predicates.a]: node.createUriNode(Types.SBOL3.SubComponent),
             [Predicates.SBOL3.instanceOf]: node.createUriNode(identity.uri),
+            [Predicates.SBOL3.displayId]: node.createStringNode(identity.displayId)
         })
     }
 
