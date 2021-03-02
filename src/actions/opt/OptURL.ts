@@ -26,6 +26,7 @@ export default class OptURL extends Opt {
         let url = this.getURL()
 
         if(!url) {
+            trace(text('downloadToString: no URL, returning empty string'))
             return ''
         }
 

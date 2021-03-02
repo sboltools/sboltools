@@ -16,6 +16,7 @@ import Context from "../Context"
 import * as fs from 'fs'
 import fetch from 'node-fetch'
 import importToGraph from "./helpers/import-to-graph"
+import { trace } from "../output/print"
 
 let createSequenceAction:ActionDef = {
     name: 'import',
@@ -58,6 +59,8 @@ async function _import(ctx:Context,  namedOpts:Opt[], positionalOpts:Opt[]):Prom
 
     assert(source instanceof OptURL)
     assert(!_as || _as instanceof OptString)
+
+    trace(text('Import: positional opts ' + JSON.stringify(positionalOpts)));
 
     let format = _as ? _as.getString(g) : undefined
 

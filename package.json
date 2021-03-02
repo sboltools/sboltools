@@ -9,7 +9,7 @@
     "watch": "./node_modules/typescript/bin/tsc --watch -d -p . --outDir dist",
     "package": "./node_modules/webpack/bin/webpack.js",
     "makedist": "node ./makedist.js",
-    "test": "NODE_PATH=dist node dist/test/run-tests.js"
+    "test": "./node_modules/typescript/bin/tsc -d -p . --outDir dist && NODE_PATH=dist node dist/test/run-tests.js"
   },
   "dependencies": {
     "@types/chalk": "^2.2.0",
