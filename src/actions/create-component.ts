@@ -20,6 +20,7 @@ import sbol2CompliantConcat from "../util/sbol2-compliant-concat"
 import joinURIFragments from "../util/join-uri-fragments"
 import { trace } from "../output/print";
 import Context from "../Context"
+import IdentityFactorySBOL3 from "src/identity/IdentityFactorySBOL3"
 
 let createComponentAction:ActionDef = {
     name: 'component',
@@ -83,6 +84,8 @@ async function createComponent(ctx:Context, namedOpts:Opt[], positionalOpts:Opt[
             Existence.MustNotExist, identity.sbolVersion, g, identity.namespace,
                 identity.displayId, identity.version)
     }
+
+    trace(text('Create component: identity: ' + identity.uri + ', parent identity: ' + parentURI))
 
 
     switch(identity.sbolVersion) {
@@ -184,26 +187,11 @@ function createComponentSBOL3(g:Graph, identity:Identity, optType:OptTerm, optRo
 
     let gv = new SBOL3GraphView(g)
 
-
-
-    let namespace = identity.namespace
-    assert(namespace)
-
-    g.insertProperties(namespace, {
-        [Predicates.a]: node.createUriNode(Types.SBOL3.Namespace),
-        [Predicates.SBOL3.member]: node.createUriNode(identity.uri),
-    })
-
-
-
-
     g.insertProperties(identity.uri, {
         [Predicates.a]: node.createUriNode(Types.SBOL3.Component),
         [Predicates.SBOL2.type]: node.createUriNode(type),
         [Predicates.SBOL3.displayId]: node.createStringNode(identity.displayId)
     })
-
-
 
     if(parentURI) {
 
@@ -212,6 +200,7 @@ function createComponentSBOL3(g:Graph, identity:Identity, optType:OptTerm, optRo
         }
 
         let scURI = g.generateURI(joinURIFragments([parentURI, 'subcomponent$n$']))
+        let scDisplayId = scURI.split('/').pop() || identity.displayId
 
         g.insertProperties(parentURI, {
             [Predicates.SBOL3.subComponent]: node.createUriNode(scURI),
@@ -220,7 +209,7 @@ function createComponentSBOL3(g:Graph, identity:Identity, optType:OptTerm, optRo
         g.insertProperties(scURI, {
             [Predicates.a]: node.createUriNode(Types.SBOL3.SubComponent),
             [Predicates.SBOL3.instanceOf]: node.createUriNode(identity.uri),
-            [Predicates.SBOL3.displayId]: node.createStringNode(identity.displayId)
+            [Predicates.SBOL3.displayId]: node.createStringNode(scDisplayId)
         })
     }
 

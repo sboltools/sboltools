@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='utf-8'?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sbol3="http://sbols.org/v3#">
+    <sbol3:Component rdf:about="TetR_protein">
+        <sbol3:type rdf:resource="https://identifiers.org/SBO:SBO:0000252" />
+        <sbol3:role rdf:resource="https://identifiers.org/GO:0003700" />
+        <sbol3:name>TetR</sbol3:name>
+        <sbol3:hasSequence rdf:resource="TetR_protein/seq" />
+        <sbol3:displayId>TetR_protein</sbol3:displayId>
+        <sbol3:description>TetR protein</sbol3:description>
+    </sbol3:Component>
+    <sbol3:Sequence rdf:about="TetR_protein/seq">
+        <sbol3:name>TetR sequence</sbol3:name>
+        <sbol3:encoding rdf:resource="http://sbols.org/v3#iupacAminoAcid" />
+        <sbol3:elements>NNNNNNNNNNN</sbol3:elements>
+        <sbol3:displayId>TetR_protein_seq</sbol3:displayId>
+        <sbol3:description>TetR sequence</sbol3:description>
+    </sbol3:Sequence>
+</rdf:RDF>

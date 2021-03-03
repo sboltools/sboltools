@@ -6,35 +6,8 @@ import { strict as assert } from 'assert'
 
 let tests:Test[] = [
     {
-        id: 'sbol3-create-component-001',
-        name: 'Create SBOL3 component',
-        command: `
-            --trace
-            --output sbol3
-            namespace "http://example.com/"
-            sbol-version 3
-            component --type DNA --displayId lac_inverter
-        `,
-        validate: async (r:string|undefined) => {
-
-            if(r === undefined) {
-                throw new Error('no output')
-            }
-
-            let g = await Graph.loadString(r)
-            let gv = new SBOL3GraphView(g)
-
-            let matches = gv.components.filter(c => {
-                return c.uri === 'http://example.com/lac_inverter' &&
-                    c.displayId === 'lac_inverter'
-            })
-
-            assert(matches.length === 1)
-        }
-    },
-    {
-        id: 'sbol3-create-component-002',
-        name: 'Create SBOL3 component with a subcomponent',
+        id: 'sbol3-create-interaction-001',
+        name: 'Create SBOL3 component with an interaction',
         command: `
             --trace
             --output sbol3
@@ -42,6 +15,10 @@ let tests:Test[] = [
             sbol-version 3
             component --type DNA .lac_inverter
             component --type DNA .lac_inverter.pLac
+            component --type Protein .lac_inverter.lacI
+            interaction --type Inhibition .lac_inverter.lacI_represses_pLac 
+                participation .lac_inverter.lacI --role Inhibitor
+                participation .lac_inverter.pLac --role Promoter
         `,
         validate: async (r:string|undefined) => {
 
@@ -63,9 +40,11 @@ let tests:Test[] = [
 
             let c = matches[0]
 
-            assert(c.subComponents.length === 1)
+            assert(c.subComponents.length === 2)
             assert(c.subComponents[0].instanceOf.displayId === 'pLac')
             assert(c.subComponents[0].displayId === c.subComponents[0].uri.split('/').pop())
+            assert(c.subComponents[1].instanceOf.displayId === 'lacI')
+            assert(c.subComponents[1].displayId === c.subComponents[1].uri.split('/').pop())
         }
     }
 ]

@@ -13,6 +13,7 @@ import OutputNode from "../output/OutputNode"
 import { subjectUri } from "rdfoo/dist/rdfoo/triple"
 import { Predicates } from "bioterms"
 import { triple } from "rdfoo"
+import OptTriplePattern from "./opt/OptTriplePattern"
 
 let action:ActionDef = {
     name: 'compare',
@@ -22,6 +23,11 @@ let action:ActionDef = {
             name: 'to',
             type: OptGraph,
             optional: false
+        },
+        {
+            name: 'ignore',
+            type: OptTriplePattern,
+            optional: true
         }
     ],
     positionalOpts: [
@@ -33,12 +39,17 @@ export default action
 
 async function graphCompare(ctx:Context,  namedOpts:Opt[], positionalOpts:Opt[]):Promise<ActionResult> {
 
-    let [ to ] = namedOpts
+    let [ to, ignore ] = namedOpts
 
     assert(to instanceof OptGraph)
+    assert(!ignore || ignore instanceof OptTriplePattern)
+
+    let ignorePattern = ignore ? ignore.getPattern() : null
+    
 
     let fromGraph = ctx.getCurrentGraph()
     let toGraph = (to as OptGraph).getGraph(ctx)
+
 
     assert(toGraph)
 
@@ -49,9 +60,21 @@ async function graphCompare(ctx:Context,  namedOpts:Opt[], positionalOpts:Opt[])
     let subjects:Set<string> = new Set()
 
     for(let triple of fromGraph.toArray()) {
+        if(ignorePattern) {
+            if(ignorePattern.s.test(triple.subject.nominalValue) &&
+              ignorePattern.p.test(triple.predicate.nominalValue) &&
+              ignorePattern.o.test(triple.object.nominalValue))  {
+                continue
+            }
+        }
         if(!toGraph.hasMatch(triple.subject, triple.predicate, triple.object)) {
             equal = false
-            inFromOnly.push([triple.subject.nominalValue, triple.predicate.nominalValue, triple.object.nominalValue])
+            inFromOnly.push([
+                triple.subject.nominalValue, 
+                triple.predicate.nominalValue === 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'
+                    ? 'a' : triple.predicate.nominalValue,
+                triple.object.nominalValue
+            ])
 
             subjects.add(triple.subject.nominalValue)
             subjects.add(triple.object.nominalValue)
@@ -59,9 +82,21 @@ async function graphCompare(ctx:Context,  namedOpts:Opt[], positionalOpts:Opt[])
     }
 
     for(let triple of toGraph.toArray()) {
+        if(ignorePattern) {
+            if(ignorePattern.s.test(triple.subject.nominalValue) &&
+              ignorePattern.p.test(triple.predicate.nominalValue) &&
+              ignorePattern.o.test(triple.object.nominalValue))  {
+                continue
+            }
+        }
         if(!fromGraph.hasMatch(triple.subject, triple.predicate, triple.object)) {
             equal = false
-            inToOnly.push([triple.subject.nominalValue, triple.predicate.nominalValue, triple.object.nominalValue])
+            inToOnly.push([
+                triple.subject.nominalValue,
+                triple.predicate.nominalValue === 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'
+                    ? 'a' : triple.predicate.nominalValue,
+                triple.object.nominalValue
+            ])
 
             subjects.add(triple.subject.nominalValue)
             subjects.add(triple.object.nominalValue)
@@ -116,6 +151,7 @@ async function graphCompare(ctx:Context,  namedOpts:Opt[], positionalOpts:Opt[])
 
 
 
+        /*
         if(typesInFrom.length > 0) {
             out.push(spacer())
             out.push(text('Types in current graph:'))
@@ -130,7 +166,7 @@ async function graphCompare(ctx:Context,  namedOpts:Opt[], positionalOpts:Opt[])
             out.push(indent([
                 tabulated(typesInTo)
             ]))
-        }
+        }*/
 
         return actionResultAbort(group(out))
     }

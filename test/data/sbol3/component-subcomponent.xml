@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='utf-8'?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sbol="http://sbols.org/v2#" xmlns:sbol3="http://sbols.org/v3#">
+    <sbol3:Component rdf:about="http://example.com/lac_inverter">
+    <sbol:type rdf:resource="https://identifiers.org/SBO:0000251" />
+    <sbol3:displayId>lac_inverter</sbol3:displayId>
+    <sbol3:subComponent>
+        <sbol3:SubComponent rdf:about="http://example.com/lac_inverter/subcomponent_1">
+        <sbol3:instanceOf rdf:resource="http://example.com/pLac" />
+        <sbol3:displayId>subcomponent_1</sbol3:displayId>
+        </sbol3:SubComponent>
+    </sbol3:subComponent>
+    </sbol3:Component>
+    <sbol3:Component rdf:about="http://example.com/pLac">
+    <sbol:type rdf:resource="https://identifiers.org/SBO:0000251" />
+    <sbol3:displayId>pLac</sbol3:displayId>
+    </sbol3:Component>
+</rdf:RDF>

@@ -12,7 +12,9 @@ let tests:Test[] = [
         glob: [
             //'SBOLTestSuite/SBOL3/*.xml',
 
-            'SBOLTestSuite/SBOL3/BBa_F2620_PoPSReceiver/PoPSReceiver.rdfxml.sbol'
+            //'SBOLTestSuite/SBOL3/BBa_F2620_PoPSReceiver/PoPSReceiver.rdfxml.sbol'
+
+            'test/data/sbol3/component.xml'
         ],
         globExclude: [
 
@@ -34,7 +36,7 @@ let tests:Test[] = [
                 merge --from converted
                 convert --target-sbol-version 3
                 graph-dump --title "SBOL3 -> SBOL2 -> SBOL3"
-                compare --to orig
+                compare --to orig --ignore ".* .*backport.* .*"
         `,
 
 
