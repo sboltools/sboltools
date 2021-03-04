@@ -20,10 +20,13 @@ import joinURIFragments from "../util/join-uri-fragments"
 import { trace } from "../output/print";
 import Context from "../Context"
 import OptTerm, { TermType } from "./opt/OptTerm"
+import IdentityFactorySBOL2 from "../identity/IdentityFactorySBOL2"
+import { identityErrorChildIdentityMissingContext } from "../identity/helpers/errors"
+import IdentityFactorySBOL3 from "../identity/IdentityFactorySBOL3"
 
-let createParticipationAction:ActionDef = {
-    name: 'participation',
-    description: 'Creates a participation',
+let addParticipantAction:ActionDef = {
+    name: 'participant',
+    description: 'Shorthand for creating a participation with a participant',
     category: 'object-cd',
     namedOpts: [  
         {
@@ -36,11 +39,6 @@ let createParticipationAction:ActionDef = {
             optional: true
         },
         {
-            name: 'participant',
-            type: OptIdentity,
-            optional: true
-        },
-        {
             name: 'role',
             type: OptTerm,
             optional: false
@@ -48,30 +46,27 @@ let createParticipationAction:ActionDef = {
     ],
     positionalOpts: [  
     ],
-    run: createParticipation
+    run: addParticipant
 }
 
-export default createParticipationAction
+export default addParticipantAction
 
-async function createParticipation(ctx:Context, namedOpts:Opt[], positionalOpts:Opt[]):Promise<ActionResult> {
+async function addParticipant(ctx:Context, namedOpts:Opt[], positionalOpts:Opt[]):Promise<ActionResult> {
 
     let g = ctx.getCurrentGraph()
 
-    trace(text('createParticipation'))
+    trace(text('addParticipant'))
 
-    let [ optIdentity, optWithinInteractionIdentity, optParticipant, optRole ] = namedOpts
+    let [ optIdentity, optWithinInteractionIdentity, optRole ] = namedOpts
 
     assert(optIdentity instanceof OptIdentity)
     assert(optWithinInteractionIdentity instanceof OptIdentity)
-    assert(optParticipant instanceof OptIdentity)
     assert(optRole instanceof OptTerm)
 
 
-    trace(text(`createParticipation participant ${JSON.stringify(optParticipant.optDef)}`))
-    
     let withinInteractionIdentity = optWithinInteractionIdentity.getIdentity(ctx, Existence.MayExist)
 
-    let identity = optIdentity.getIdentity(ctx, Existence.MustNotExist, withinInteractionIdentity)
+    let identity = optIdentity.getIdentity(ctx, Existence.MustExist, withinInteractionIdentity)
     assert(identity !== undefined)
 
     if(!withinInteractionIdentity) {
@@ -89,11 +84,6 @@ async function createParticipation(ctx:Context, namedOpts:Opt[], positionalOpts:
 
 
 
-    let participantIdentity = optParticipant.getIdentity(ctx, Existence.MustExist, withinInteractionIdentity)
-    assert(participantIdentity)
-
-
-
     let role = optRole.getTerm(TermType.ParticipationRole)
     assert(role)
 
@@ -101,19 +91,22 @@ async function createParticipation(ctx:Context, namedOpts:Opt[], positionalOpts:
 
     switch(identity.sbolVersion) {
         case SBOLVersion.SBOL2:
-            return createParticipationSBOL2(g, identity, withinInteractionIdentity, participantIdentity, role)
+            return createParticipantSBOL2(g, identity, withinInteractionIdentity, role)
         case SBOLVersion.SBOL3:
-            return createParticipationSBOL3(g, identity, withinInteractionIdentity, participantIdentity, role)
+            return createParticipantSBOL3(g, identity, withinInteractionIdentity, role)
         default:
-            throw new ActionResult(text('Unsupported SBOL version for create-component'))
+            throw new ActionResult(text('Unsupported SBOL version for participant action'))
     }
 
     return new ActionResult()
 }
 
-function createParticipationSBOL2(g:Graph, identity:Identity, withinInteractionIdentity:Identity, participantIdentity:Identity, role:string):ActionResult {
+function createParticipantSBOL2(g:Graph, participantIdentity:Identity, withinInteractionIdentity:Identity, role:string):ActionResult {
 
     let gv = new SBOL2GraphView(g)
+
+    let identity = (new IdentityFactorySBOL2()).child_from_context_displayId(
+            Existence.MustNotExist, g, withinInteractionIdentity.uri, participantIdentity.displayId)
 
     g.insertProperties(identity.uri, {
         [Predicates.a]: node.createUriNode(Types.SBOL2.Participation),
@@ -141,10 +134,13 @@ function createParticipationSBOL2(g:Graph, identity:Identity, withinInteractionI
 }
 
 
-function createParticipationSBOL3(g:Graph, identity:Identity, withinInteractionIdentity:Identity, participantIdentity:Identity, role:string):ActionResult {
+function createParticipantSBOL3(g:Graph, participantIdentity:Identity, withinInteractionIdentity:Identity, role:string):ActionResult {
 
     let gv = new SBOL3GraphView(g)
 
+
+    let identity = (new IdentityFactorySBOL3()).child_from_context_displayId(
+            Existence.MustNotExist, g, withinInteractionIdentity.uri, participantIdentity.displayId)
 
 
     let namespace = identity.namespace

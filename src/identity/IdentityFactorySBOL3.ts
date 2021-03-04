@@ -139,18 +139,9 @@ export default class IdentityFactorySBOL3 extends IdentityFactory {
 
         assert(parent instanceof S3Identified) 
 
-        let children = parent.ownedObjects
+        let children = parent.ownedObjects as S3Identified[]
 
-        let matches = children.filter((child) => child.getStringProperty(Predicates.SBOL3.displayId) === displayId)
-
-        // also fine to use the definition's identifier
-        matches = matches.concat(
-            children.filter((child) => {
-                let definitionUri = child.getUriProperty(Predicates.SBOL3.instanceOf)
-                return definitionUri &&
-                    triple.objectString(g.matchOne(definitionUri, Predicates.SBOL3.displayId, null)) === displayId
-            })
-        )
+        let matches = children.filter((child) => displayIdMatches(child, displayId))
 
         if(matches.length === 0) {
 
@@ -196,7 +187,7 @@ export default class IdentityFactorySBOL3 extends IdentityFactory {
 
         assert(parent instanceof S3Identified) 
 
-        let match = parent.ownedObjects.filter((child) => child.getStringProperty(Predicates.SBOL3.displayId) === displayId)[0]
+        let match = parent.ownedObjects.filter((child) => displayIdMatches(child as S3Identified, displayId))[0]
 
         if(!match) {
             throw actionResultAbort(text(`Context object ${contextIdentity} does not have child with displayId ${displayId}`))
@@ -240,3 +231,21 @@ function inventUriPrefixSBOL3(uri:string) {
     return ''
 }
 
+function displayIdMatches(obj:S3Identified, displayId:string) {
+
+    if(obj.displayId === displayId)
+        return true
+
+    let instanceOf = obj.getUriProperty(Predicates.SBOL3.instanceOf)
+
+    if(instanceOf) {
+
+        let parentObj = obj.view.uriToFacade(instanceOf)
+
+        if(parentObj && parentObj.getStringProperty(Predicates.SBOL3.displayId) === displayId) {
+            return true
+        }
+    }
+
+    return false
+}

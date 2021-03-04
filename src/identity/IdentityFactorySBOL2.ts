@@ -306,16 +306,7 @@ export default class IdentityFactorySBOL2 extends IdentityFactory {
             children = children.concat(parent.containedObjects)
         }
 
-        let matches = children.filter((child) => child.getStringProperty(Predicates.SBOL2.displayId) === displayId)
-
-        // also fine to use the definition's identifier
-        matches = matches.concat(
-            children.filter((child) => {
-                let definitionUri = child.getUriProperty(Predicates.SBOL2.definition)
-                return definitionUri &&
-                    triple.objectString(g.matchOne(definitionUri, Predicates.SBOL2.displayId, null)) === displayId
-            })
-        )
+        let matches = children.filter((child) => displayIdMatches(child, displayId))
 
         if(version !== undefined) {
             matches = matches.filter(match => match.version === version)
@@ -372,16 +363,7 @@ export default class IdentityFactorySBOL2 extends IdentityFactory {
             children = children.concat(parent.containedObjects)
         }
 
-        let matches = children.filter((child) => child.getStringProperty(Predicates.SBOL2.displayId) === displayId)
-
-        // also fine to use the definition's identifier
-        matches = matches.concat(
-            children.filter((child) => {
-                let definitionUri = child.getUriProperty(Predicates.SBOL2.definition)
-                return definitionUri &&
-                    triple.objectString(g.matchOne(definitionUri, Predicates.SBOL2.displayId, null)) === displayId
-            })
-        )
+        let matches = children.filter((child) => displayIdMatches(child, displayId))
 
         if(version !== undefined) {
             matches = matches.filter(match => match.version === version)
@@ -437,3 +419,21 @@ function extractPrefixesFromGraphSBOL2(g:Graph) {
 }
 
 
+function displayIdMatches(obj:S2Identified, displayId:string) {
+
+    if(obj.displayId === displayId)
+        return true
+
+    let instanceOf = obj.getUriProperty(Predicates.SBOL2.definition)
+
+    if(instanceOf) {
+
+        let parentObj = obj.view.uriToFacade(instanceOf)
+
+        if(parentObj && parentObj.getStringProperty(Predicates.SBOL2.displayId) === displayId) {
+            return true
+        }
+    }
+
+    return false
+}

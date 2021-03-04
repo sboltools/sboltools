@@ -12,7 +12,7 @@ export function validateDisplayId(displayId:string) {
 
     if(!/^[A-Za-z_][A-Za-z0-9_]*$/.test(displayId)) {
         throw actionResultAbort(
-            text(`displayId must start with a letter or underscore and be composed of only alphanumeric and underscore characters`)
+            text(`displayId '${displayId}': must start with a letter or underscore and be composed of only alphanumeric and underscore characters`)
         )
     }
 

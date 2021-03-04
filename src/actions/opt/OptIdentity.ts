@@ -40,7 +40,6 @@ export default class OptIdentity extends Opt {
 
 
 
-
         if(this.optDef.name === '') {
 
             // anon identity (default identity for an action, like create-component .some.identity)

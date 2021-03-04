@@ -76,6 +76,7 @@ export default async function sboltools(args:string[]):Promise<string|undefined>
         let err = false
 
         try {
+            trace(text(`Begin action: ${actDef.name}`))
             var actionResult:ActionResult = await actDef.run(ctx, namedOpts, positionalOpts)
         } catch(e) {
             if(e instanceof ActionResult) {

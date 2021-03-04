@@ -128,19 +128,13 @@ function createInteractionSBOL3(g:Graph, identity:Identity, withinComponentIdent
     let namespace = identity.namespace
     assert(namespace)
 
-    g.insertProperties(namespace, {
-        [Predicates.a]: node.createUriNode(Types.SBOL3.Namespace),
-        [Predicates.SBOL3.member]: node.createUriNode(identity.uri),
-        [Predicates.SBOL3.type]: node.createUriNode(type)
-    })
-
     g.insertProperties(identity.uri, {
         [Predicates.a]: node.createUriNode(Types.SBOL3.Interaction),
         [Predicates.SBOL3.displayId]: node.createStringNode(identity.displayId)
     })
 
     g.insertProperties(withinComponentIdentity.uri, {
-        [Predicates.SBOL3.interaction]: node.createUriNode(identity.uri),
+        [Predicates.SBOL3.hasInteraction]: node.createUriNode(identity.uri),
     })
 
     return new ActionResult()

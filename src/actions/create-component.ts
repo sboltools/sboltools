@@ -20,7 +20,7 @@ import sbol2CompliantConcat from "../util/sbol2-compliant-concat"
 import joinURIFragments from "../util/join-uri-fragments"
 import { trace } from "../output/print";
 import Context from "../Context"
-import IdentityFactorySBOL3 from "src/identity/IdentityFactorySBOL3"
+import IdentityFactorySBOL3 from "../identity/IdentityFactorySBOL3"
 
 let createComponentAction:ActionDef = {
     name: 'component',
@@ -189,7 +189,7 @@ function createComponentSBOL3(g:Graph, identity:Identity, optType:OptTerm, optRo
 
     g.insertProperties(identity.uri, {
         [Predicates.a]: node.createUriNode(Types.SBOL3.Component),
-        [Predicates.SBOL2.type]: node.createUriNode(type),
+        [Predicates.SBOL3.type]: node.createUriNode(type),
         [Predicates.SBOL3.displayId]: node.createStringNode(identity.displayId)
     })
 

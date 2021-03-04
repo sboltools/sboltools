@@ -12,6 +12,7 @@ import createParticipation from './create-participation'
 import render from './render'
 import annotate_range from './annotate-range'
 import addSubcomponent from './add-subcomponent'
+import addParticipant from './add-participant'
 import dumpGraph from './dump-graph'
 import graph from './graph'
 import graphCompare from './compare'
@@ -34,6 +35,7 @@ export default [
     render,
     annotate_range,
     addSubcomponent,
+    addParticipant,
     dumpGraph,
     graph,
     graphCompare,

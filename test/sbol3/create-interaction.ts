@@ -17,8 +17,9 @@ let tests:Test[] = [
             component --type DNA .lac_inverter.pLac
             component --type Protein .lac_inverter.lacI
             interaction --type Inhibition .lac_inverter.lacI_represses_pLac 
-                participation .lac_inverter.lacI --role Inhibitor
-                participation .lac_inverter.pLac --role Promoter
+            graph-dump
+                participant .lac_inverter.lacI --role Inhibitor
+                participant .lac_inverter.pLac --role Promoter
         `,
         validate: async (r:string|undefined) => {
 
