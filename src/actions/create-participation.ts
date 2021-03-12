@@ -84,7 +84,7 @@ async function createParticipation(ctx:Context, namedOpts:Opt[], positionalOpts:
     assert(withinInteractionIdentity !== undefined)
 
     if(!withinInteractionIdentity) {
-        throw new ActionResult(text('Components cannot have parents, as they are designated top-level. To specify a component-subcomponent relationship, use the --within-component option.'), Outcome.Abort)
+        throw new ActionResult(text('Participation must be contained by an interaction'))
     }
 
 

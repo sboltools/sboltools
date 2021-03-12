@@ -12,6 +12,7 @@ import { identityErrorGeneric, identityErrorUnguessableNamespace, identityErrorC
 import { validateDisplayId, validateNamespaceIsPrefix } from "./helpers/validation";
 import Chain from "./helpers/Chain";
 import { trace } from "../output/print";
+import getLastURIFragment from "../util/get-last-uri-fragment";
 
 export default class IdentityFactorySBOL3 extends IdentityFactory {
 
@@ -46,7 +47,7 @@ export default class IdentityFactorySBOL3 extends IdentityFactory {
 
             validateNamespaceIsPrefix(namespace, identity)
 
-            let displayId = identity.slice(namespace.length)
+            let displayId = getLastURIFragment(identity)
 
             return new Identity(SBOLVersion.SBOL3, namespace, displayId, undefined, undefined, identity)
         }

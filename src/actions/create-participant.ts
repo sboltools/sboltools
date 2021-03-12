@@ -24,7 +24,7 @@ import IdentityFactorySBOL2 from "../identity/IdentityFactorySBOL2"
 import { identityErrorChildIdentityMissingContext } from "../identity/helpers/errors"
 import IdentityFactorySBOL3 from "../identity/IdentityFactorySBOL3"
 
-let addParticipantAction:ActionDef = {
+let createParticipantAction:ActionDef = {
     name: 'participant',
     description: 'Shorthand for creating a participation with a participant',
     category: 'object-cd',
@@ -46,16 +46,16 @@ let addParticipantAction:ActionDef = {
     ],
     positionalOpts: [  
     ],
-    run: addParticipant
+    run: createParticipant
 }
 
-export default addParticipantAction
+export default createParticipantAction
 
-async function addParticipant(ctx:Context, namedOpts:Opt[], positionalOpts:Opt[]):Promise<ActionResult> {
+async function createParticipant(ctx:Context, namedOpts:Opt[], positionalOpts:Opt[]):Promise<ActionResult> {
 
     let g = ctx.getCurrentGraph()
 
-    trace(text('addParticipant'))
+    trace(text('createParticipant'))
 
     let [ optIdentity, optWithinInteractionIdentity, optRole ] = namedOpts
 
@@ -79,7 +79,7 @@ async function addParticipant(ctx:Context, namedOpts:Opt[], positionalOpts:Opt[]
     assert(withinInteractionIdentity !== undefined)
 
     if(!withinInteractionIdentity) {
-        throw new ActionResult(text('Components cannot have parents, as they are designated top-level. To specify a component-subcomponent relationship, use the --within-component option.'), Outcome.Abort)
+        throw new ActionResult(text('Participation must be contained by an interaction'))
     }
 
 
