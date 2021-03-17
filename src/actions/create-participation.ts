@@ -157,7 +157,7 @@ function createParticipationSBOL3(g:Graph, identity:Identity, withinInteractionI
     })
 
     g.insertProperties(withinInteractionIdentity.uri, {
-        [Predicates.SBOL3.participation]: node.createUriNode(identity.uri),
+        [Predicates.SBOL3.hasParticipation]: node.createUriNode(identity.uri),
     })
 
     if(participantIdentity) {

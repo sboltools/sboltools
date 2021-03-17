@@ -188,13 +188,32 @@ export default class IdentityFactorySBOL3 extends IdentityFactory {
 
         assert(parent instanceof S3Identified) 
 
-        let match = parent.ownedObjects.filter((child) => displayIdMatches(child as S3Identified, displayId))[0]
+        let matches = parent.ownedObjects.filter((child) => displayIdMatches(child as S3Identified, displayId))
 
-        if(!match) {
-            throw actionResultAbort(text(`Context object ${contextIdentity} does not have child with displayId ${displayId}`))
+        if(matches.length === 0) {
+
+            // does not exist
+            if(existence === Existence.MustExist) {
+                throw actionResultAbort(text(`No object with displayId ${displayId} and version ${version} found in context ${JSON.stringify(context)}`))
+            }
+
+            let childUri = parent.uri + '/' + displayId
+
+            return new Identity(SBOLVersion.SBOL3, context.namespace, displayId, version, parent.uri, childUri)
+
+        } else {
+
+            assert(matches.length === 1)
+
+            if(existence === Existence.MustNotExist) {
+                throw actionResultAbort(text(`Object with displayId ${displayId} and version ${version} already exists in context ${context}`))
+            }
+            
+            let match = matches[0]
+
+            return new Identity(SBOLVersion.SBOL3, context.namespace, displayId, version, context.uri, match.uri)
+
         }
-
-        return this.from_namespace_and_identity(existence, g, context.namespace, match.uri, version)
     }
     
 }

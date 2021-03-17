@@ -6,8 +6,8 @@ import sbol3_to_sbol2 from './sbol3-to-sbol2'
 
 export default [
     // ...create_component,
-    ...create_interaction
+    // ...create_interaction
     //...sbol2_to_sbol3
-    // ...sbol3_to_sbol2
+    ...sbol3_to_sbol2
 ]
 

@@ -14,7 +14,8 @@ let tests:Test[] = [
 
             //'SBOLTestSuite/SBOL3/BBa_F2620_PoPSReceiver/PoPSReceiver.rdfxml.sbol'
 
-            'test/data/sbol3/component.xml'
+            //'test/data/sbol3/component.xml',
+            'test/data/sbol3/interaction.xml'
         ],
         globExclude: [
 

@@ -66,6 +66,7 @@ async function createParticipant(ctx:Context, namedOpts:Opt[], positionalOpts:Op
 
     let withinInteractionIdentity = optWithinInteractionIdentity.getIdentity(ctx, Existence.MayExist)
 
+    // identity of the subcomponent to use as a participant
     let identity = optIdentity.getIdentity(ctx, Existence.MustExist, withinInteractionIdentity)
     assert(identity !== undefined)
 
@@ -105,30 +106,19 @@ function createParticipantSBOL2(g:Graph, participantIdentity:Identity, withinInt
 
     let gv = new SBOL2GraphView(g)
 
-    let identity = (new IdentityFactorySBOL2()).child_from_context_displayId(
-            Existence.MustNotExist, g, withinInteractionIdentity.uri, participantIdentity.displayId)
+    let participationURI = g.generateURI(joinURIFragments([withinInteractionIdentity.uri, 'participation$n$']))
+    let participationDisplayId = participationURI.split('/').pop()!
 
-    g.insertProperties(identity.uri, {
+    g.insertProperties(participationURI, {
         [Predicates.a]: node.createUriNode(Types.SBOL2.Participation),
-        [Predicates.SBOL2.displayId]: node.createStringNode(identity.displayId),
-        [Predicates.SBOL2.role]: node.createUriNode(role)
+        [Predicates.SBOL2.displayId]: node.createStringNode(participationDisplayId),
+        [Predicates.SBOL2.role]: node.createUriNode(role),
+        [Predicates.SBOL2.participant]: node.createUriNode(participantIdentity.uri)
     })
-
-    if(identity.version !== undefined) {
-        g.insertProperties(identity.uri, {
-            [Predicates.SBOL2.version]: node.createStringNode(identity.version)
-        })
-    }
 
     g.insertProperties(withinInteractionIdentity.uri, {
-        [Predicates.SBOL2.participation]: node.createUriNode(identity.uri),
+        [Predicates.SBOL2.participation]: node.createUriNode(participationURI),
     })
-
-    if(participantIdentity) {
-        g.insertProperties(identity.uri, {
-            [Predicates.SBOL2.participant]: node.createUriNode(participantIdentity.uri)
-        })
-    }
 
     return new ActionResult()
 }
@@ -138,30 +128,21 @@ function createParticipantSBOL3(g:Graph, participantIdentity:Identity, withinInt
 
     let gv = new SBOL3GraphView(g)
 
+    let participationURI = g.generateURI(joinURIFragments([withinInteractionIdentity.uri, 'participation$n$']))
+    let participationDisplayId = participationURI.split('/').pop()!
 
-    let identity = (new IdentityFactorySBOL3()).child_from_context_displayId(
-            Existence.MustNotExist, g, withinInteractionIdentity.uri, participantIdentity.displayId)
-
-
-    let namespace = identity.namespace
-    assert(namespace)
-
-    g.insertProperties(identity.uri, {
+    g.insertProperties(participationURI, {
         [Predicates.a]: node.createUriNode(Types.SBOL3.Participation),
-        [Predicates.SBOL3.displayId]: node.createStringNode(identity.displayId),
-        [Predicates.SBOL3.role]: node.createUriNode(role)
+        [Predicates.SBOL3.displayId]: node.createStringNode(participationDisplayId),
+        [Predicates.SBOL3.role]: node.createUriNode(role),
+        [Predicates.SBOL3.participant]: node.createUriNode(participantIdentity.uri)
     })
 
     g.insertProperties(withinInteractionIdentity.uri, {
-        [Predicates.SBOL3.participation]: node.createUriNode(identity.uri),
+        [Predicates.SBOL3.hasParticipation]: node.createUriNode(participationURI),
     })
 
-    if(participantIdentity) {
-        g.insertProperties(identity.uri, {
-            [Predicates.SBOL3.participant]: node.createUriNode(participantIdentity.uri)
-        })
-    }
-
     return new ActionResult()
+
 }
 
