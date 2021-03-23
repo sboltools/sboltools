@@ -4,7 +4,7 @@ var fs = require('fs')
 var sbol = fs.readFileSync('sbol.js') + ''
 
 var sbol_unix = [
-    '#!/usr/bin/env node --no-deprecation',
+    '#!/usr/bin/env -S node --no-deprecation',
     sbol
 ].join('\n')
 
