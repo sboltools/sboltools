@@ -14,7 +14,6 @@ import OptURL from "./opt/OptURL"
 import OptString from "./opt/OptString"
 import Context from "../Context"
 import * as fs from 'fs'
-import fetch from 'node-fetch'
 import importToGraph from "./helpers/import-to-graph"
 import { trace } from "../output/print"
 

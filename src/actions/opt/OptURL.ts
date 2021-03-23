@@ -8,6 +8,7 @@ import ActionDef, { OptDef } from "../ActionDef";
 import { getConsensusSBOLVersion, ConsensusVersion } from "./helper/get-consensus-sbol-version";
 import { ArgvOptionSet } from "../../parse-argv";
 import { trace } from "../../output/print";
+import fetch from 'node-fetch'
 import * as fs from 'fs'
 
 export default class OptURL extends Opt {

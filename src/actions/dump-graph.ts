@@ -1,7 +1,6 @@
 
 import { text, group, spacer, header, indent, conditional } from "../output/output"
 import { Graph, serialize } from "rdfoo"
-import fetch = require('node-fetch')
 import ActionResult, { actionResult } from "./ActionResult"
 
 import fs = require('fs')

@@ -9,7 +9,6 @@ import { componentTree } from "./sbol3/componentTree"
 import { ProvView } from "rdfoo-prov"
 import { glyphs } from "./glyphs"
 import fs = require('promise-fs')
-import { fetch } from 'node-fetch'
 import { cdTree } from "./sbol2/cdTree"
 import { print } from './output/print'
 
