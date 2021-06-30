@@ -18,22 +18,22 @@
     <sbol3:hasInteraction>
         <sbol3:Interaction rdf:about="http://example.com/lac_inverter/lacI_represses_pLac">
         <sbol3:displayId>lacI_represses_pLac</sbol3:displayId>
+	<sbol3:hasParticipation>
+		<sbol3:Participation rdf:about="http://example.com/lac_inverter/lacI_represses_pLac/participation_1">
+		<sbol3:displayId>participation_1</sbol3:displayId>
+		<sbol3:role rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000020" />
+		<sbol3:participant rdf:resource="http://example.com/lac_inverter/subcomponent_2" />
+		</sbol3:Participation>
+	</sbol3:hasParticipation>
+	<sbol3:hasParticipation>
+		<sbol3:Participation rdf:about="http://example.com/lac_inverter/lacI_represses_pLac/participation_2">
+		<sbol3:displayId>participation_2</sbol3:displayId>
+		<sbol3:role rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000598" />
+		<sbol3:participant rdf:resource="http://example.com/lac_inverter/subcomponent_1" />
+		</sbol3:Participation>
+	</sbol3:hasParticipation>
         </sbol3:Interaction>
     </sbol3:hasInteraction>
-    <sbol3:hasParticipation>
-        <sbol3:Participation rdf:about="http://example.com/lac_inverter/participation_1">
-        <sbol3:displayId>participation_1</sbol3:displayId>
-        <sbol3:role rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000020" />
-        <sbol3:participant rdf:resource="http://example.com/lac_inverter/subcomponent_2" />
-        </sbol3:Participation>
-    </sbol3:hasParticipation>
-    <sbol3:hasParticipation>
-        <sbol3:Participation rdf:about="http://example.com/lac_inverter/participation_2">
-        <sbol3:displayId>participation_2</sbol3:displayId>
-        <sbol3:role rdf:resource="http://identifiers.org/biomodels.sbo/SBO:0000598" />
-        <sbol3:participant rdf:resource="http://example.com/lac_inverter/subcomponent_1" />
-        </sbol3:Participation>
-    </sbol3:hasParticipation>
     </sbol3:Component>
     <sbol3:Component rdf:about="http://example.com/pLac">
     <sbol3:type rdf:resource="https://identifiers.org/SBO:0000251" />
