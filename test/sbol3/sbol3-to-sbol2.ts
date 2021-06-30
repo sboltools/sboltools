@@ -12,10 +12,10 @@ let tests:Test[] = [
         glob: [
             //'SBOLTestSuite/SBOL3/*.xml',
 
-            //'SBOLTestSuite/SBOL3/BBa_F2620_PoPSReceiver/PoPSReceiver.rdfxml.sbol'
+            'SBOLTestSuite/SBOL3/BBa_F2620_PoPSReceiver/BBa_F2620_PoPSReceiver.rdf',
 
-            //'test/data/sbol3/component.xml',
-            'test/data/sbol3/interaction.xml'
+        //     'test/data/sbol3/component.xml',
+        //     'test/data/sbol3/interaction.xml'
         ],
         globExclude: [
 

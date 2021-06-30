@@ -3,18 +3,18 @@
     <sbol3:Component rdf:about="http://example.com/lac_inverter">
     <sbol3:type rdf:resource="https://identifiers.org/SBO:0000251" />
     <sbol3:displayId>lac_inverter</sbol3:displayId>
-    <sbol3:subComponent>
+    <sbol3:hasFeature>
         <sbol3:SubComponent rdf:about="http://example.com/lac_inverter/subcomponent_1">
         <sbol3:instanceOf rdf:resource="http://example.com/pLac" />
         <sbol3:displayId>subcomponent_1</sbol3:displayId>
         </sbol3:SubComponent>
-    </sbol3:subComponent>
-    <sbol3:subComponent>
+    </sbol3:hasFeature>
+    <sbol3:hasFeature>
         <sbol3:SubComponent rdf:about="http://example.com/lac_inverter/subcomponent_2">
         <sbol3:instanceOf rdf:resource="http://example.com/lacI" />
         <sbol3:displayId>subcomponent_2</sbol3:displayId>
         </sbol3:SubComponent>
-    </sbol3:subComponent>
+    </sbol3:hasFeature>
     <sbol3:hasInteraction>
         <sbol3:Interaction rdf:about="http://example.com/lac_inverter/lacI_represses_pLac">
         <sbol3:displayId>lacI_represses_pLac</sbol3:displayId>
