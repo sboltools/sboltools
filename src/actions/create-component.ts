@@ -203,7 +203,7 @@ function createComponentSBOL3(g:Graph, identity:Identity, optType:OptTerm, optRo
         let scDisplayId = scURI.split('/').pop() || identity.displayId
 
         g.insertProperties(parentURI, {
-            [Predicates.SBOL3.subComponent]: node.createUriNode(scURI),
+            [Predicates.SBOL3.hasFeature]: node.createUriNode(scURI),
         })
 
         g.insertProperties(scURI, {
