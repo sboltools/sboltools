@@ -51,7 +51,7 @@ export default class IdentityFactorySBOL2 extends IdentityFactory {
 
             // If it already exists we can take the displayId from the object
 
-            let existing = sbol2(g).uriToIdentified(identity)
+            let existing = sbol2(g).uriToIdentified(node.createUriNode(identity))
             // TODO: check existing is TL
 
             if(existing) {
@@ -133,7 +133,7 @@ export default class IdentityFactorySBOL2 extends IdentityFactory {
             var namespace:string|undefined = undefined
 
 
-            let existing = sbol2(g).uriToIdentified(identity)
+            let existing = sbol2(g).uriToIdentified(node.createUriNode(identity))
             // TODO: check existing is TL
 
             if(existing && (version === undefined || existing.version === version)) {
@@ -193,17 +193,17 @@ export default class IdentityFactorySBOL2 extends IdentityFactory {
         // It may already exist. Look for objects with that displayId, and check if prefixed with the supplied namespace.
         // TODO: this may not work correctly if there are namespaces prefixed with other namespaces?
 
-        let matches = g.match(null, Predicates.SBOL2.displayId, displayId)
+        let matches = g.match(null, Predicates.SBOL2.displayId, node.createStringNode(displayId))
                 .map(triple.subjectUri)
                 .filter((uri) => uri && uri.indexOf(namespace) === 0)
 
         if(version !== undefined) {
-            matches = matches.filter(uri => g.hasMatch(uri as string, Predicates.SBOL2.version, node.createStringNode(version)))
+            matches = matches.filter(uri => g.hasMatch(node.createUriNode(uri as string), Predicates.SBOL2.version, node.createStringNode(version)))
         }
 
         matches = matches.filter(uri => {
             let type = triple.objectUri(
-                g.matchOne(uri as string, Predicates.a, null)
+                g.matchOne(node.createUriNode(uri as string), Predicates.a, null)
             )
             return isTopLevelType(type as string)
         })
@@ -243,11 +243,11 @@ export default class IdentityFactorySBOL2 extends IdentityFactory {
 
         // It may already exist. Look for objects with that displayId
 
-        let matches = g.match(null, Predicates.SBOL2.displayId, displayId)
+        let matches = g.match(null, Predicates.SBOL2.displayId, node.createStringNode(displayId))
                 .map(triple.subjectUri)
 
         if(version !== undefined) {
-            matches = matches.filter(uri => g.hasMatch(uri as string, Predicates.SBOL2.version, node.createStringNode(version)))
+            matches = matches.filter(uri => g.hasMatch(node.createUriNode(uri as string), Predicates.SBOL2.version, node.createStringNode(version)))
         }
 
         if(matches.length > 0) {
@@ -288,7 +288,7 @@ export default class IdentityFactorySBOL2 extends IdentityFactory {
         assert(context.namespace === namespace)
 
 
-        let parent = sbol2(g).uriToFacade(context.uri)
+        let parent = sbol2(g).subjectToFacade(node.createUriNode(context.uri))
 
         if(!parent) {
             throw actionResultAbort(text(`Context object with identity ${contextIdentity} not found`))
@@ -319,9 +319,9 @@ export default class IdentityFactorySBOL2 extends IdentityFactory {
                 throw actionResultAbort(text(`No object with displayId ${displayId} and version ${version} found in context ${JSON.stringify(context)}`))
             }
 
-            let childUri = sbol2CompliantConcat(g, parent.uri, displayId)
+            let childUri = sbol2CompliantConcat(g, parent.subject.value, displayId)
 
-            return new Identity(SBOLVersion.SBOL2, context.namespace, displayId, version, parent.uri, childUri)
+            return new Identity(SBOLVersion.SBOL2, context.namespace, displayId, version, parent.subject.value, childUri)
 
         } else {
 
@@ -333,7 +333,7 @@ export default class IdentityFactorySBOL2 extends IdentityFactory {
             
             let match = matches[0]
 
-            return new Identity(SBOLVersion.SBOL2, context.namespace, displayId, version, context.uri, match.uri)
+            return new Identity(SBOLVersion.SBOL2, context.namespace, displayId, version, context.uri, match.subject.value)
 
         }
 
@@ -345,7 +345,7 @@ export default class IdentityFactorySBOL2 extends IdentityFactory {
 
         let context = this.from_identity(Existence.MustExist, g, contextIdentity, undefined)
 
-        let parent = sbol2(g).uriToFacade(context.uri)
+        let parent = sbol2(g).subjectToFacade(node.createUriNode(context.uri))
 
         if(!parent) {
             throw actionResultAbort(text(`Context object with identity ${contextIdentity} not found`))
@@ -376,9 +376,9 @@ export default class IdentityFactorySBOL2 extends IdentityFactory {
                 throw actionResultAbort(text(`No object with displayId ${displayId} and version ${version} found in context ${JSON.stringify(context)}`))
             }
 
-            let childUri = sbol2CompliantConcat(g, parent.uri, displayId)
+            let childUri = sbol2CompliantConcat(g, parent.subject.value, displayId)
 
-            return new Identity(SBOLVersion.SBOL2, context.namespace, displayId, version, parent.uri, childUri)
+            return new Identity(SBOLVersion.SBOL2, context.namespace, displayId, version, parent.subject.value, childUri)
 
         } else {
 
@@ -390,7 +390,7 @@ export default class IdentityFactorySBOL2 extends IdentityFactory {
             
             let match = matches[0]
 
-            return new Identity(SBOLVersion.SBOL2, context.namespace, displayId, version, context.uri, match.uri)
+            return new Identity(SBOLVersion.SBOL2, context.namespace, displayId, version, context.uri, match.subject.value)
 
         }
 
@@ -428,7 +428,7 @@ function displayIdMatches(obj:S2Identified, displayId:string) {
 
     if(instanceOf) {
 
-        let parentObj = obj.view.uriToFacade(instanceOf)
+        let parentObj = obj.view.subjectToFacade(node.createUriNode(instanceOf))
 
         if(parentObj && parentObj.getStringProperty(Predicates.SBOL2.displayId) === displayId) {
             return true

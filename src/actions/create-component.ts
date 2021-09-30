@@ -106,24 +106,24 @@ function createComponentSBOL1(g:Graph, identity:Identity, optType:OptTerm, optRo
 
     let gv = new SBOL1GraphView(g)
 
-    g.insertProperties(identity.uri, {
+    g.insertProperties( node.createUriNode(identity.uri) , {
         [Predicates.a]: node.createUriNode(Types.SBOL1.DnaComponent),
         [Predicates.SBOL1.displayId]: node.createStringNode(identity.displayId)
     })
 
     if(parentURI) {
 
-        if(!g.hasMatch(parentURI, Predicates.a, Types.SBOL1.DnaComponent)) {
+        if(!g.hasMatch(node.createUriNode( parentURI), Predicates.a, node.createUriNode(Types.SBOL1.DnaComponent))) {
             throw new ActionResult(text(`Parent DnaComponent with URI ${identity.parentURI} not found`), Outcome.Abort)
         }
 
         let annoURI = g.generateURI(parentURI + '_anno$n$')
 
-        g.insertProperties(parentURI, {
+        g.insertProperties( node.createUriNode(parentURI), {
             [Predicates.SBOL1.annotation]: node.createUriNode(annoURI),
         })
 
-        g.insertProperties(annoURI, {
+        g.insertProperties( node.createUriNode(annoURI), {
             [Predicates.a]: node.createUriNode(Types.SBOL1.SequenceAnnotation),
             [Predicates.SBOL1.subComponent]: node.createUriNode(identity.uri)
         })
@@ -142,31 +142,31 @@ function createComponentSBOL2(g:Graph, identity:Identity, optType:OptTerm, optRo
 
     let gv = new SBOL2GraphView(g)
 
-    g.insertProperties(identity.uri, {
+    g.insertProperties(node.createUriNode(identity.uri), {
         [Predicates.a]: node.createUriNode(Types.SBOL2.ComponentDefinition),
         [Predicates.SBOL2.type]: node.createUriNode(type),
         [Predicates.SBOL2.displayId]: node.createStringNode(identity.displayId)
     })
 
     if(identity.version !== undefined) {
-        g.insertProperties(identity.uri, {
+        g.insertProperties(node.createUriNode(identity.uri), {
             [Predicates.SBOL2.version]: node.createStringNode(identity.version)
         })
     }
 
     if(parentURI) {
 
-        if(!g.hasMatch(parentURI, Predicates.a, Types.SBOL2.ComponentDefinition)) {
+        if(!g.hasMatch(node.createUriNode(parentURI), Predicates.a, node.createUriNode(Types.SBOL2.ComponentDefinition))) {
             throw new ActionResult(text(`Parent ComponentDefinition with URI ${identity.parentURI} not found`), Outcome.Abort)
         }
 
         let scURI = g.generateURI(sbol2CompliantConcat(g, parentURI, identity.displayId))
 
-        g.insertProperties(parentURI, {
+        g.insertProperties(node.createUriNode(parentURI), {
             [Predicates.SBOL2.component]: node.createUriNode(scURI),
         })
 
-        g.insertProperties(scURI, {
+        g.insertProperties(node.createUriNode(scURI), {
             [Predicates.a]: node.createUriNode(Types.SBOL2.Component),
             [Predicates.SBOL2.definition]: node.createUriNode(identity.uri),
             [Predicates.SBOL2.displayId]: node.createStringNode(identity.displayId)
@@ -187,7 +187,7 @@ function createComponentSBOL3(g:Graph, identity:Identity, optType:OptTerm, optRo
 
     let gv = new SBOL3GraphView(g)
 
-    g.insertProperties(identity.uri, {
+    g.insertProperties(node.createUriNode(identity.uri), {
         [Predicates.a]: node.createUriNode(Types.SBOL3.Component),
         [Predicates.SBOL3.type]: node.createUriNode(type),
         [Predicates.SBOL3.displayId]: node.createStringNode(identity.displayId)
@@ -195,18 +195,18 @@ function createComponentSBOL3(g:Graph, identity:Identity, optType:OptTerm, optRo
 
     if(parentURI) {
 
-        if(!g.hasMatch(parentURI, Predicates.a, Types.SBOL3.Component)) {
+        if(!g.hasMatch(node.createUriNode(parentURI), Predicates.a, node.createUriNode(Types.SBOL3.Component))) {
             throw new ActionResult(text(`Parent Component with URI ${identity.parentURI} not found`), Outcome.Abort)
         }
 
         let scURI = g.generateURI(joinURIFragments([parentURI, 'subcomponent$n$']))
         let scDisplayId = scURI.split('/').pop() || identity.displayId
 
-        g.insertProperties(parentURI, {
+        g.insertProperties(node.createUriNode(parentURI), {
             [Predicates.SBOL3.hasFeature]: node.createUriNode(scURI),
         })
 
-        g.insertProperties(scURI, {
+        g.insertProperties(node.createUriNode(scURI), {
             [Predicates.a]: node.createUriNode(Types.SBOL3.SubComponent),
             [Predicates.SBOL3.instanceOf]: node.createUriNode(identity.uri),
             [Predicates.SBOL3.displayId]: node.createStringNode(scDisplayId)

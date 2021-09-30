@@ -113,21 +113,21 @@ function createConstraintSBOL2(g:Graph, identity:Identity, subject:Identity, opt
 
     let gv = new SBOL2GraphView(g)
 
-    g.insertProperties(identity.uri, {
+    g.insertProperties(node.createUriNode(identity.uri), {
         [Predicates.a]: node.createUriNode(Types.SBOL2.SequenceConstraint),
         [Predicates.SBOL2.displayId]: node.createStringNode(identity.displayId),
         [Predicates.SBOL2.restriction]: node.createUriNode(restriction)
     })
 
     if(identity.version !== undefined) {
-        g.insertProperties(identity.uri, {
+        g.insertProperties(node.createUriNode(identity.uri), {
             [Predicates.SBOL2.version]: node.createStringNode(identity.version)
         })
     }
 
     assert(identity.parentURI)
 
-    g.insertProperties(identity.parentURI, {
+    g.insertProperties(node.createUriNode(identity.parentURI), {
         [Predicates.SBOL2.sequenceConstraint]: node.createUriNode(identity.uri),
     })
 
@@ -148,7 +148,7 @@ function createConstraintSBOL3(g:Graph, identity:Identity, subject:Identity, opt
     assert(namespace)
 
 
-    g.insertProperties(identity.uri, {
+    g.insertProperties(node.createUriNode(identity.uri), {
         [Predicates.a]: node.createUriNode(Types.SBOL3.Constraint),
         [Predicates.SBOL3.displayId]: node.createStringNode(identity.displayId),
         [Prefixes.sbol3 + 'namespace']: node.createUriNode(identity.namespace),
@@ -157,7 +157,7 @@ function createConstraintSBOL3(g:Graph, identity:Identity, subject:Identity, opt
 
     assert(identity.parentURI)
 
-    g.insertProperties(identity.parentURI, {
+    g.insertProperties(node.createUriNode(identity.parentURI), {
         [Predicates.SBOL3.hasConstraint]: node.createUriNode(identity.uri),
     })
 

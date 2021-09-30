@@ -108,12 +108,12 @@ function createSequenceSBOL1(g:Graph, identity:Identity, forComponentIdentity:Id
         throw new ActionResult(text('DnaSequence must have a parent in SBOL1, as unlike Sequence in SBOL2/3, it is not designated as top-level'), Outcome.Abort)
     }
 
-    g.insertProperties(identity.uri, {
+    g.insertProperties(node.createUriNode(identity.uri), {
         [Predicates.a]: node.createUriNode(Types.SBOL1.DnaSequence),
         [Predicates.SBOL1.nucleotides]: node.createStringNode(elements)
     })
 
-    g.insertProperties(identity.parentURI, {
+    g.insertProperties(node.createUriNode(identity.parentURI), {
         [Predicates.SBOL1.dnaSequence]: node.createUriNode(identity.uri)
     })
 
@@ -131,7 +131,7 @@ function createSequenceSBOL2(g:Graph, identity:Identity, forComponentIdentity:Id
 
     if(!encoding) {
         if(forComponentIdentity !== undefined) {
-            let component = gv.uriToFacade(forComponentIdentity.uri)
+            let component = gv.subjectToFacade(node.createUriNode(forComponentIdentity.uri))
             assert(component instanceof S2ComponentDefinition)
 
             trace(text('Attempting to infer seq encoding from component with types ' + component.types.join(', ')))
@@ -146,7 +146,7 @@ function createSequenceSBOL2(g:Graph, identity:Identity, forComponentIdentity:Id
         throw new ActionResult(text('Cannot infer sequence encoding from component type; please specify an encoding'), Outcome.Abort)
     }
 
-    g.insertProperties(identity.uri, {
+    g.insertProperties(node.createUriNode(identity.uri), {
         [Predicates.a]: node.createUriNode(Types.SBOL2.Sequence),
         [Predicates.SBOL2.displayId]: node.createStringNode(identity.displayId),
         [Predicates.SBOL2.encoding]: node.createUriNode(encoding),
@@ -154,13 +154,13 @@ function createSequenceSBOL2(g:Graph, identity:Identity, forComponentIdentity:Id
     })
 
     if(identity.version) {
-        g.insertProperties(identity.uri, {
+        g.insertProperties(node.createUriNode(identity.uri), {
             [Predicates.SBOL2.version]: node.createStringNode(identity.version)
         })
     }
 
     if(forComponentIdentity !== undefined) {
-        g.insertProperties(forComponentIdentity.uri, {
+        g.insertProperties(node.createUriNode(forComponentIdentity.uri), {
             [Predicates.SBOL2.sequence]: node.createUriNode(identity.uri)
         })
     }

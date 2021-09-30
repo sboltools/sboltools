@@ -1,6 +1,6 @@
 import { SBOLVersion } from "../../../util/get-sbol-version-from-graph"
 import ActionResult from "../../ActionResult"
-import { Graph, triple } from "sbolgraph"
+import { Graph, node, triple } from "sbolgraph"
 import { text } from "../../../output/output"
 import { Predicates, Prefixes } from "bioterms"
 
@@ -17,7 +17,7 @@ export function getConsensusSBOLVersion(g:Graph) {
     let version:ConsensusVersion = ConsensusVersion.Empty
 
     for(let s of g.subjects) {
-        for(let t of g.match(s, Predicates.a, null)) {
+        for(let t of g.match(node.createUriNode(s), Predicates.a, null)) {
             let uri = triple.objectUri(t)
 
             if(!uri)

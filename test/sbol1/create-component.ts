@@ -23,7 +23,7 @@ let tests:Test[] = [
             let gv = new SBOL1GraphView(g)
 
             let matches = gv.dnaComponents.filter(c => {
-                return c.uri === 'http://example.com/lac_inverter' &&
+                return c.subject.value === 'http://example.com/lac_inverter' &&
                     c.displayId === 'lac_inverter'
             })
 
@@ -50,7 +50,7 @@ let tests:Test[] = [
             let gv = new SBOL1GraphView(g)
 
             let matches = gv.dnaComponents.filter(c => {
-                return c.uri === 'http://example.com/lac_inverter' &&
+                return c.subject.value === 'http://example.com/lac_inverter' &&
                     c.displayId === 'lac_inverter'
             })
 

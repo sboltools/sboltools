@@ -23,7 +23,7 @@ let tests:Test[] = [
             let gv = new SBOL2GraphView(g)
 
             let matches = gv.componentDefinitions.filter(c => {
-                return c.uri === 'http://example.com/lac_inverter' &&
+                return c.subject.value === 'http://example.com/lac_inverter' &&
                     c.displayId === 'lac_inverter'
             })
 
@@ -50,7 +50,7 @@ let tests:Test[] = [
             let gv = new SBOL2GraphView(g)
 
             let matches = gv.componentDefinitions.filter(c => {
-                return c.uri === 'http://example.com/lac_inverter' &&
+                return c.subject.value === 'http://example.com/lac_inverter' &&
                     c.displayId === 'lac_inverter'
             })
 

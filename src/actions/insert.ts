@@ -48,7 +48,7 @@ async function graphInsert(ctx:Context,  namedOpts:Opt[], positionalOpts:Opt[]):
 
     // TODO
 
-    g.insertProperties((subject as OptString).getString(g), {
+    g.insertProperties(node.createUriNode((subject as OptString).getString(g)), {
         [(predicate as OptString).getString(g)]: node.createStringNode((object as OptString).getString(g))
     })
 

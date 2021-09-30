@@ -1,4 +1,4 @@
-import { Graph, identifyFiletype, triple } from "rdfoo";
+import { Graph, identifyFiletype, node, triple } from "rdfoo";
 import Identity from "./Identity";
 import ActionResult, { actionResultAbort } from "../actions/ActionResult";
 import { text } from "../output/output";
@@ -136,7 +136,7 @@ export default class IdentityFactorySBOL3 extends IdentityFactory {
         // base case TL:C = context is a top level
         // recursive case C:C = context is a child
 
-        let parent = sbol3(g).uriToFacade(context.uri)
+        let parent = sbol3(g).subjectToFacade( node.createUriNode( context.uri))
 
         assert(parent instanceof S3Identified) 
 
@@ -152,9 +152,9 @@ export default class IdentityFactorySBOL3 extends IdentityFactory {
             }
 
             // TODO ??
-            let childUri = parent.uri + '/' + displayId
+            let childUri = parent.subject.value + '/' + displayId
 
-            return new Identity(SBOLVersion.SBOL3, context.namespace, displayId, version, parent.uri, childUri)
+            return new Identity(SBOLVersion.SBOL3, context.namespace, displayId, version, parent.subject.value, childUri)
 
         } else {
 
@@ -166,7 +166,7 @@ export default class IdentityFactorySBOL3 extends IdentityFactory {
             
             let match = matches[0]
 
-            return new Identity(SBOLVersion.SBOL3, context.namespace, displayId, version, context.uri, match.uri)
+            return new Identity(SBOLVersion.SBOL3, context.namespace, displayId, version, context.uri, match.subject.value)
 
         }
 
@@ -180,7 +180,7 @@ export default class IdentityFactorySBOL3 extends IdentityFactory {
 
         let context = this.from_identity(Existence.MustExist, g, contextIdentity, undefined)
 
-        let parent = sbol3(g).uriToFacade(context.uri)
+        let parent = sbol3(g).subjectToFacade(node.createUriNode(context.uri))
 
         if(!parent) {
             throw actionResultAbort(text(`Context object with identity ${contextIdentity} not found`))
@@ -197,9 +197,9 @@ export default class IdentityFactorySBOL3 extends IdentityFactory {
                 throw actionResultAbort(text(`No object with displayId ${displayId} and version ${version} found in context ${JSON.stringify(context)}`))
             }
 
-            let childUri = parent.uri + '/' + displayId
+            let childUri = parent.subject.value + '/' + displayId
 
-            return new Identity(SBOLVersion.SBOL3, context.namespace, displayId, version, parent.uri, childUri)
+            return new Identity(SBOLVersion.SBOL3, context.namespace, displayId, version, parent.subject.value, childUri)
 
         } else {
 
@@ -211,7 +211,7 @@ export default class IdentityFactorySBOL3 extends IdentityFactory {
             
             let match = matches[0]
 
-            return new Identity(SBOLVersion.SBOL3, context.namespace, displayId, version, context.uri, match.uri)
+            return new Identity(SBOLVersion.SBOL3, context.namespace, displayId, version, context.uri, match.subject.value)
 
         }
     }
@@ -256,11 +256,11 @@ function displayIdMatches(obj:S3Identified, displayId:string) {
     if(obj.displayId === displayId)
         return true
 
-    let instanceOf = obj.getUriProperty(Predicates.SBOL3.instanceOf)
+    let instanceOf = obj.getProperty(Predicates.SBOL3.instanceOf)
 
     if(instanceOf) {
 
-        let parentObj = obj.view.uriToFacade(instanceOf)
+        let parentObj = obj.view.subjectToFacade(instanceOf)
 
         if(parentObj && parentObj.getStringProperty(Predicates.SBOL3.displayId) === displayId) {
             return true

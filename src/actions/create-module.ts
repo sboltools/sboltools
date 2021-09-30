@@ -81,30 +81,30 @@ function createModuleSBOL2(g:Graph, identity:Identity, withinModuleIdentity:Iden
 
     let gv = new SBOL2GraphView(g)
 
-    g.insertProperties(identity.uri, {
+    g.insertProperties(node.createUriNode(identity.uri), {
         [Predicates.a]: node.createUriNode(Types.SBOL2.ModuleDefinition),
         [Predicates.SBOL2.displayId]: node.createStringNode(identity.displayId)
     })
 
     if(identity.version !== undefined) {
-        g.insertProperties(identity.uri, {
+        g.insertProperties(node.createUriNode(identity.uri), {
             [Predicates.SBOL2.version]: node.createStringNode(identity.version)
         })
     }
 
     if(withinModuleIdentity !== undefined) {
 
-        if(!g.hasMatch(withinModuleIdentity.uri, Predicates.a, Types.SBOL2.ModuleDefinition)) {
+        if(!g.hasMatch(node.createUriNode(withinModuleIdentity.uri), Predicates.a, node.createUriNode(Types.SBOL2.ModuleDefinition))) {
             throw new ActionResult(text(`ModuleDefinition with URI ${withinModuleIdentity.uri} not found for --within-Module`), Outcome.Abort)
         }
 
         let scURI = g.generateURI(sbol2CompliantConcat(g, withinModuleIdentity.uri, 'subModule$n$'))
 
-        g.insertProperties(withinModuleIdentity.uri, {
+        g.insertProperties(node.createUriNode(withinModuleIdentity.uri), {
             [Predicates.SBOL2.module]: node.createUriNode(scURI),
         })
 
-        g.insertProperties(scURI, {
+        g.insertProperties(node.createUriNode(scURI), {
             [Predicates.a]: node.createUriNode(Types.SBOL2.Module),
             [Predicates.SBOL2.definition]: node.createUriNode(identity.uri),
         })

@@ -17,7 +17,7 @@ export function dnaComponentTree(gv:SBOL1GraphView):OutputNode {
         // console.log(c.getUriProperties(Predicates.SBOL1.subComponent).length)
 
         return new OutputNodeTree(
-            c.name || c.displayId || c.uri,
+            c.name || c.displayId || c.subject.value,
             { 'foo': 'bar' },
             c.subComponents.map(dnaComponentToNode)
                 .concat(
@@ -28,7 +28,7 @@ export function dnaComponentTree(gv:SBOL1GraphView):OutputNode {
 
     function dnaSequenceToNode(c:S1DnaSequence) {
         return new OutputNodeTree(
-            c.name || c.uri,
+            c.name || c.subject.value,
             { 'foo': 'bar' },
             []
         )

@@ -21,7 +21,7 @@ export function cdTree(gv:SBOL2GraphView):OutputNode {
 
     function cToNode(m:S2ComponentInstance) {
 
-        if(roots.filter(r => r.uri === m.uri).length > 0) {
+        if(roots.filter(r => r.subject.value === m.subject.value).length > 0) {
             // its a root
             return new OutputNodeTree(
                 ' -> ' + m.definition.displayName,

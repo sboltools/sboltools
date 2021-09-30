@@ -1,5 +1,5 @@
 
-import { Graph, triple } from "rdfoo";
+import { Graph, node, triple } from "rdfoo";
 import { Predicates, Prefixes } from 'bioterms'
 
 export enum SBOLVersion {
@@ -15,7 +15,7 @@ export function getSBOLVersionFromGraph(g:Graph) {
     let version:SBOLVersion = SBOLVersion.Empty
 
     for(let s of g.subjects) {
-        for(let t of g.match(s, Predicates.a, null)) {
+        for(let t of g.match(node.createUriNode(s), Predicates.a, null)) {
             let uri = triple.objectUri(t)
 
             if(!uri)

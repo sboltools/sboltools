@@ -12,7 +12,7 @@ import { strict as assert } from 'assert'
 import OutputNode from "../output/OutputNode"
 import { subjectUri } from "rdfoo/dist/rdfoo/triple"
 import { Predicates } from "bioterms"
-import { triple } from "rdfoo"
+import { node, triple } from "rdfoo"
 import OptTriplePattern from "./opt/OptTriplePattern"
 
 let action:ActionDef = {
@@ -61,45 +61,45 @@ async function graphCompare(ctx:Context,  namedOpts:Opt[], positionalOpts:Opt[])
 
     for(let triple of fromGraph.toArray()) {
         if(ignorePattern) {
-            if(ignorePattern.s.test(triple.subject.nominalValue) &&
-              ignorePattern.p.test(triple.predicate.nominalValue) &&
-              ignorePattern.o.test(triple.object.nominalValue))  {
+            if(ignorePattern.s.test(triple.subject.value) &&
+              ignorePattern.p.test(triple.predicate.value) &&
+              ignorePattern.o.test(triple.object.value))  {
                 continue
             }
         }
         if(!toGraph.hasMatch(triple.subject, triple.predicate, triple.object)) {
             equal = false
             inFromOnly.push([
-                triple.subject.nominalValue, 
-                triple.predicate.nominalValue === 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'
-                    ? 'a' : triple.predicate.nominalValue,
-                triple.object.nominalValue
+                triple.subject.value, 
+                triple.predicate.value === 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'
+                    ? 'a' : triple.predicate.value,
+                triple.object.value
             ])
 
-            subjects.add(triple.subject.nominalValue)
-            subjects.add(triple.object.nominalValue)
+            subjects.add(triple.subject.value)
+            subjects.add(triple.object.value)
         }
     }
 
     for(let triple of toGraph.toArray()) {
         if(ignorePattern) {
-            if(ignorePattern.s.test(triple.subject.nominalValue) &&
-              ignorePattern.p.test(triple.predicate.nominalValue) &&
-              ignorePattern.o.test(triple.object.nominalValue))  {
+            if(ignorePattern.s.test(triple.subject.value) &&
+              ignorePattern.p.test(triple.predicate.value) &&
+              ignorePattern.o.test(triple.object.value))  {
                 continue
             }
         }
         if(!fromGraph.hasMatch(triple.subject, triple.predicate, triple.object)) {
             equal = false
             inToOnly.push([
-                triple.subject.nominalValue,
-                triple.predicate.nominalValue === 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'
-                    ? 'a' : triple.predicate.nominalValue,
-                triple.object.nominalValue
+                triple.subject.value,
+                triple.predicate.value === 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'
+                    ? 'a' : triple.predicate.value,
+                triple.object.value
             ])
 
-            subjects.add(triple.subject.nominalValue)
-            subjects.add(triple.object.nominalValue)
+            subjects.add(triple.subject.value)
+            subjects.add(triple.object.value)
         }
     }
 
@@ -109,14 +109,14 @@ async function graphCompare(ctx:Context,  namedOpts:Opt[], positionalOpts:Opt[])
     let typesInTo:string[][] = []
 
     for(let subject of subjects) {
-        let type = triple.objectUri(fromGraph.match(subject, Predicates.a, null)[0])
+        let type = triple.objectUri(fromGraph.match(node.createUriNode(subject), Predicates.a, null)[0])
 
         if(type)
             typesInFrom.push([ subject, 'a', type ])
     }
 
     for(let subject of subjects) {
-        let type = triple.objectUri(toGraph.match(subject, Predicates.a, null)[0])
+        let type = triple.objectUri(toGraph.match(node.createUriNode(subject), Predicates.a, null)[0])
 
         if(type)
             typesInTo.push([ subject, 'a', type ])

@@ -30,7 +30,7 @@ let tests:Test[] = [
             let gv = new SBOL3GraphView(g)
 
             let matches = gv.components.filter(c => {
-                return c.uri === 'http://example.com/lac_inverter' &&
+                return c.subject.value === 'http://example.com/lac_inverter' &&
                     c.displayId === 'lac_inverter'
             })
 
@@ -42,9 +42,9 @@ let tests:Test[] = [
 
             assert(c.subComponents.length === 2)
             assert(c.subComponents[0].instanceOf.displayId === 'pLac')
-            assert(c.subComponents[0].displayId === c.subComponents[0].uri.split('/').pop())
+            assert(c.subComponents[0].displayId === c.subComponents[0].subject.value.split('/').pop())
             assert(c.subComponents[1].instanceOf.displayId === 'lacI')
-            assert(c.subComponents[1].displayId === c.subComponents[1].uri.split('/').pop())
+            assert(c.subComponents[1].displayId === c.subComponents[1].subject.value.split('/').pop())
         }
     }
 ]

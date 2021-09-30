@@ -1,5 +1,5 @@
 
-import { Graph, GraphView } from "rdfoo"
+import { Graph, GraphView, node } from "rdfoo"
 import { SBOL1GraphView } from "sbolgraph"
 import Test from "../Test"
 import { strict as assert } from 'assert'
@@ -28,8 +28,8 @@ let tests:Test[] = [
 
             let g = await Graph.loadString(r)
 
-            assert(g.hasMatch('http://s', 'http://p', 'o'))
-            assert(!g.hasMatch('http://s', 'http://p', 'o2'))
+            assert(g.hasMatch(node.createUriNode('http://s'), 'http://p', node.createStringNode('o')))
+            assert(!g.hasMatch(node.createUriNode('http://s'), 'http://p', node.createStringNode('o2')))
             assert(g.toArray().length === 1)
         }
     },
@@ -54,8 +54,8 @@ let tests:Test[] = [
 
             let g = await Graph.loadString(r)
 
-            assert(g.hasMatch('http://s', 'http://p', 'o2'))
-            assert(!g.hasMatch('http://s', 'http://p', 'o'))
+            assert(g.hasMatch(node.createUriNode('http://s'), 'http://p', node.createStringNode('o2')))
+            assert(!g.hasMatch(node.createUriNode('http://s'), 'http://p', node.createStringNode('o')))
             assert(g.toArray().length === 1)
         }
     }

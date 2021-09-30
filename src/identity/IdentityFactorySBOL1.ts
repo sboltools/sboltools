@@ -1,4 +1,4 @@
-import { Graph, identifyFiletype } from "rdfoo";
+import { Graph, identifyFiletype, node } from "rdfoo";
 import Identity from "./Identity";
 import ActionResult, { actionResultAbort } from "../actions/ActionResult";
 import { text } from "../output/output";
@@ -134,7 +134,7 @@ export default class IdentityFactorySBOL1 extends IdentityFactory {
         // recursive case C:C = context is a child
         // who cares context is a shit that has a shitting uri
 
-        let parent = sbol1(g).uriToFacade(context.uri)
+        let parent = sbol1(g).subjectToFacade(node.createUriNode(context.uri))
 
         let children: S1Facade[] = []
         if (parent instanceof S1DnaComponent) {
@@ -146,7 +146,7 @@ export default class IdentityFactorySBOL1 extends IdentityFactory {
 
         // TODO: does supplied version match object?
 
-        return this.from_namespace_and_identity(existence, g, namespace, match.uri, version)
+        return this.from_namespace_and_identity(existence, g, namespace, match.subject.value, version)
     }
 
     child_from_context_displayId(existence:Existence, g: Graph, contextIdentity: string, displayId: string, version?: string): Identity {
@@ -157,7 +157,7 @@ export default class IdentityFactorySBOL1 extends IdentityFactory {
 
         let context = this.from_identity(Existence.MustExist, g, contextIdentity, undefined)
 
-        let parent = sbol1(g).uriToFacade(context.uri)
+        let parent = sbol1(g).subjectToFacade(node.createUriNode(context.uri))
 
         if(!parent) {
             throw actionResultAbort(text(`Context object with identity ${contextIdentity} not found`))
@@ -171,7 +171,7 @@ export default class IdentityFactorySBOL1 extends IdentityFactory {
 
         let match = children.filter((child) => child.getStringProperty(Predicates.SBOL1.displayId) === displayId)[0]
 
-        return this.from_namespace_and_identity(existence, g, context.namespace, match.uri, version)
+        return this.from_namespace_and_identity(existence, g, context.namespace, match.subject.value, version)
     }
     
 }
@@ -187,7 +187,7 @@ function extractPrefixesFromGraphSBOL1(g:Graph) {
     let prefixes = new Set<string>()
 
     for(let t of topLevels) {
-        let prefix = inventUriPrefixSBOL1(t.uri)
+        let prefix = inventUriPrefixSBOL1(t.subject.value)
 
         if(prefix)
             prefixes.add(prefix)

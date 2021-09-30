@@ -109,14 +109,14 @@ function createParticipantSBOL2(g:Graph, participantIdentity:Identity, withinInt
     let participationURI = g.generateURI(joinURIFragments([withinInteractionIdentity.uri, 'participation$n$']))
     let participationDisplayId = participationURI.split('/').pop()!
 
-    g.insertProperties(participationURI, {
+    g.insertProperties(node.createUriNode(participationURI), {
         [Predicates.a]: node.createUriNode(Types.SBOL2.Participation),
         [Predicates.SBOL2.displayId]: node.createStringNode(participationDisplayId),
         [Predicates.SBOL2.role]: node.createUriNode(role),
         [Predicates.SBOL2.participant]: node.createUriNode(participantIdentity.uri)
     })
 
-    g.insertProperties(withinInteractionIdentity.uri, {
+    g.insertProperties(node.createUriNode(withinInteractionIdentity.uri), {
         [Predicates.SBOL2.participation]: node.createUriNode(participationURI),
     })
 
@@ -131,14 +131,14 @@ function createParticipantSBOL3(g:Graph, participantIdentity:Identity, withinInt
     let participationURI = g.generateURI(joinURIFragments([withinInteractionIdentity.uri, 'participation$n$']))
     let participationDisplayId = participationURI.split('/').pop()!
 
-    g.insertProperties(participationURI, {
+    g.insertProperties(node.createUriNode(participationURI), {
         [Predicates.a]: node.createUriNode(Types.SBOL3.Participation),
         [Predicates.SBOL3.displayId]: node.createStringNode(participationDisplayId),
         [Predicates.SBOL3.role]: node.createUriNode(role),
         [Predicates.SBOL3.participant]: node.createUriNode(participantIdentity.uri)
     })
 
-    g.insertProperties(withinInteractionIdentity.uri, {
+    g.insertProperties(node.createUriNode(withinInteractionIdentity.uri), {
         [Predicates.SBOL3.hasParticipation]: node.createUriNode(participationURI),
     })
 

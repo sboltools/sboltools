@@ -24,7 +24,7 @@ export function mdTree(gv:SBOL2GraphView):OutputNode {
 
     function mToNode(m:S2ModuleInstance) {
 
-        if(roots.filter(r => r.uri === m.uri).length > 0) {
+        if(roots.filter(r => r.subject.value === m.subject.value).length > 0) {
             // its a root
             return {
                 text: 'ModuleDefinition --[definition]--> ' + m.definition.displayName,

@@ -56,7 +56,7 @@ async function addSubcomponent(ctx:Context, namedOpts:Opt[], positionalOpts:Opt[
 
     //     let gv = new SBOL1GraphView(g)
 
-    //     g.insertProperties(identity.uri, {
+    //     g.insertProperties(node.createUriNode(identity.uri), {
     //         [Predicates.a]: node.createUriNode(Types.SBOL1.DnaComponent),
     //         [Predicates.SBOL1.displayId]: node.createStringNode(identity.displayId)
     //     })
@@ -67,17 +67,17 @@ async function addSubcomponent(ctx:Context, namedOpts:Opt[], positionalOpts:Opt[
 
     //     if(withinComponentIdentity !== undefined) {
 
-    //         if(!g.hasMatch(withinComponentIdentity.uri, Predicates.a, Types.SBOL1.DnaComponent)) {
+    //         if(!g.hasMatch(node.createUriNode(withinComponentIdentity.uri), Predicates.a, Types.SBOL1.DnaComponent)) {
     //             throw new ActionResult(text(`DnaComponent with URI ${withinComponentIdentity.uri} not found for --within-component`), Outcome.Abort)
     //         }
 
     //         let annoURI = g.generateURI(withinComponentIdentity.uri + '_anno$n$')
 
-    //         g.insertProperties(withinComponentIdentity.uri, {
+    //         g.insertProperties(node.createUriNode(withinComponentIdentity.uri), {
     //             [Predicates.SBOL1.annotation]: node.createUriNode(annoURI),
     //         })
 
-    //         g.insertProperties(annoURI, {
+    //         g.insertProperties(node.createUriNode(annoURI), {
     //             [Predicates.a]: node.createUriNode(Types.SBOL1.SequenceAnnotation),
     //             [Predicates.SBOL1.subComponent]: node.createUriNode(identity.uri)
     //         })
