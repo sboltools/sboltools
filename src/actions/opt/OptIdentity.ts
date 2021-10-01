@@ -10,6 +10,7 @@ import { SBOLVersion } from "../../util/get-sbol-version-from-graph";
 import { trace } from "../../output/print";
 import { Existence } from "../../identity/IdentityFactory";
 import Context from "../../Context";
+import { assert } from "console";
 
 export default class OptIdentity extends Opt {
 
@@ -21,6 +22,7 @@ export default class OptIdentity extends Opt {
 
 
         let g = ctx.getCurrentGraph()
+
         let currentNamespace = ctx.currentNamespace
         let defaultVersion = ctx.sbolVersion
         trace(text('default sbol version: ' + defaultVersion))

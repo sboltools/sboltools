@@ -41,8 +41,6 @@ export default async function sboltools(args:string[]):Promise<string|undefined>
 
     let output = argv.globalOpts.getString('output', 'summary')
 
-    let graphs:Map<string,Graph> = new Map()
-
     let ctx = new Context()
 
 

@@ -25,7 +25,7 @@ export default async function importToGraph(g:Graph, src:string, format:string|u
         // Import as-is
 
         if(ft === Filetype.RDFXML || ft === Filetype.NTriples) {
-            g.loadString(src)
+            await g.loadString(src)
             return new ActionResult()
         } else {
 
@@ -41,11 +41,11 @@ export default async function importToGraph(g:Graph, src:string, format:string|u
     let tempg = new Graph()
 
     if(ft === Filetype.RDFXML || ft === Filetype.NTriples) {
-        tempg.loadString(src)
+        await tempg.loadString(src)
     } else {
 
         // import GenBank/FASTA as SBOL2 first
-        new SBOL2GraphView(tempg).loadString(src)
+        await (new SBOL2GraphView(tempg).loadString(src))
     }
 
 
