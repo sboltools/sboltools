@@ -13,13 +13,31 @@ let tests:Test[] = [
             //'SBOLTestSuite/SBOL3/*.xml',
 
             'SBOLTestSuite/SBOL3/BBa_F2620_PoPSReceiver/BBa_F2620_PoPSReceiver.rdf',
-
-        //     'test/data/sbol3/component.xml',
-        //     'test/data/sbol3/interaction.xml'
+             'test/data/sbol3/component.xml',
+             'test/data/sbol3/interaction.xml'
         ],
         globExclude: [
 
         ],
+        // command: (filename) => `
+        //     --trace
+        //     --output sbol2
+
+        //     graph orig
+        //         import ${filename}
+
+        //     graph converted
+        //         merge --from orig
+        //         graph-dump --title "Original SBOL3"
+        //         convert --target-sbol-version 2
+        //         graph-dump --title "SBOL3 -> SBOL2"
+            
+        //     graph roundtripped
+        //         merge --from converted
+        //         convert --target-sbol-version 3
+        //         graph-dump --title "SBOL3 -> SBOL2 -> SBOL3"
+        //         compare --to orig --ignore ".* .*backport.* .*"
+        // `,
         command: (filename) => `
             --trace
             --output sbol2
@@ -32,12 +50,6 @@ let tests:Test[] = [
                 graph-dump --title "Original SBOL3"
                 convert --target-sbol-version 2
                 graph-dump --title "SBOL3 -> SBOL2"
-            
-            graph roundtripped
-                merge --from converted
-                convert --target-sbol-version 3
-                graph-dump --title "SBOL3 -> SBOL2 -> SBOL3"
-                compare --to orig --ignore ".* .*backport.* .*"
         `,
 
 

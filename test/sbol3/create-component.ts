@@ -25,6 +25,8 @@ let tests:Test[] = [
             let gv = new SBOL3GraphView(g)
 
             let matches = gv.components.filter(c => {
+                console.log('csv ', c.subject.value)
+                console.log('did ', c.displayId)
                 return c.subject.value === 'http://example.com/lac_inverter' &&
                     c.displayId === 'lac_inverter'
             })
