@@ -14,8 +14,11 @@ export default class OptTriplePattern extends Opt {
         super(actDef, optDef, argv)
     }
 
-    getPattern():{s:RegExp, p:RegExp, o:RegExp} {
+    getPattern():{s:RegExp, p:RegExp, o:RegExp}|undefined {
         let pattern = this.argv.getString(this.optDef.name, '')
+
+	if(!pattern)
+		return undefined
 
         let spo = pattern.split(/\s+/)
 

@@ -14,6 +14,7 @@ import { subjectUri } from "rdfoo/dist/rdfoo/triple"
 import { Predicates } from "bioterms"
 import { node, triple } from "rdfoo"
 import OptTriplePattern from "./opt/OptTriplePattern"
+import { trace } from "../output/print"
 
 let action:ActionDef = {
     name: 'compare',
@@ -42,14 +43,16 @@ async function graphCompare(ctx:Context,  namedOpts:Opt[], positionalOpts:Opt[])
     let [ to, ignore ] = namedOpts
 
     assert(to instanceof OptGraph)
-    assert(!ignore || ignore instanceof OptTriplePattern)
+    assert(ignore instanceof OptTriplePattern)
 
-    let ignorePattern = ignore ? ignore.getPattern() : null
+    let ignorePattern = ignore.getPattern()
     
 
     let fromGraph = ctx.getCurrentGraph()
     let toGraph = (to as OptGraph).getGraph(ctx)
 
+    trace(text('fromGraph has size ' + fromGraph.toArray().length))
+    trace(text('toGraph has size ' + toGraph!.toArray().length))
 
     assert(toGraph)
 

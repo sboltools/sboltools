@@ -12,7 +12,8 @@ let tests:Test[] = [
         glob: [
             //'SBOLTestSuite/SBOL2/*.xml',
 
-            'SBOLTestSuite/SBOL2/memberAnnotations_int_md.xml',
+        //     'SBOLTestSuite/SBOL2/memberAnnotations_int_md.xml',
+            'SBOLTestSuite/SBOL2_ic/gfp_reporter_combDeri_ann.xml',
             // 'SBOLTestSuite/SBOL2/memberAnnotations_interaction.xml',
             // 'SBOLTestSuite/SBOL2/memberAnnotations_md_ann.xml',
             // 'SBOLTestSuite/SBOL2/memberAnnotations_md_mod_ann.xml',
@@ -68,6 +69,8 @@ let tests:Test[] = [
                 convert --target-sbol-version 2
                 graph-dump --title "SBOL2 -> SBOL3 -> SBOL2"
                 compare --to orig
+	
+	    show-graphs
         `,
 
 
