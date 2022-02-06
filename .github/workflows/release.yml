@@ -1,8 +1,8 @@
 name: sboltools release workflow
 on:
   push:
-    branches:
-      - release
+    tags:
+      - v*
 jobs:
   build:
     name: sboltools release job
