@@ -23,7 +23,7 @@
     "node-fetch": "^2.6.1",
     "promise-fs": "^2.1.1",
     "rdfoo": "^0.13.0",
-    "sbolgraph": "^0.49.0",
+    "sbolgraph": "^0.50.0",
     "string-argv": "^0.3.1"
   },
   "preferGlobal": true,
