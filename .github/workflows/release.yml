@@ -13,7 +13,7 @@ jobs:
     steps:
         - uses: actions/checkout@v2
           with:
-              ref: 'release'
+              ref: ${{ github.ref }}
         - name: Use Node.js ${{ matrix.node-version }}
           uses: actions/setup-node@v1
           with:
