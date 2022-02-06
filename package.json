@@ -22,8 +22,8 @@
     "json-colorizer": "^2.2.2",
     "node-fetch": "^2.6.1",
     "promise-fs": "^2.1.1",
-    "rdfoo": "^0.14.0",
-    "sbolgraph": "^0.50.0",
+    "rdfoo": "^0.15.0",
+    "sbolgraph": "^0.51.0",
     "string-argv": "^0.3.1"
   },
   "preferGlobal": true,
