@@ -51,8 +51,11 @@ async function graphCompare(ctx:Context,  namedOpts:Opt[], positionalOpts:Opt[])
     let fromGraph = ctx.getCurrentGraph()
     let toGraph = (to as OptGraph).getGraph(ctx)
 
-    trace(text('fromGraph has size ' + fromGraph.toArray().length))
-    trace(text('toGraph has size ' + toGraph!.toArray().length))
+    let fromGraphName = Array.from(ctx.graphs.entries()).filter(e => e[1] === fromGraph)[0][0]
+    let toGraphName = Array.from(ctx.graphs.entries()).filter(e => e[1] === toGraph)[0][0]
+
+    trace(text('fromGraph (' + fromGraphName + ') has size ' + fromGraph.toArray().length))
+    trace(text('toGraph (' + toGraphName + ') has size ' + toGraph!.toArray().length))
 
     assert(toGraph)
 
@@ -137,7 +140,7 @@ async function graphCompare(ctx:Context,  namedOpts:Opt[], positionalOpts:Opt[])
 
         if(inFromOnly.length > 0) {
             out.push(spacer())
-            out.push(text('In current graph but not comparison graph:'))
+            out.push(text('In current graph (' + fromGraphName + ') but not comparison graph (' + toGraphName + '):'))
             out.push(indent([
                 tabulated(inFromOnly)
             ]))
@@ -146,7 +149,7 @@ async function graphCompare(ctx:Context,  namedOpts:Opt[], positionalOpts:Opt[])
 
         if(inToOnly.length > 0) {
             out.push(spacer())
-            out.push(text('In comparison graph but not current graph:'))
+            out.push(text('In comparison graph (' + toGraphName + ') but not current graph (' + fromGraphName + '):'))
             out.push(indent([
                 tabulated(inToOnly)
             ]))
