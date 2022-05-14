@@ -1,13 +1,13 @@
 {
   "name": "sboltools",
   "version": "0.4.0",
-  "main": "./dist/src/main.js",
+  "main": "./src/main.ts",
   "license": "MIT",
   "scripts": {
-    "clean": "rm -rf dist",
-    "build": "./node_modules/typescript/bin/tsc -d -p . --outDir dist",
-    "watch": "./node_modules/typescript/bin/tsc --watch -d -p . --outDir dist",
-    "package": "./node_modules/webpack/bin/webpack.js",
+    "clean": "rm -rf bundle.js",
+    "build": "node build.js",
+    "watch": "node watch.js",
+    "package": "node build.js",
     "makedist": "node ./makedist.js",
     "test": "./node_modules/typescript/bin/tsc -d -p . --outDir dist && NODE_PATH=dist node dist/test/run-tests.js"
   },
@@ -17,6 +17,7 @@
     "@types/yargs": "^15.0.4",
     "bioterms": "^0.25.0",
     "chalk": "^4.0.0",
+    "esbuild": "^0.14.39",
     "glob": "^7.1.6",
     "glob-promise": "^3.4.0",
     "json-colorizer": "^2.2.2",
@@ -35,9 +36,6 @@
     "on-build-webpack": "^0.1.0",
     "source-map-loader": "^0.2.4",
     "ts-node": "^8.10.2",
-    "typescript": "^3.8.3",
-    "webpack": "^4.43.0",
-    "webpack-cli": "^3.3.11",
-    "webpack-node-externals": "^1.7.2"
+    "typescript": "^3.8.3"
   }
 }

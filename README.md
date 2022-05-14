@@ -18,19 +18,17 @@ Based on the [sbolgraph](https://github.com/sboltools/sbolgraph) library.
 
 ## Installation
 
-If you are only interested in using sboltools and not developing it, see the [installation instructions in the docs](http://sboltools.org/docs.html#installation).
+If you are only interested in **using** sboltools and not developing it, see the [installation instructions in the docs](http://sboltools.org/docs.html#installation) for pre-built packages.
 
-Installation instructions for developers coming soon!
+### Building from source
 
+If you want to build sboltools from source, clone this repo and build it using:
 
+    npm install
+    npm run build
 
+This will generate a file called `sboltools_bundle.js` containing sboltools and all of its dependencies. All you need to run it is node.js:
 
-
-
-
-
-
-
-
+    node sboltools_bundle.js
 
 
