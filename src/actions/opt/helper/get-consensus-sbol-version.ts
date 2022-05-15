@@ -1,6 +1,6 @@
 import { SBOLVersion } from "../../../util/get-sbol-version-from-graph"
 import ActionResult from "../../ActionResult"
-import { Graph, node, triple } from "sbolgraph"
+import { Graph, node, triple } from "sboljs"
 import { text } from "../../../output/output"
 import { Predicates, Prefixes } from "bioterms"
 

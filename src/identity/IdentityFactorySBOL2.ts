@@ -7,7 +7,7 @@ import { SBOLVersion } from "../util/get-sbol-version-from-graph";
 import { identityErrorGeneric, identityErrorEmptyChain, identityErrorUnguessableNamespace } from "./helpers/errors";
 import Chain from "./helpers/Chain";
 import { validateNamespaceIsPrefix, validateDisplayId } from "./helpers/validation";
-import { SBOL2GraphView, sbol2, S2Identified, S2ComponentDefinition, S2ModuleDefinition, S2ComponentInstance, S2SequenceAnnotation } from "sbolgraph";
+import { SBOL2GraphView, sbol2, S2Identified, S2ComponentDefinition, S2ModuleDefinition, S2ComponentInstance, S2SequenceAnnotation } from "sboljs";
 import { Predicates } from "bioterms";
 import joinURIFragments from "../util/join-uri-fragments";
 import { match } from "assert";

@@ -1,5 +1,5 @@
 import { SBOLVersion } from "../util/get-sbol-version-from-graph"
-import { Graph } from "sbolgraph"
+import { Graph } from "sboljs"
 import Identity from "./Identity"
 
 export enum Existence {

@@ -1,5 +1,5 @@
 
-import { S2ComponentDefinition, S2ComponentInstance, SBOL2GraphView } from "sbolgraph";
+import { S2ComponentDefinition, S2ComponentInstance, SBOL2GraphView } from "sboljs";
 import { glyphs } from "../glyphs";
 import OutputNode from "../output/OutputNode";
 import OutputNodeTree from "../output/OutputNodeTree";

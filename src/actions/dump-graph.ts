@@ -7,7 +7,7 @@ import fs = require('fs')
 import ActionDef from "./ActionDef"
 import Opt from "./opt/Opt"
 import { trace } from "../output/print"
-import { SBOL3GraphView } from "sbolgraph"
+import { SBOL3GraphView } from "sboljs"
 import Context from "../Context"
 import OptString from "./opt/OptString"
 

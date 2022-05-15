@@ -1,7 +1,7 @@
 import Opt from "./Opt";
 import { SBOLVersion } from "../../util/get-sbol-version-from-graph";
 import { Predicates, Prefixes } from "bioterms";
-import { triple, Graph } from "sbolgraph";
+import { triple, Graph } from "sboljs";
 import ActionResult, { actionResultAbort } from "../ActionResult";
 import { text } from "../../output/output";
 import ActionDef, { OptDef } from "../ActionDef";

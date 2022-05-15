@@ -5,7 +5,7 @@ import { text } from "../output/output";
 import IdentityFactory, { Existence } from "./IdentityFactory";
 import { SBOLVersion } from "../util/get-sbol-version-from-graph";
 import joinURIFragments from "../util/join-uri-fragments";
-import { SBOL3GraphView, S1Facade, S1DnaComponent, sbol3, S3Component, S3Identified } from "sbolgraph";
+import { SBOL3GraphView, S1Facade, S1DnaComponent, sbol3, S3Component, S3Identified } from "sboljs";
 import { Predicates } from "bioterms";
 import { strict as assert } from 'assert'
 import { identityErrorGeneric, identityErrorUnguessableNamespace, identityErrorChildIdentityMissingContext, identityErrorEmptyChain } from "./helpers/errors";

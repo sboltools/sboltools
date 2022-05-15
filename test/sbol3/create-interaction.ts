@@ -1,6 +1,6 @@
 
 import { Graph, GraphView } from "rdfoo"
-import { SBOL3GraphView } from "sbolgraph"
+import { SBOL3GraphView } from "sboljs"
 import Test from "../Test"
 import { strict as assert } from 'assert'
 

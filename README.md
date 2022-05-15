@@ -9,7 +9,7 @@ A CLI for the [Synthetic Biology Open Language (SBOL)](http://sbolstandard.org)
 
 View and edit SBOL files from the command line, without writing any code!
 
-Based on the [sbolgraph](https://github.com/sboltools/sbolgraph) library.
+Based on the [sboljs3](https://github.com/SynBioDex/sboljs3) library.
 
 ![sboltools test workflow](https://github.com/sboltools/sboltools/workflows/sboltools%20test%20workflow/badge.svg)
 ![sboltools release workflow](https://github.com/sboltools/sboltools/workflows/sboltools%20release%20workflow/badge.svg)

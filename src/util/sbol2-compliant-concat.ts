@@ -1,5 +1,5 @@
 import assert = require("assert")
-import { S2Identified, SBOL2GraphView, Graph, node } from "sbolgraph"
+import { S2Identified, SBOL2GraphView, Graph, node } from "sboljs"
 import joinURIFragments from "./join-uri-fragments"
 
 export default function sbol2CompliantConcat(g:Graph, uri:string, childDisplayId:string):string {

@@ -1,7 +1,7 @@
 
 import { text, group, spacer, header, indent, conditional } from "../output/output"
 import { Graph } from "rdfoo"
-import { SBOLConverter, SBOL1GraphView, SBOL2GraphView, SBOL3GraphView } from "sbolgraph"
+import { SBOLConverter, SBOL1GraphView, SBOL2GraphView, SBOL3GraphView } from "sboljs"
 import { dnaComponentTree } from "../sbol1/dnaComponentTree"
 import { componentTree } from "../sbol3/componentTree"
 import { cdTree } from "../sbol2/cdTree"

@@ -1,5 +1,5 @@
 import Opt from "./Opt";
-import { triple, Graph } from "sbolgraph";
+import { triple, Graph } from "sboljs";
 import ActionDef, { OptDef } from "../ActionDef";
 import { ArgvOptionSet } from "../../parse-argv";
 

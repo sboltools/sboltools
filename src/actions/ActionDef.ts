@@ -1,5 +1,5 @@
 import ActionResult from "./ActionResult";
-import { Graph } from "sbolgraph";
+import { Graph } from "sboljs";
 import Opt from "./opt/Opt";
 import { ArgvOptionSet } from "../parse-argv";
 import Context from "../Context";

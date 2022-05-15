@@ -2,7 +2,7 @@
 import OutputNode from "./output/OutputNode"
 import { Graph, identifyFiletype, Filetype } from "rdfoo"
 import { text, group, spacer, header, indent, conditional } from "./output/output"
-import { SBOL2GraphView, SBOL1GraphView, SBOL3GraphView } from "sbolgraph"
+import { SBOL2GraphView, SBOL1GraphView, SBOL3GraphView } from "sboljs"
 import { dnaComponentTree } from "./sbol1/dnaComponentTree"
 import { mdTree } from "./sbol2/mdTree"
 import { componentTree } from "./sbol3/componentTree"

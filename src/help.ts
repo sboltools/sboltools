@@ -1,6 +1,6 @@
 export default `
 ✨ *sboltools 0.1.0                                   SBOL 1.1.0   2.3.0   3.0.0*
-      -> using sbolgraph 1.0.0
+      -> using sboljs 1.0.0
       -> questions/comments please contact James McLaughlin <james@mclgh.net>
 
 **Usage**

@@ -1,7 +1,7 @@
 
 
 import { Graph, GraphView } from "rdfoo"
-import { SBOL2GraphView } from "sbolgraph"
+import { SBOL2GraphView } from "sboljs"
 import Test from "../Test"
 import { strict as assert } from 'assert'
 
@@ -12,15 +12,17 @@ let tests:Test[] = [
         glob: [
             //'SBOLTestSuite/SBOL2/*.xml',
 
+	    'tests-extra/SBOL2/m2.xml',
+
         //     'SBOLTestSuite/SBOL2/memberAnnotations_int_md.xml',
-            'SBOLTestSuite/SBOL2_ic/gfp_reporter_combDeri_ann.xml',
+        //     'SBOLTestSuite/SBOL2_ic/gfp_reporter_combDeri_ann.xml',
             // 'SBOLTestSuite/SBOL2/memberAnnotations_interaction.xml',
             // 'SBOLTestSuite/SBOL2/memberAnnotations_md_ann.xml',
             // 'SBOLTestSuite/SBOL2/memberAnnotations_md_mod_ann.xml',
             // 'SBOLTestSuite/SBOL2/memberAnnotations.xml',
             // 'SBOLTestSuite/SBOL2/ModelOutput.xml',
             // 'SBOLTestSuite/SBOL2/ModuleDefinitionOutput_int_md_ann.xml',
-            // 'SBOLTestSuite/SBOL2/ModuleDefinitionOutput.xml',
+        //     'SBOLTestSuite/SBOL2/ModuleDefinitionOutput.xml',
             // 'SBOLTestSuite/SBOL2/multipleCollections_no_Members.xml',
             // 'SBOLTestSuite/SBOL2/partial_pIKE_left_cassette.xml',
             // 'SBOLTestSuite/SBOL2/partial_pIKE_right_casette.xml',
@@ -68,7 +70,7 @@ let tests:Test[] = [
                 merge --from converted
                 convert --target-sbol-version 2
                 graph-dump --title "SBOL2 -> SBOL3 -> SBOL2"
-                compare --to orig
+                compare --to orig --ignore ".* .*backport.* .*"
 	
 	    show-graphs
         `,

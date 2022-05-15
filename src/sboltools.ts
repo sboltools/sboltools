@@ -1,6 +1,6 @@
 
 
-import { SBOL3GraphView, Graph, SBOL1GraphView, SBOL2GraphView } from 'sbolgraph'
+import { SBOL3GraphView, Graph, SBOL1GraphView, SBOL2GraphView } from 'sboljs'
 
 import { print, enableTrace, trace } from './output/print'
 

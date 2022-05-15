@@ -2,7 +2,7 @@
 import OutputNode from "../output/OutputNode";
 import OutputNodeTree from "../output/OutputNodeTree";
 import { group } from "../output/output";
-import { SBOL1GraphView, S1DnaComponent, S1DnaSequence, SBOL3GraphView, S3Component, S3SubComponent } from "sbolgraph";
+import { SBOL1GraphView, S1DnaComponent, S1DnaSequence, SBOL3GraphView, S3Component, S3SubComponent } from "sboljs";
 
 export function componentTree(gv:SBOL3GraphView):OutputNode { 
 

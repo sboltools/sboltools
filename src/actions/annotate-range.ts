@@ -7,7 +7,7 @@ import ActionDef from "./ActionDef"
 import OptSBOLVersion from "./opt/OptSBOLVersion"
 import { strict as assert } from 'assert'
 import { SBOLVersion } from "../util/get-sbol-version-from-graph"
-import { SBOL1GraphView } from "sbolgraph"
+import { SBOL1GraphView } from "sboljs"
 import OptIdentity from "./opt/OptIdentity"
 import { Predicates, Types } from "bioterms"
 import OptURL from "./opt/OptURL"
