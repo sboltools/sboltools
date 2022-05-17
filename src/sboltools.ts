@@ -164,9 +164,7 @@ function help() {
 
 
 function help_json() {
-   print(
-       text(
+   console.log(
 	       jsonHelp()
        )
-   )
 }
