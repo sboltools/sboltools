@@ -27,8 +27,9 @@ If you want to build sboltools from source, clone this repo and build it using:
     npm install
     npm run build
 
-This will generate a file called `sboltools_bundle.js` containing sboltools and all of its dependencies. All you need to run it is node.js:
+This will generate a file called `sbol.js` containing sboltools and all of its dependencies. All you need to run it is node.js:
 
-    node sboltools_bundle.js
+    node sbol.js
+
 
 
