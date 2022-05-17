@@ -9,7 +9,7 @@
     "watch": "node watch.js",
     "package": "node build.js",
     "makedist": "node ./makedist.js",
-    "test": "node build.js && node sbol.js run-tests"
+    "test": "node build.js && node --enable-source-maps sbol.js run-tests"
   },
   "dependencies": {
     "@types/chalk": "^2.2.0",
@@ -23,8 +23,8 @@
     "json-colorizer": "^2.2.2",
     "node-fetch": "^2.6.1",
     "promise-fs": "^2.1.1",
-    "rdfoo": "=0.17.0",
-    "sboljs": "=3.0.1",
+    "rdfoo": "=0.18.0",
+    "sboljs": "=3.0.2",
     "string-argv": "^0.3.1"
   },
   "preferGlobal": true,

@@ -8,6 +8,7 @@ import actions from './actions'
 import parseArgv, { ArgvNamedOption, ArgvOptionSet } from './parse-argv'
 
 import helptext from './help'
+import jsonHelp from './help_json'
 import summarize from './summarize'
 import ActionResult, { Outcome } from './actions/ActionResult'
 import chalk = require('chalk')
@@ -29,7 +30,11 @@ export default async function sboltools(args:string[]):Promise<string|undefined>
     if(argv.actions.length === 0 ||
             (argv.globalOpts.getFlag('help') || argv.globalOpts.getFlag('h'))) {
 
-        help()
+		if(argv.globalOpts.getFlag('json')) {
+			help_json()
+		} else {
+			help()
+		}
         return
 
     }
@@ -153,6 +158,15 @@ function help() {
                 .replace(/\*\*(.*)\*\*/g, (w, str:string) => chalk.white.underline.bold(str.toUpperCase()))
                 .replace(/\*(.*)\*/g, (w, str:string) => chalk.white.bold(str))
                 .replace('%actions%', actions.map(a => '    ' + a.name).join('\n'))
+       )
+   )
+}
+
+
+function help_json() {
+   print(
+       text(
+	       jsonHelp()
        )
    )
 }

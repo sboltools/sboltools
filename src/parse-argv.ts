@@ -82,9 +82,11 @@ export default function parseArgv(argv:string[]):ArgvArgs {
 
             let option:ArgvNamedOption = { name }
 
-            if(parseToken(args[0]).type === TokenType.Other) {
-                option.value = args.shift()
-            }
+	    if(args[0]) {
+		if(parseToken(args[0]).type === TokenType.Other) {
+			option.value = args.shift()
+		}
+	    }
 
             globalOpts.push(option)
 
