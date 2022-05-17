@@ -22,9 +22,7 @@ let tests:Test[] = [
     ...tests_sbol3
 ]
 
-runTests()
-
-async function runTests() {
+export default async function runTests() {
 
     let passes:string[] = []
     let fails:string[] = []

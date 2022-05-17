@@ -21,6 +21,7 @@ import graphMerge from './merge'
 import graphInsert from './insert'
 import namespace from './namespace'
 import sbolVersion from './sbol-version'
+import runTests from './run-tests'
 
 export default [
     _import,
@@ -44,6 +45,7 @@ export default [
     graphMerge,
     graphInsert,
     namespace,
-    sbolVersion
+    sbolVersion,
+    runTests
 ]
 
