@@ -26,7 +26,7 @@ jobs:
         - name: Build
           run: npm run-script build
         - name: Generate docs
-          run: node actions2json > actions.json
+          run: node --enable-source-maps sbol.js --json > actions.json
         - uses: actions/checkout@v2
           name: Checkout pages repo
           with:
