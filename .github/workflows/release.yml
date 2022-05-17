@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [12.x]
+        node-version: [16.x]
     steps:
         - uses: actions/checkout@v2
           with:
@@ -31,13 +31,13 @@ jobs:
         - name: make dist
           run: npm run makedist
         - name: Download windows node x86
-          run: wget https://nodejs.org/dist/v12.16.3/node-v12.16.3-win-x86.zip && unzip node-v12.16.3-win-x86.zip
+          run: wget https://nodejs.org/dist/v16.15.0/node-v16.15.0-win-x86.zip && unzip node-v16.15.0-win-x86.zip
         - name: Download windows node x64
-          run: wget https://nodejs.org/dist/v12.16.3/node-v12.16.3-win-x64.zip && unzip node-v12.16.3-win-x64.zip
+          run: wget https://nodejs.org/dist/v16.15.0/node-v16.15.0-win-x64.zip && unzip node-v16.15.0-win-x64.zip
         - name: Copy node to windows dist x86
-          run: cp -f node-v12.16.3-win-x86/node.exe ./bin/dist/win32-x86/ && cp -f node-v12.16.3-win-x86/LICENSE ./bin/dist/win32-x86/license_node.txt
+          run: cp -f node-v16.15.0-win-x86/node.exe ./bin/dist/win32-x86/ && cp -f node-v16.15.0-win-x86/LICENSE ./bin/dist/win32-x86/license_node.txt
         - name: Copy nodes to windows dist x64
-          run: cp -f node-v12.16.3-win-x64/node.exe ./bin/dist/win32-x64/ && cp -f node-v12.16.3-win-x64/LICENSE ./bin/dist/win32-x64/license_node.txt
+          run: cp -f node-v16.15.0-win-x64/node.exe ./bin/dist/win32-x64/ && cp -f node-v16.15.0-win-x64/LICENSE ./bin/dist/win32-x64/license_node.txt
         - name: Make unix zip
           run: zip -j sboltools-unix.zip ./bin/dist/unix/sbol 
         - name: Make unix tgz
