@@ -1,0 +1,638 @@
+
+<head>
+
+<title>SBOLtools REPL</title>
+
+<style>
+
+#container {
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.CodeMirror {
+    flex: 1 1 0;
+}
+
+.section {
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.section .header {
+    background-color: #eee;
+    padding: 4px;
+    font-weight: bold;
+    font-variant: small-caps;
+    text-transform: uppercase;
+    font-family: sans-serif;
+    font-size: 10pt;
+    user-select: none;
+}
+
+.section textarea {
+}
+
+#section-files {
+    padding: 8px;
+    font-family: sans-serif;
+    background: #2b2b2b;
+    color: #a9b7c6;
+}
+
+#section-files a {
+    color: #a9b7c6 !important;
+    text-decoration: none;
+}
+
+#section-files a:hover {
+    text-decoration: underline;
+}
+
+
+#run {
+    position: fixed;
+    right: 10px;
+    top: 30px;
+    z-index: 9999;
+}
+
+#run button {
+    font-size: 14pt;
+    border-radius: 4px;
+    border: none;
+}
+
+.tabs {
+    display: flex;
+    flex-direction: row;
+    background-color: #eee;
+    font-weight: bold;
+}
+
+.tabs .tab {
+    flex: 1 1 0px;
+    text-align: center;
+    padding: 4px;
+    font-variant: small-caps;
+    text-transform: uppercase;
+    font-family: sans-serif;
+    font-size: 10pt;
+    cursor: pointer;
+    background-color: #ccc;
+    user-select: none;
+}
+
+.tabs .tab:hover {
+    background-color: #dedede;
+}
+
+.tabs .tab.active {
+    #border-bottom: 2px solid black;
+    background-color: #eee;
+}
+
+    .hidden {
+        display: none;
+    }
+
+</style>
+</head>
+
+<body>
+
+<div id="run">
+    <button id="runbutton">
+        Run
+    </button>
+</div>
+
+
+<div id="container">
+
+<div class="section input">
+    <div class="header">
+        Input command
+    </div>
+<textarea id="input">
+sbol --trace --output sbol3 \
+  namespace "http://example.com/" \
+  sbol-version 3 \
+  component \
+    --type DNA \
+    --displayId lac_inverter \
+&gt; lac_inverter.xml
+</textarea>
+</div>
+
+
+<div class="section stderr">
+    <div class="header">
+        Messages (stderr)
+    </div>
+<textarea id="stderr"></textarea>
+</div>
+
+<div class="tabs">
+    <div class="tab active" id="tab-output">Output</div>
+    <div class="tab" id="tab-files">Files</div>
+</div>
+
+<div class="section" id="section-stdout">
+<textarea id="stdout"></textarea>
+</div>
+
+<div class="section hidden" id="section-files">
+files
+</div>
+
+</div>
+
+</body>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/BrowserFS/2.0.0/browserfs.min.js" integrity="sha512-mz0EI+Ay1uIJP7rZEX8C/JlTAcHRIQ8Sny4vxmmj8MSzDJgG9NxxY2pUmOGv1lO7imFIFMyjjCzEXEywNgaUdQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script type="text/javascript">
+// Installs globals onto window:
+// * Buffer
+// * require (monkey-patches if already defined)
+// * process
+// You can pass in an arbitrary object if you do not wish to pollute
+// the global namespace.
+BrowserFS.install(window);
+// Configures BrowserFS to use the LocalStorage file system.
+BrowserFS.configure({
+        fs: "LocalStorage"
+}, function(e) {
+    if (e) {
+            // An error happened!
+            throw e;
+        }
+    // Otherwise, BrowserFS is ready-to-use!
+});
+window.fs = window.require('fs')
+</script>
+
+<script type="text/javascript" src="sbol_browser.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.4/codemirror.min.js" integrity="sha512-2cmTnLqUwlJs8HnJF3SvFKcsdRf65Ho7wof0IeydYXnyWCiVhaR6u2zTD/BFS+2mIywyiUscY1Er54SS+OJjEw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.4/codemirror.min.css" integrity="sha512-uf06llspW44/LZpHzHT6qBOIVODjWtv4MxCricRxkzvopAlSWnTf6hpZTFxuuZcuNE9CBQhqE0Seu1CoRk84nQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.4/mode/xml/xml.min.js" integrity="sha512-LarNmzVokUmcA7aUDtqZ6oTS+YXmUKzpGdm8DxC46A6AHu+PQiYCUlwEGWidjVYMo/QXZMFMIadZtrkfApYp/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.4/mode/shell/shell.min.js" integrity="sha512-HoC6JXgjHHevWAYqww37Gfu2c1G7SxAOv42wOakjR8csbTUfTB7OhVzSJ95LL62nII0RCyImp+7nR9zGmJ1wRQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.4/theme/darcula.min.css" integrity="sha512-kqCOYFDdyQF4JM8RddA6rMBi9oaLdR0aEACdB95Xl1EgaBhaXMIe8T4uxmPitfq4qRmHqo+nBU2d1l+M4zUx1g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
+
+<script>
+    sboltools.print = function(out) {
+            let exist = stderr.getValue()
+            stderr.setValue((exist ? exist + '\n' : '') + out)
+    }
+
+  var input = CodeMirror.fromTextArea(document.getElementById('input'), {
+    lineNumbers: false,
+          theme: 'darcula',
+          lineWrapping: true,
+          mode: 'shell'
+  });
+  var stdout = CodeMirror.fromTextArea(document.getElementById('stdout'), {
+    lineNumbers: false,
+          readOnly: true,
+          theme: 'darcula',
+          lineWrapping: true
+  });
+  var stderr = CodeMirror.fromTextArea(document.getElementById('stderr'), {
+    lineNumbers: false,
+          readOnly: true,
+          theme: 'darcula',
+          lineWrapping: true
+  });
+
+
+        document.getElementById('runbutton').onclick = function() {
+
+                fs = window.require('fs')
+
+                stderr.setValue('')
+                stdout.setValue('')
+
+                let cmd = input.getValue().trim()
+
+                let lines = cmd.split('\n')
+
+                let cmds = []
+                let curCmd = ''
+
+                for(let line of lines) {
+                        if(curCmd !== '')
+                            curCmd += ' '
+                        if(line[line.length-1]==='\\') {
+                                curCmd += line.slice(0, line.length - 1)
+                                continue
+                            } else {
+                                    curCmd += line
+                                }
+                        if(curCmd.trim()) {
+                            cmds.push(curCmd.trim())
+                            }
+                        curCmd = ''
+                    }
+
+                console.dir(cmds)
+
+                for(let oneCmd of cmds) {
+
+                    let parsed = shellParse(oneCmd)
+
+                    var outfile = null
+
+                    for(let n = 0; n < parsed.length; ++ n) {
+                            let pn = parsed[n]
+                            if(pn.op) {
+                                    if(pn.op == '>') {
+                                            outfile = { mode: 'overwrite', path: parsed.slice(n+1).join(' ') }
+                                        }
+                                    else if(pn.op == '>>') {
+                                            outfile = { mode: 'append', path: parsed.slice(n+1).join(' ') }
+                                        }
+                                    oneCmd = shellQuote( parsed.slice(0, n))
+                                    break
+                            }
+                    }
+
+                    console.dir(oneCmd)
+
+                    if(oneCmd.indexOf('sbol') !== 0) {
+                            stderr.setValue('Command must begin with sbol')
+                            return
+                        }
+
+                    sboltools(oneCmd).then(function(out) {
+
+                            setTimeout(function() {
+                            renderFiles()
+                                }, 500)
+
+                            if(out) {
+
+                                var existingStdout = stdout.getValue()
+                                stdout.setValue((existingStdout ? existingStdout+'\n' :'') + out)
+
+                                    if(outfile) {
+                                            if(outfile.mode == 'append') {
+                                                    fs.writeFileSync(outfile.path, fs.readFileSync(outfile.path) + '\n' + out)
+                                                } else {
+                                                    fs.writeFileSync(outfile.path, out)
+                                                    }
+                                        }
+                            }
+
+
+                        })
+                    }
+            }
+
+
+        renderFiles()
+
+        document.getElementById('tab-files').onclick = function() {
+                document.getElementById('tab-output').classList.remove('active')
+                document.getElementById('tab-files').classList.add('active')
+
+                renderFiles()
+
+                document.getElementById('section-files').classList.remove('hidden')
+                document.getElementById('section-stdout').classList.add('hidden')
+        }
+
+        document.getElementById('tab-output').onclick = function() {
+                document.getElementById('tab-files').classList.remove('active')
+                document.getElementById('tab-output').classList.add('active')
+
+                setTimeout(function() {
+                stdout.refresh()
+                    }, 1)
+
+                document.getElementById('section-files').classList.add('hidden')
+                document.getElementById('section-stdout').classList.remove('hidden')
+        }
+
+        function renderFiles() {
+
+                var fs = window.require('fs')
+
+                allpaths = findPaths('.')
+
+                document.getElementById('tab-files').innerText = allpaths.length > 0 ?  'Files (' + allpaths.length + ')' : 'Files'
+
+                        document.getElementById('section-files').innerHTML = ''
+
+                if(allpaths.length > 0) {
+                        var  deleteall = document.createElement('button')
+                    deleteall.innerText = 'Delete all (CANNOT BE UNDONE)'
+                        deleteall.onclick = function() {
+                                for(let path of allpaths) {
+                                        fs.unlinkSync(path)
+                                    }
+                                renderFiles()
+                        }
+                        document.getElementById('section-files').appendChild(deleteall)
+                        document.getElementById('section-files').appendChild(document.createElement('br'))
+                    }
+
+                        
+
+                        for(let p of allpaths) {
+                                var a = document.createElement('a')
+                                a.innerText = p.slice(2)
+                                a.href='#'
+                                a.onclick = function() {
+                                        //input.setValue(input.getValue() + p)
+                                        //input.focus()
+                                        //input.skipToEnd()
+                                        
+                                        var str = fs.readFileSync(p)
+
+                                        let blob = new Blob([ str ], {
+                                                type: 'application/rdf+xml'
+                                            })
+
+
+                                        downloadBlob(p.split('/').pop(), blob)
+
+
+
+                                    }
+
+                        document.getElementById('section-files').appendChild(a)
+                            }
+
+                function findPaths(path) {
+                    var files = fs.readdirSync(path)
+                        var arr = []
+                        for(var file of files) {
+                                if(file[0] === '.')
+                                    continue
+                                var subpath = path + '/' + file
+                                if(fs.lstatSync(subpath).isDirectory()) {
+                                    arr = arr.concat(findPaths(subpath))
+                                    } else {
+                                            arr.push(subpath.split('//').join('/'))
+                                        }
+                            }
+                        return arr
+                    }
+
+                function renderDirNode(path) {
+                    var dir = document.createElement('div')
+                       dir.innerText = path 
+
+                    var subdirs = fs.readdirSync(path)
+                        for(let sd of subdirs) {
+                                if(sd[0] === '.')
+                                        continue
+                                dir.appendChild(renderDirNode(sd))
+                            }
+
+                        return dir
+                }
+        }
+
+</script>
+
+
+
+
+
+<script type="text/javascript">
+
+
+    function downloadBlob(name, blob) {
+
+    let url = window.URL.createObjectURL(blob)
+
+    let a = document.createElement('a')
+    a.style.display = 'none'
+
+    document.body.appendChild(a)
+
+    a.href = url
+    a.download = name
+    a.click()
+
+    window.URL.revokeObjectURL(url)
+
+    document.body.removeChild(a)
+}
+
+
+    // https://github.com/substack/node-shell-quote/blob/master/index.js
+
+    function shellQuote(xs) {
+    return xs.map(function (s) {
+        if (s && typeof s === 'object') {
+            return s.op.replace(/(.)/g, '\\$1');
+        }
+        else if (/["\s]/.test(s) && !/'/.test(s)) {
+            return "'" + s.replace(/(['\\])/g, '\\$1') + "'";
+        }
+        else if (/["'\s]/.test(s)) {
+            return '"' + s.replace(/(["\\$`!])/g, '\\$1') + '"';
+        }
+        else {
+            return String(s).replace(/([A-Za-z]:)?([#!"$&'()*,:;<=>?@\[\\\]^`{|}])/g, '$1\\$2');
+        }
+    }).join(' ');
+};
+
+
+// '<(' is process substitution operator and
+// can be parsed the same as control operator
+var CONTROL = '(?:' + [
+    '\\|\\|', '\\&\\&', ';;', '\\|\\&', '\\<\\(', '>>', '>\\&', '[&;()|<>]'
+].join('|') + ')';
+var META = '|&;()<> \\t';
+var BAREWORD = '(\\\\[\'"' + META + ']|[^\\s\'"' + META + '])+';
+var SINGLE_QUOTE = '"((\\\\"|[^"])*?)"';
+var DOUBLE_QUOTE = '\'((\\\\\'|[^\'])*?)\'';
+
+var TOKEN = '';
+for (var i = 0; i < 4; i++) {
+    TOKEN += (Math.pow(16,8)*Math.random()).toString(16);
+}
+
+function shellParse (s, env, opts) {
+    var mapped = parse(s, env, opts);
+    if (typeof env !== 'function') return mapped;
+    return mapped.reduce(function (acc, s) {
+        if (typeof s === 'object') return acc.concat(s);
+        var xs = s.split(RegExp('(' + TOKEN + '.*?' + TOKEN + ')', 'g'));
+        if (xs.length === 1) return acc.concat(xs[0]);
+        return acc.concat(xs.filter(Boolean).map(function (x) {
+            if (RegExp('^' + TOKEN).test(x)) {
+                return JSON.parse(x.split(TOKEN)[1]);
+            }
+            else return x;
+        }));
+    }, []);
+};
+
+function parse (s, env, opts) {
+    var chunker = new RegExp([
+        '(' + CONTROL + ')', // control chars
+        '(' + BAREWORD + '|' + SINGLE_QUOTE + '|' + DOUBLE_QUOTE + ')*'
+    ].join('|'), 'g');
+    var match = s.match(chunker).filter(Boolean);
+    var commented = false;
+
+    if (!match) return [];
+    if (!env) env = {};
+    if (!opts) opts = {};
+    return match.map(function (s, j) {
+        if (commented) {
+            return;
+        }
+        if (RegExp('^' + CONTROL + '$').test(s)) {
+            return { op: s };
+        }
+
+        // Hand-written scanner/parser for Bash quoting rules:
+        //
+        //  1. inside single quotes, all characters are printed literally.
+        //  2. inside double quotes, all characters are printed literally
+        //     except variables prefixed by '$' and backslashes followed by
+        //     either a double quote or another backslash.
+        //  3. outside of any quotes, backslashes are treated as escape
+        //     characters and not printed (unless they are themselves escaped)
+        //  4. quote context can switch mid-token if there is no whitespace
+        //     between the two quote contexts (e.g. all'one'"token" parses as
+        //     "allonetoken")
+        var SQ = "'";
+        var DQ = '"';
+        var DS = '$';
+        var BS = opts.escape || '\\';
+        var quote = false;
+        var esc = false;
+        var out = '';
+        var isGlob = false;
+
+        for (var i = 0, len = s.length; i < len; i++) {
+            var c = s.charAt(i);
+            isGlob = isGlob || (!quote && (c === '*' || c === '?'));
+            if (esc) {
+                out += c;
+                esc = false;
+            }
+            else if (quote) {
+                if (c === quote) {
+                    quote = false;
+                }
+                else if (quote == SQ) {
+                    out += c;
+                }
+                else { // Double quote
+                    if (c === BS) {
+                        i += 1;
+                        c = s.charAt(i);
+                        if (c === DQ || c === BS || c === DS) {
+                            out += c;
+                        } else {
+                            out += BS + c;
+                        }
+                    }
+                    else if (c === DS) {
+                        out += parseEnvVar();
+                    }
+                    else {
+                        out += c;
+                    }
+                }
+            }
+            else if (c === DQ || c === SQ) {
+                quote = c;
+            }
+            else if (RegExp('^' + CONTROL + '$').test(c)) {
+                return { op: s };
+            }
+            else if (RegExp('^#$').test(c)) {
+                commented = true;
+                if (out.length){
+                    return [out, { comment: s.slice(i+1) + match.slice(j+1).join(' ') }];
+                }
+                return [{ comment: s.slice(i+1) + match.slice(j+1).join(' ') }];
+            }
+            else if (c === BS) {
+                esc = true;
+            }
+            else if (c === DS) {
+                out += parseEnvVar();
+            }
+            else out += c;
+        }
+
+        if (isGlob) return {op: 'glob', pattern: out};
+
+        return out;
+
+        function parseEnvVar() {
+            i += 1;
+            var varend, varname;
+            //debugger
+            if (s.charAt(i) === '{') {
+                i += 1;
+                if (s.charAt(i) === '}') {
+                    throw new Error("Bad substitution: " + s.substr(i - 2, 3));
+                }
+                varend = s.indexOf('}', i);
+                if (varend < 0) {
+                    throw new Error("Bad substitution: " + s.substr(i));
+                }
+                varname = s.substr(i, varend - i);
+                i = varend;
+            }
+            else if (/[*@#?$!_\-]/.test(s.charAt(i))) {
+                varname = s.charAt(i);
+                i += 1;
+            }
+            else {
+                varend = s.substr(i).match(/[^\w\d_]/);
+                if (!varend) {
+                    varname = s.substr(i);
+                    i = s.length;
+                } else {
+                    varname = s.substr(i, varend.index);
+                    i += varend.index - 1;
+                }
+            }
+            return getVar(null, '', varname);
+        }
+    })
+    // finalize parsed aruments
+    .reduce(function(prev, arg){
+        if (arg === undefined){
+            return prev;
+        }
+        return prev.concat(arg);
+    },[]);
+
+    function getVar (_, pre, key) {
+        var r = typeof env === 'function' ? env(key) : env[key];
+        if (r === undefined && key != '')
+            r = '';
+        else if (r === undefined)
+            r = '$';
+
+        if (typeof r === 'object') {
+            return pre + TOKEN + JSON.stringify(r) + TOKEN;
+        }
+        else return pre + r;
+    }
+}
+</script>
+
+
+

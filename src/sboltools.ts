@@ -17,12 +17,17 @@ import ActionDef, { def2usage } from './actions/ActionDef'
 import Opt from './actions/opt/Opt'
 import Context from './Context'
 
+var sqparse = require('shell-quote').parse;
 
-export default async function sboltools(args:string[]):Promise<string|undefined> {
+export default async function sboltools(args:string[]|string):Promise<string|undefined> {
+
+    if(typeof args === 'string') {
+        args = sqparse(args)
+    }
 
     // console.dir(args)
 
-    let argv = parseArgv(args)
+    let argv = parseArgv(args as string[])
 
     // console.dir(argv)
 
@@ -168,3 +173,5 @@ function help_json() {
 	       jsonHelp()
        )
 }
+
+

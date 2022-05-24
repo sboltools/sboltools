@@ -62,10 +62,16 @@ export function endCaptureOutput() {
 }
 
 export function printStderr(out:string) {
+
+    if(typeof window !== undefined) {
+        // browser
+        window['sboltools'].print(out)
+    } else {
     // if (captureOutput) {
     //     captured.push(out)
     // } else {
         process.stderr.write(out)
     // }
+        }
 }
 

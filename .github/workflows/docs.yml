@@ -27,6 +27,8 @@ jobs:
           run: npm run-script build
         - name: Generate docs
           run: node --enable-source-maps sbol.js --json > actions.json
+        - name: Build browser
+          run: npm run-script build-browser
         - uses: actions/checkout@v2
           name: Checkout pages repo
           with:
@@ -37,6 +39,8 @@ jobs:
               GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           run: |
             cd pages
+            cp ../repl.html .
+            cp ../sbol_browser.js .
             rm -f _data/actions.json
             mkdir -p _data
             cp ../actions.json _data/
