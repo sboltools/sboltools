@@ -45,7 +45,7 @@ jobs:
             mkdir -p _data
             cp ../actions.json _data/
             echo $GITHUB_SHA > hash
-            git add _data hash
+            git add _data hash repl.html sbol_browser.js
             git config user.name "GitHub Actions" && git config user.email "actions@users.noreply.github.com"
             git commit -m "Update generated docs via GitHub action"
             git config -l | grep 'http\..*\.extraheader' | cut -d= -f1 | xargs -L1 git config --unset-all

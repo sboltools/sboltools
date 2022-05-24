@@ -63,7 +63,7 @@ export function endCaptureOutput() {
 
 export function printStderr(out:string) {
 
-    if(typeof window !== undefined) {
+    if(typeof window !== undefined && typeof process === undefined) {
         // browser
         window['sboltools'].print(out)
     } else {
