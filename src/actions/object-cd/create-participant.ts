@@ -1,28 +1,24 @@
 
 
-import { text, group, spacer, header, indent, conditional } from "../output/output"
+import { text, group, spacer, header, indent, conditional } from "../../output/output"
 import { Graph, node } from "rdfoo"
-import ActionResult, { Outcome } from "./ActionResult"
-import Opt from "./opt/Opt"
-import ActionDef from "./ActionDef"
-import OptSBOLVersion from "./opt/OptSBOLVersion"
+import ActionResult, { Outcome } from "../ActionResult"
+import Opt from "../opt/Opt"
+import ActionDef from "../ActionDef"
 import { strict as assert } from 'assert'
-import { SBOLVersion } from "../util/get-sbol-version-from-graph"
+import { SBOLVersion } from "../../util/get-sbol-version-from-graph"
 import { SBOL1GraphView, S1DnaComponent, SBOL2GraphView, SBOL3GraphView } from "sboljs"
-import OptIdentity from "./opt/OptIdentity"
+import OptIdentity from "../opt/OptIdentity"
 import { Predicates, Types } from "bioterms"
-import OptURL from "./opt/OptURL"
-import OptString from "./opt/OptString"
-import { Existence } from "../identity/IdentityFactory"
-import Identity from "../identity/Identity"
-import sbol2CompliantConcat from "../util/sbol2-compliant-concat"
-import joinURIFragments from "../util/join-uri-fragments"
-import { trace } from "../output/print";
-import Context from "../Context"
-import OptTerm, { TermType } from "./opt/OptTerm"
-import IdentityFactorySBOL2 from "../identity/IdentityFactorySBOL2"
-import { identityErrorChildIdentityMissingContext } from "../identity/helpers/errors"
-import IdentityFactorySBOL3 from "../identity/IdentityFactorySBOL3"
+import OptTerm  from "../opt/OptTerm"
+import { Existence } from "../../identity/IdentityFactory"
+import Identity from "../../identity/Identity"
+import sbol2CompliantConcat from "../../util/sbol2-compliant-concat"
+import joinURIFragments from "../../util/join-uri-fragments"
+import { trace } from "../../output/print";
+import Context from "../../Context"
+
+
 
 let createParticipantAction:ActionDef = {
     name: 'participant',

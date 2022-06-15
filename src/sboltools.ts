@@ -16,6 +16,7 @@ import { text, spacer, group } from './output/output'
 import ActionDef, { def2usage } from './actions/ActionDef'
 import Opt from './actions/opt/Opt'
 import Context from './Context'
+import graphToSboltoolsCmd from './graphToSboltoolsCmd'
 
 var sqparse = require('shell-quote').parse;
 
@@ -74,9 +75,15 @@ export default async function sboltools(args:string[]|string):Promise<string|und
         let namedOpts = actDef.namedOpts.map(optDef => new optDef.type(actDef, optDef, action.namedOpts))
 
         // todo hacky af
-        let positionalOpts = actDef.positionalOpts.map((optDef, i) => new optDef.type(actDef, optDef, new ArgvOptionSet([
-            new ArgvNamedOption(optDef.name, action.positionalOpts[i])
-        ], undefined)))
+        let positionalOpts = actDef.positionalOpts.map((optDef, i) => {
+		if(action.positionalOpts[i]) {
+			return new optDef.type(actDef, optDef, new ArgvOptionSet([
+				new ArgvNamedOption(optDef.name, action.positionalOpts[i])
+			], undefined))
+		} else {
+			return undefined
+		}
+	})
 
         // console.dir('po')
         // console.dir(positionalOpts)
@@ -144,6 +151,9 @@ export default async function sboltools(args:string[]|string):Promise<string|und
                 break
             case 'genbank':
                 print(text(chalk.red('GenBank output not yet supported')))
+                break
+            case 'sboltools':
+                graphToSboltoolsCmd(ctx.getCurrentGraph());
                 break
             case 'none':
                 break

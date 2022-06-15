@@ -1,25 +1,20 @@
 
 
-import { text, group, spacer, header, indent, conditional } from "../output/output"
+import { text, group, spacer, header, indent, conditional } from "../../output/output"
 import { Graph, node } from "rdfoo"
-import ActionResult, { Outcome } from "./ActionResult"
-import Opt from "./opt/Opt"
-import ActionDef from "./ActionDef"
-import OptSBOLVersion from "./opt/OptSBOLVersion"
+import ActionResult, { Outcome } from "../ActionResult"
+import Opt from "../opt/Opt"
+import ActionDef from "../ActionDef"
 import { strict as assert } from 'assert'
-import { SBOLVersion } from "../util/get-sbol-version-from-graph"
+import { SBOLVersion } from "../../util/get-sbol-version-from-graph"
 import { SBOL1GraphView, S1DnaComponent, SBOL2GraphView, SBOL3GraphView } from "sboljs"
-import OptIdentity from "./opt/OptIdentity"
+import OptIdentity from "../opt/OptIdentity"
 import { Predicates, Prefixes, Types } from "bioterms"
-import OptURL from "./opt/OptURL"
-import OptString from "./opt/OptString"
-import { Existence } from "../identity/IdentityFactory"
-import Identity from "../identity/Identity"
-import sbol2CompliantConcat from "../util/sbol2-compliant-concat"
-import joinURIFragments from "../util/join-uri-fragments"
-import { trace } from "../output/print";
-import Context from "../Context"
-import OptTerm, { TermType } from "./opt/OptTerm"
+import { Existence } from "../../identity/IdentityFactory"
+import Identity from "../../identity/Identity"
+import { trace } from "../../output/print";
+import Context from "../../Context"
+import OptTerm  from "../opt/OptTerm"
 
 let createConstraintAction:ActionDef = {
     name: 'constraint',
@@ -59,13 +54,16 @@ async function createConstraint(ctx:Context, namedOpts:Opt[], positionalOpts:Opt
 
     trace(text('createConstraint'))
 
-    let [ optIdentity, optSubject, optRestriction, optObject ] = namedOpts
+    let [ optNamedIdentity, optSubject, optRestriction, optObject ] = namedOpts
 
-    assert(optIdentity instanceof OptIdentity)
+    assert(optNamedIdentity instanceof OptIdentity)
     assert(optSubject instanceof OptIdentity)
     assert(optRestriction instanceof OptTerm)
     assert(optObject instanceof OptIdentity)
 
+    let [ optPositionalIdentity ] = positionalOpts
+
+    assert(!optPositionalIdentity || optPositionalIdentity instanceof OptIdentity)
     
     let identity = optIdentity.getIdentity(ctx, Existence.MustNotExist)
     assert(identity !== undefined)
