@@ -16,6 +16,7 @@ import { text, spacer, group } from './output/output'
 import ActionDef, { def2usage } from './actions/ActionDef'
 import Opt from './actions/opt/Opt'
 import Context from './Context'
+import graphToSboltoolsCmd from './graphToSboltoolsCmd'
 
 var sqparse = require('shell-quote').parse;
 
@@ -144,6 +145,9 @@ export default async function sboltools(args:string[]|string):Promise<string|und
                 break
             case 'genbank':
                 print(text(chalk.red('GenBank output not yet supported')))
+                break
+            case 'sboltools':
+                graphToSboltoolsCmd(ctx.getCurrentGraph());
                 break
             case 'none':
                 break
