@@ -13,12 +13,12 @@ let tests:Test[] = [
             --output sbol3
             namespace "http://example.com/"
             sbol-version 3
-            component --type DNA .lac_inverter
-            component --type DNA .lac_inverter.pLac
-            component --type Protein .lac_inverter.lacI
-            interaction --type Inhibition .lac_inverter.lacI_represses_pLac 
-                participant .lac_inverter.lacI --role Inhibitor
-                participant .lac_inverter.pLac --role Promoter
+            component --type DNA lac_inverter
+            component --type DNA lac_inverter.pLac
+            component --type Protein lac_inverter.lacI
+            interaction --type Inhibition lac_inverter.lacI_represses_pLac 
+                participant lac_inverter.lacI --role Inhibitor
+                participant lac_inverter.pLac --role Promoter
         `,
         validate: async (r:string|undefined) => {
 

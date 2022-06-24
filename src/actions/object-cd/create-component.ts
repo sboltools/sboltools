@@ -10,13 +10,14 @@ import { SBOLVersion } from "../../util/get-sbol-version-from-graph"
 import { SBOL1GraphView, S1DnaComponent, SBOL2GraphView, SBOL3GraphView } from "sboljs"
 import OptIdentity from "../opt/OptIdentity"
 import { Predicates, Types } from "bioterms"
-import OptTerm, { TermType } from "../opt/OptTerm"
+import OptTerm from "../opt/OptTerm"
 import { Existence } from "../../identity/IdentityFactory"
 import Identity from "../../identity/Identity"
 import sbol2CompliantConcat from "../../util/sbol2-compliant-concat"
 import joinURIFragments from "../../util/join-uri-fragments"
 import { trace } from "../../output/print";
 import Context from "../../Context"
+import { TermType } from "../../vocab"
 
 let createComponentAction:ActionDef = {
     name: 'component',
@@ -36,7 +37,12 @@ let createComponentAction:ActionDef = {
             type: OptTerm
         }
     ],
-    positionalOpts: [  
+    positionalOpts: [
+        {
+            name: '',
+            type: OptIdentity,
+	    optional: true
+        },
     ],
     run: createComponent
 }
@@ -49,14 +55,17 @@ async function createComponent(ctx:Context, namedOpts:Opt[], positionalOpts:Opt[
 
     trace(text('createComponent'))
 
-    let [ optIdentity, optType, optRole ] = namedOpts
+    let [ optNamedIdentity, optType, optRole ] = namedOpts
 
-    assert(optIdentity instanceof OptIdentity)
     assert(optType instanceof OptTerm)
     assert(optRole instanceof OptTerm)
+    assert(optNamedIdentity instanceof Opt)
+    
+    let [ optPositionalIdentity ] = positionalOpts
 
+    assert(!optPositionalIdentity || optPositionalIdentity instanceof OptIdentity)
 
-    let identity = optIdentity.getIdentity(ctx, Existence.MustNotExist)
+    let identity = (optPositionalIdentity || optNamedIdentity).getIdentity(ctx, Existence.MustNotExist)
     assert(identity !== undefined)
 
 
@@ -178,7 +187,7 @@ function createComponentSBOL3(g:Graph, identity:Identity, optType:OptTerm, optRo
     let type = optType.getTerm(TermType.Role)
 
     if(!type) {
-        throw new ActionResult(text(`--type parameter is required for component create action`), Outcome.Abort)
+        throw new ActionResult(text(`--type parameter is required for component create action. For example, component --type DNA.`), Outcome.Abort)
     }
 
     let gv = new SBOL3GraphView(g)
@@ -186,7 +195,8 @@ function createComponentSBOL3(g:Graph, identity:Identity, optType:OptTerm, optRo
     g.insertProperties(node.createUriNode(identity.uri), {
         [Predicates.a]: node.createUriNode(Types.SBOL3.Component),
         [Predicates.SBOL3.type]: node.createUriNode(type),
-        [Predicates.SBOL3.displayId]: node.createStringNode(identity.displayId)
+        [Predicates.SBOL3.displayId]: node.createStringNode(identity.displayId),
+        [Predicates.SBOL3.hasNamespace]: node.createUriNode(identity.namespace)
     })
 
     if(parentURI) {

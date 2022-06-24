@@ -41,28 +41,12 @@ export default class OptIdentity extends Opt {
         let sbolversion = this.argv.getString(paramPrefix + 'sbol-version', '')
 
 
+	let identityOpt = this.argv.getString(this.optDef.name, '')
 
-        if(this.optDef.name === '') {
+	if(identityOpt) {
+		identity = identityOpt
+	}
 
-            // anon identity (default identity for an action, like create-component .some.identity)
-
-            let anonIdChain = this.argv.getIdentityChain()
-
-            if(anonIdChain !== undefined) {
-                identity = anonIdChain
-            }
-
-
-        } else {
-
-            // param identity (identity for an action param, like create-component --within-component .some.identity)
-
-            let identityOpt = this.argv.getString(this.optDef.name, '')
-
-            if(identityOpt) {
-                identity = identityOpt
-            }
-        }
 
         trace(text(`get identity: relatedIdentity ${relatedIdentity}`))
 

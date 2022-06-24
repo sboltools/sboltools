@@ -30,8 +30,7 @@ export class ArgvNamedOption {
 
 export class ArgvOptionSet {
     constructor(
-        public opts:ArgvNamedOption[],
-        public identityChain?:string|undefined
+        public opts:ArgvNamedOption[]
     ) {
     }
     getStringOrUndefined(opt:string):string|undefined {
@@ -48,16 +47,11 @@ export class ArgvOptionSet {
         let value = this.opts.filter(o => o.name === opt)[0]
         return value !== undefined
     }
-
-    getIdentityChain() {
-        return this.identityChain
-    }
 }
 
 enum TokenType {
     Option,
     Action,
-    IdentityChain,
     Other
 }
 
@@ -120,21 +114,10 @@ export default function parseArgv(argv:string[]):ArgvArgs {
 
         let nPositionalRemaining = def?.positionalOpts.length
 
-        let idChain:string|undefined = undefined
-
         while(args.length > 0) {
 
             let { name, type } = parseToken(args[0])
 
-            if(type === TokenType.IdentityChain) {
-
-                if(idChain !== undefined) {
-                    throw new Error('multiple anonymous id chains specified in args: ' + args[0])
-                }
-
-                idChain = args.shift()
-                continue
-            }
 
             if(type !== TokenType.Option) {
 
@@ -159,7 +142,7 @@ export default function parseArgv(argv:string[]):ArgvArgs {
             namedOpts.push(option)
         }
 
-        return new ArgvAction(name, new ArgvOptionSet(namedOpts, idChain), positionalOpts)
+        return new ArgvAction(name, new ArgvOptionSet(namedOpts), positionalOpts)
     }
 }
 
@@ -172,8 +155,6 @@ function parseToken(str):{type:TokenType, name?:string} {
         return { type: TokenType.Option, name: str.slice(1) }
     } else if(/^--[^-]/g.test(str)) {
         return { type: TokenType.Option, name: str.slice(2) }
-    } else if(str[0] === '.') {
-        return { type: TokenType.IdentityChain }
     } else if(isAction(str)) {
         return { type: TokenType.Action }
     } else {

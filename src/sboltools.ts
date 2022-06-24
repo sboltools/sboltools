@@ -75,9 +75,15 @@ export default async function sboltools(args:string[]|string):Promise<string|und
         let namedOpts = actDef.namedOpts.map(optDef => new optDef.type(actDef, optDef, action.namedOpts))
 
         // todo hacky af
-        let positionalOpts = actDef.positionalOpts.map((optDef, i) => new optDef.type(actDef, optDef, new ArgvOptionSet([
-            new ArgvNamedOption(optDef.name, action.positionalOpts[i])
-        ], undefined)))
+        let positionalOpts = actDef.positionalOpts.map((optDef, i) => {
+		if(action.positionalOpts[i]) {
+			return new optDef.type(actDef, optDef, new ArgvOptionSet([
+				new ArgvNamedOption(optDef.name, action.positionalOpts[i])
+			], undefined))
+		} else {
+			return undefined
+		}
+	})
 
         // console.dir('po')
         // console.dir(positionalOpts)

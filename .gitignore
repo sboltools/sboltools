@@ -4,4 +4,5 @@ node_modules
 .DS_Store
 bin/dist/win32-x86/sbol.js
 bin/dist/win32-x64/sbol.js
+sbol.js
 

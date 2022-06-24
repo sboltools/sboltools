@@ -13,16 +13,14 @@ import { cdTree } from "./sbol2/cdTree"
 import { print } from './output/print'
 import { Types } from "bioterms"
 import { TermType, termUriToShorthand } from "./vocab"
+import tostring from "./output/tostring"
 
 export default async function graphToSboltoolsCmd(g:Graph):Promise<void> {
 
     let out:OutputNode[] = []
 
     out.push(indent([
-        text('--trace')
-    ]))
-    out.push(indent([
-        text('--sbol-version 3')
+        text('sbol-version 3')
     ]))
 
     let curNamespace = ''
@@ -52,10 +50,22 @@ export default async function graphToSboltoolsCmd(g:Graph):Promise<void> {
         )
     }
 
-    print(group([
-    text('sbol'),
-    indent(out)
-    ]))
+	let lines = tostring(0,
+		group([
+			text('sbol --trace'),
+			indent(out)
+		])
+	).trim().split('\n')
+
+	for(let n = 0; n < lines.length; ++ n) {
+		if(n < lines.length - 1) {
+			process.stdout.write(lines[n] + ' \\\n')
+		} else {
+			process.stdout.write(lines[n] + '\n')
+		}
+	}
+
+
 }
 
 function makeIdChain(id:S3Identified) {

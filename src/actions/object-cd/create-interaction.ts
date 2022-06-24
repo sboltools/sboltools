@@ -15,7 +15,7 @@ import { Existence } from "../../identity/IdentityFactory"
 import Identity from "../../identity/Identity"
 import { trace } from "../../output/print";
 import Context from "../../Context"
-import OptTerm, { TermType } from "../opt/OptTerm"
+import OptTerm  from "../opt/OptTerm"
 
 let createInteractionAction:ActionDef = {
     name: 'interaction',

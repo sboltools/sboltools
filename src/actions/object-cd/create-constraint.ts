@@ -14,7 +14,7 @@ import { Existence } from "../../identity/IdentityFactory"
 import Identity from "../../identity/Identity"
 import { trace } from "../../output/print";
 import Context from "../../Context"
-import OptTerm, { TermType } from "../opt/OptTerm"
+import OptTerm  from "../opt/OptTerm"
 
 let createConstraintAction:ActionDef = {
     name: 'constraint',
@@ -54,13 +54,16 @@ async function createConstraint(ctx:Context, namedOpts:Opt[], positionalOpts:Opt
 
     trace(text('createConstraint'))
 
-    let [ optIdentity, optSubject, optRestriction, optObject ] = namedOpts
+    let [ optNamedIdentity, optSubject, optRestriction, optObject ] = namedOpts
 
-    assert(optIdentity instanceof OptIdentity)
+    assert(optNamedIdentity instanceof OptIdentity)
     assert(optSubject instanceof OptIdentity)
     assert(optRestriction instanceof OptTerm)
     assert(optObject instanceof OptIdentity)
 
+    let [ optPositionalIdentity ] = positionalOpts
+
+    assert(!optPositionalIdentity || optPositionalIdentity instanceof OptIdentity)
     
     let identity = optIdentity.getIdentity(ctx, Existence.MustNotExist)
     assert(identity !== undefined)
