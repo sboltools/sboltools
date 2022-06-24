@@ -34,7 +34,7 @@ This will generate a file called `sbol.js` containing sboltools and all of its d
 
 ### REPL in the browser
 
-Though it is a command line utility, sboltools is written in JavaScript. One of the nice consequences of this is that you can run sboltools entirely in a browser. An example of this is included in the file `repl.html` in this repository. To use it, build sboltools using:
+Though it is a command line utility, sboltools is written in JavaScript. One of the perks of this is that you can run sboltools entirely in a browser. An example of this is included in the file `repl.html` in this repository. To use it, build sboltools using:
 
     npm install
     npm run build-browser
