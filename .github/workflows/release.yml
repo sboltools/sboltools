@@ -22,8 +22,6 @@ jobs:
           run: npm install
         - name: Install dev dependencies
           run: npm install --only=dev
-        - name: Show sbolgraph version for debug purposes
-          run: npm ls sbolgraph
         - name: TypeScript build
           run: npm run build
         - name: Package
