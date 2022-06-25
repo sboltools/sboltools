@@ -153,8 +153,7 @@ export default async function sboltools(args:string[]|string):Promise<string|und
                 print(text(chalk.red('GenBank output not yet supported')))
                 break
             case 'sboltools':
-                graphToSboltoolsCmd(ctx.getCurrentGraph());
-                break
+                return graphToSboltoolsCmd(ctx.getCurrentGraph());
             case 'none':
                 break
             default:

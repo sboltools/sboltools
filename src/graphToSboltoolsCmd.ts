@@ -15,7 +15,7 @@ import { Types } from "bioterms"
 import { TermType, termUriToShorthand } from "./vocab"
 import tostring from "./output/tostring"
 
-export default async function graphToSboltoolsCmd(g:Graph):Promise<void> {
+export default function graphToSboltoolsCmd(g:Graph):string {
 
     let out:OutputNode[] = []
 
@@ -40,7 +40,7 @@ export default async function graphToSboltoolsCmd(g:Graph):Promise<void> {
             componentSection.push(text('--type ' + termUriToShorthand(TermType.ComponentTypeSBOL3, type)))
         }
 
-        let idchain = '.' + rootC.displayId
+        let idchain = rootC.displayId
 
         out.push(
             indent([
@@ -57,15 +57,17 @@ export default async function graphToSboltoolsCmd(g:Graph):Promise<void> {
 		])
 	).trim().split('\n')
 
+    let cmd = ''
+
 	for(let n = 0; n < lines.length; ++ n) {
 		if(n < lines.length - 1) {
-			process.stdout.write(lines[n] + ' \\\n')
+            cmd += lines[n] + ' \\\n'
 		} else {
-			process.stdout.write(lines[n] + '\n')
+			cmd += lines[n] + '\n'
 		}
 	}
 
-
+    return cmd
 }
 
 function makeIdChain(id:S3Identified) {
