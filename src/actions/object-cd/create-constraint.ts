@@ -15,6 +15,7 @@ import Identity from "../../identity/Identity"
 import { trace } from "../../output/print";
 import Context from "../../Context"
 import OptTerm  from "../opt/OptTerm"
+import { TermType } from "../../vocab"
 
 let createConstraintAction:ActionDef = {
     name: 'constraint',
@@ -42,6 +43,11 @@ let createConstraintAction:ActionDef = {
         }
     ],
     positionalOpts: [  
+        {
+            name: '',
+            type: OptIdentity,
+            optional: true
+        }
     ],
     run: createConstraint
 }
@@ -61,16 +67,13 @@ async function createConstraint(ctx:Context, namedOpts:Opt[], positionalOpts:Opt
     assert(optRestriction instanceof OptTerm)
     assert(optObject instanceof OptIdentity)
 
+    
     let [ optPositionalIdentity ] = positionalOpts
 
     assert(!optPositionalIdentity || optPositionalIdentity instanceof OptIdentity)
-    
-    let identity = optIdentity.getIdentity(ctx, Existence.MustNotExist)
-    assert(identity !== undefined)
 
-    if(!identity.parentURI) {
-        throw new ActionResult(text('Constraint must be contained in a component'))
-    }
+    let identity = (optPositionalIdentity || optNamedIdentity).getIdentity(ctx, Existence.MustNotExist)
+    assert(identity !== undefined)
 
     let subjectIdentity = optSubject.getIdentity(ctx, Existence.MustExist)
 

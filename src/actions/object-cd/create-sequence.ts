@@ -8,9 +8,9 @@ import Opt from "../opt/Opt"
 import ActionDef from "../ActionDef"
 import { strict as assert } from 'assert'
 import { SBOLVersion } from "../../util/get-sbol-version-from-graph"
-import { SBOL1GraphView, S1DnaComponent, SBOL2GraphView, SBOL3GraphView } from "sboljs"
+import { SBOL1GraphView, S1DnaComponent, SBOL2GraphView, SBOL3GraphView, S2ComponentDefinition } from "sboljs"
 import OptIdentity from "../opt/OptIdentity"
-import { Predicates, Types } from "bioterms"
+import { Predicates, Types, Specifiers } from "bioterms"
 import OptTerm  from "../opt/OptTerm"
 import { Existence } from "../../identity/IdentityFactory"
 import Identity from "../../identity/Identity"
@@ -19,6 +19,8 @@ import joinURIFragments from "../../util/join-uri-fragments"
 import { trace } from "../../output/print";
 import Context from "../../Context"
 import OptURL from "../opt/OptURL"
+import importToGraph from "../helpers/import-to-graph"
+import { TermType } from '../../vocab'
 
 
 let createSequenceAction:ActionDef = {
@@ -44,6 +46,11 @@ let createSequenceAction:ActionDef = {
         }
     ],
     positionalOpts: [
+        {
+            name: '',
+            type: OptIdentity,
+            optional: true
+        }
     ],
     run: createSequence,
     help: `
@@ -61,17 +68,23 @@ async function createSequence(ctx:Context, namedOpts:Opt[], positionalOpts:Opt[]
 
     let g = ctx.getCurrentGraph()
 
-    let [ optIdentity, optForComponentIdentity, optSource, optEncoding ] = namedOpts
+    let [ optNamedIdentity, optForComponentIdentity, optSource, optEncoding ] = namedOpts
 
-    assert(optIdentity instanceof OptIdentity)
+    assert(optNamedIdentity instanceof OptIdentity)
     assert(optSource instanceof OptURL)
     assert(optForComponentIdentity instanceof OptIdentity)
     assert(optEncoding instanceof OptTerm)
 
-    let forComponentIdentity = optForComponentIdentity.getIdentity(ctx, Existence.MustExist)
 
-    let identity = optIdentity.getIdentity(ctx, Existence.MustNotExist)
+    let [ optPositionalIdentity ] = positionalOpts
+
+    assert(!optPositionalIdentity || optPositionalIdentity instanceof OptIdentity)
+
+    let identity = (optPositionalIdentity || optNamedIdentity).getIdentity(ctx, Existence.MustNotExist)
     assert(identity !== undefined)
+
+
+    let forComponentIdentity = optForComponentIdentity.getIdentity(ctx, Existence.MustExist)
 
 
     let source = await optSource.downloadToString()

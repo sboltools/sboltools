@@ -112,34 +112,31 @@ export default function parseArgv(argv:string[]):ArgvArgs {
         let namedOpts:ArgvNamedOption[] = []
         let positionalOpts:string[] = []
 
-        let nPositionalRemaining = def?.positionalOpts.length
-
         while(args.length > 0) {
 
             let { name, type } = parseToken(args[0])
 
+            if(type === TokenType.Action) {
+                // this is the next action
+                break
+            }
 
-            if(type !== TokenType.Option) {
 
-                if(nPositionalRemaining > 0) {
-                    -- nPositionalRemaining
-                    positionalOpts.push(args[0])
-                    args.shift()
-                    continue
-                } else {
-                    break
+            if(type === TokenType.Option) {
+
+                let option: ArgvNamedOption = { name }
+                args.shift()
+
+                if(parseToken(args[0]).type !== TokenType.Action) {
+                    option.value = args.shift()
                 }
+
+                namedOpts.push(option)
+                continue
             }
 
+            positionalOpts.push(args[0])
             args.shift()
-
-            let option: ArgvNamedOption = { name }
-
-            if(parseToken(args[0]).type !== TokenType.Action) {
-                option.value = args.shift()
-            }
-
-            namedOpts.push(option)
         }
 
         return new ArgvAction(name, new ArgvOptionSet(namedOpts), positionalOpts)
