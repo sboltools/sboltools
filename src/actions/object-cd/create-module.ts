@@ -10,7 +10,7 @@ import { SBOLVersion } from "../../util/get-sbol-version-from-graph"
 import { SBOL1GraphView, S1DnaComponent, SBOL2GraphView, SBOL3GraphView } from "sboljs"
 import OptIdentity from "../opt/OptIdentity"
 import { Predicates, Types } from "bioterms"
-import OptTerm, { TermType } from "../opt/OptTerm"
+import OptTerm  from "../opt/OptTerm"
 import { Existence } from "../../identity/IdentityFactory"
 import Identity from "../../identity/Identity"
 import sbol2CompliantConcat from "../../util/sbol2-compliant-concat"
@@ -26,14 +26,14 @@ let createModuleAction:ActionDef = {
         {
             name: '',
             type: OptIdentity
-        },
-        {
-            name: 'within-module',
-            type: OptIdentity,
-            optional: true
         }
     ],
     positionalOpts: [  
+        {
+            name: '',
+            type: OptIdentity,
+            optional: true
+        }
     ],
     run: createModule
 }
@@ -46,27 +46,34 @@ async function createModule(ctx:Context, namedOpts:Opt[], positionalOpts:Opt[]):
 
     trace(text('createModule'))
 
-    let [ optIdentity, optWithinModuleIdentity ] = namedOpts
+    let [ optNamedIdentity ] = namedOpts
 
-    assert(optIdentity instanceof OptIdentity)
-    assert(optWithinModuleIdentity instanceof OptIdentity)
-
-
-    trace(text(`Getting withinModuleIdentity`))
-    let withinModuleIdentity = optWithinModuleIdentity.getIdentity(ctx, Existence.MustExist)
-    trace(text(`Got withinModuleIdentity: ${withinModuleIdentity}`))
+    assert(optNamedIdentity instanceof Opt)
 
 
-    let identity = optIdentity.getIdentity(ctx, Existence.MustNotExist, withinModuleIdentity)
+    let [ optPositionalIdentity ] = positionalOpts
+
+    assert(!optPositionalIdentity || optPositionalIdentity instanceof OptIdentity)
+
+    let identity = (optPositionalIdentity || optNamedIdentity).getIdentity(ctx, Existence.MustNotExist)
     assert(identity !== undefined)
 
+
+
+    let parentURI = ''
+
     if(identity.parentURI) {
-        throw new ActionResult(text('Modules cannot have parents, as they are designated top-level. To specify a module-submodule relationship, use the --within-module option.'), Outcome.Abort)
+
+        parentURI = identity.parentURI
+
+        identity = Identity.toplevel_from_namespace_displayId(
+            Existence.MustNotExist, identity.sbolVersion, g, identity.namespace,
+                identity.displayId, identity.version)
     }
 
     switch(identity.sbolVersion) {
         case SBOLVersion.SBOL2:
-            return createModuleSBOL2(g, identity, withinModuleIdentity)
+            return createModuleSBOL2(g, identity, parentURI)
         default:
             throw new ActionResult(text('Unsupported SBOL version for create-module'))
     }
@@ -75,7 +82,7 @@ async function createModule(ctx:Context, namedOpts:Opt[], positionalOpts:Opt[]):
 }
 
 
-function createModuleSBOL2(g:Graph, identity:Identity, withinModuleIdentity:Identity|undefined):ActionResult {
+function createModuleSBOL2(g:Graph, identity:Identity, parentURI:string) {
 
     let gv = new SBOL2GraphView(g)
 
@@ -90,21 +97,22 @@ function createModuleSBOL2(g:Graph, identity:Identity, withinModuleIdentity:Iden
         })
     }
 
-    if(withinModuleIdentity !== undefined) {
+    if(parentURI) {
 
-        if(!g.hasMatch(node.createUriNode(withinModuleIdentity.uri), Predicates.a, node.createUriNode(Types.SBOL2.ModuleDefinition))) {
-            throw new ActionResult(text(`ModuleDefinition with URI ${withinModuleIdentity.uri} not found for --within-Module`), Outcome.Abort)
+        if(!g.hasMatch(node.createUriNode(parentURI), Predicates.a, node.createUriNode(Types.SBOL2.ModuleDefinition))) {
+            throw new ActionResult(text(`Parent ModuleDefinition with URI ${parentURI} not found`), Outcome.Abort)
         }
 
-        let scURI = g.generateURI(sbol2CompliantConcat(g, withinModuleIdentity.uri, 'subModule$n$'))
+        let scURI = g.generateURI(sbol2CompliantConcat(g, parentURI, 'subModule$n$'))
 
-        g.insertProperties(node.createUriNode(withinModuleIdentity.uri), {
+        g.insertProperties(node.createUriNode(parentURI), {
             [Predicates.SBOL2.module]: node.createUriNode(scURI),
         })
 
         g.insertProperties(node.createUriNode(scURI), {
             [Predicates.a]: node.createUriNode(Types.SBOL2.Module),
             [Predicates.SBOL2.definition]: node.createUriNode(identity.uri),
+            [Predicates.SBOL2.displayId]: node.createStringNode(identity.displayId)
         })
     }
 

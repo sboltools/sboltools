@@ -16,9 +16,9 @@ import { globalAgent } from 'http'
 import OutputNode from '../src/output/OutputNode'
 
 let tests:Test[] = [
-    // ...tests_graphops
-    // ...tests_sbol1,
-    // ...tests_sbol2,
+    ...tests_graphops,
+    ...tests_sbol1,
+    ...tests_sbol2,
     ...tests_sbol3
 ]
 
@@ -27,7 +27,11 @@ export default async function runTests() {
     let passes:string[] = []
     let fails:string[] = []
 
+    var n = 0
+
     for(let test of tests) {
+
+        ++ n
 
         let pass = true
 
@@ -52,7 +56,7 @@ export default async function runTests() {
 
                 let c = (test.command as any)(file) 
 
-                print(text('===== TEST: ' + test.id + ': ' + test.name + ' ' + file, 'white bold'))
+                print(text(`===== TEST [${n}/${tests.length}]: ` + test.id + ': ' + test.name + ' ' + file, 'white bold'))
                 print(text('      command: ' + c, 'white bold'))
 
                 await run(test, test.id + '#' + file.split('/').pop(), c)
@@ -61,7 +65,7 @@ export default async function runTests() {
 
         } else {
 
-            print(text('===== TEST: ' + test.id + ': ' + test.name, 'white bold'))
+            print(text(`===== TEST [${n}/${tests.length}]: ` + test.id + ': ' + test.name, 'white bold'))
             print(text('      command: ' + test.command, 'white bold'))
 
             await run(test, test.id, test.command)
@@ -137,12 +141,12 @@ export default async function runTests() {
 
         if(pass) {
             print(spacer())
-            print(text('✅ Passed: ' + id, 'green bold'))
+            print(text(`✅ Passed [${n}/${tests.length}]: ` + id, 'green bold'))
             print(spacer())
             passes.push(id)
         } else {
             print(spacer())
-            print(text('❌ Failed: ' + id, 'red bold'))
+            print(text(`❌ Failed [${n}/${tests.length}]: ` + id, 'red bold'))
             print(spacer())
             fails.push(id)
         }

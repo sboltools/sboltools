@@ -16,6 +16,7 @@ import Identity from "../../identity/Identity"
 import { trace } from "../../output/print";
 import Context from "../../Context"
 import OptTerm  from "../opt/OptTerm"
+import {TermType} from '../../vocab'
 
 let createInteractionAction:ActionDef = {
     name: 'interaction',
@@ -27,17 +28,17 @@ let createInteractionAction:ActionDef = {
             type: OptIdentity
         },
         {
-            name: 'within-component',
-            type: OptIdentity,
-            optional: true
-        },
-        {
             name: 'type',
             type: OptTerm,
             optional: false
         }
     ],
     positionalOpts: [  
+        {
+            name: '',
+            type: OptIdentity,
+            optional: true
+        }
     ],
     run: createInteraction
 }
@@ -49,41 +50,49 @@ async function createInteraction(ctx:Context, namedOpts:Opt[], positionalOpts:Op
     let g = ctx.getCurrentGraph()
 
     trace(text('createInteraction'))
-
-    let [ optIdentity, optWithinComponentIdentity, optRole ] = namedOpts
-
-    assert(optIdentity instanceof OptIdentity)
-    assert(optWithinComponentIdentity instanceof OptIdentity)
-    assert(optRole instanceof OptTerm)
-
-
     
-    let withinComponentIdentity = optWithinComponentIdentity.getIdentity(ctx, Existence.MayExist)
 
-    let identity = optIdentity.getIdentity(ctx, Existence.MustNotExist, withinComponentIdentity)
+
+    let [ optNamedIdentity, optType ] = namedOpts
+
+    assert(optNamedIdentity instanceof Opt)
+    assert(optType instanceof OptTerm)
+
+
+    let [ optPositionalIdentity ] = positionalOpts
+
+    assert(!optPositionalIdentity || optPositionalIdentity instanceof OptIdentity)
+
+    let identity = (optPositionalIdentity || optNamedIdentity).getIdentity(ctx, Existence.MustNotExist)
     assert(identity !== undefined)
+    
+    
 
-    if(!withinComponentIdentity) {
-        if(identity.parentURI) {
-                withinComponentIdentity = Identity.from_namespace_and_identity(
-                Existence.MustExist, identity.sbolVersion, g, identity.namespace, identity.parentURI, identity.version)
-        }
+    let parentURI = ''
+
+    if(identity.parentURI) {
+
+        parentURI = identity.parentURI
+
+        identity = Identity.toplevel_from_namespace_displayId(
+            Existence.MustNotExist, identity.sbolVersion, g, identity.namespace,
+                identity.displayId, identity.version)
     }
-  
-    assert(withinComponentIdentity !== undefined)
 
-    if(!withinComponentIdentity) {
-        throw new ActionResult(text('Components cannot have parents, as they are designated top-level. To specify a component-subcomponent relationship, use the --within-component option.'), Outcome.Abort)
+
+    if(!parentURI) {
+            throw new ActionResult(text('Interaction must have a parent'))
     }
 
-    let role = optRole.getTerm(TermType.InteractionType)
-    assert(role)
+
+    let _type = optType.getTerm(TermType.InteractionType)
+    assert(_type)
 
     switch(identity.sbolVersion) {
         case SBOLVersion.SBOL2:
-            return createInteractionSBOL2(g, identity, withinComponentIdentity, role)
+            return createInteractionSBOL2(g, identity, parentURI, _type)
         case SBOLVersion.SBOL3:
-            return createInteractionSBOL3(g, identity, withinComponentIdentity, role)
+            return createInteractionSBOL3(g, identity, parentURI, _type)
         default:
             throw new ActionResult(text('Unsupported SBOL version for create-component'))
     }
@@ -91,14 +100,14 @@ async function createInteraction(ctx:Context, namedOpts:Opt[], positionalOpts:Op
     return new ActionResult()
 }
 
-function createInteractionSBOL2(g:Graph, identity:Identity, withinComponentIdentity:Identity, type:string):ActionResult {
+function createInteractionSBOL2(g:Graph, identity:Identity, parentURI:string, _type:string):ActionResult {
 
     let gv = new SBOL2GraphView(g)
 
     g.insertProperties(node.createUriNode(identity.uri), {
         [Predicates.a]: node.createUriNode(Types.SBOL2.Interaction),
         [Predicates.SBOL2.displayId]: node.createStringNode(identity.displayId),
-        [Predicates.SBOL2.type]: node.createUriNode(type)
+        [Predicates.SBOL2.type]: node.createUriNode(_type)
     })
 
     if(identity.version !== undefined) {
@@ -107,7 +116,7 @@ function createInteractionSBOL2(g:Graph, identity:Identity, withinComponentIdent
         })
     }
 
-    g.insertProperties(node.createUriNode(withinComponentIdentity.uri), {
+    g.insertProperties(node.createUriNode(parentURI), {
         [Predicates.SBOL2.interaction]: node.createUriNode(identity.uri),
     })
 
@@ -115,11 +124,9 @@ function createInteractionSBOL2(g:Graph, identity:Identity, withinComponentIdent
 }
 
 
-function createInteractionSBOL3(g:Graph, identity:Identity, withinComponentIdentity:Identity, type:string):ActionResult {
+function createInteractionSBOL3(g:Graph, identity:Identity, parentURI:string, _type:string):ActionResult {
 
     let gv = new SBOL3GraphView(g)
-
-
 
     let namespace = identity.namespace
     assert(namespace)
@@ -129,7 +136,7 @@ function createInteractionSBOL3(g:Graph, identity:Identity, withinComponentIdent
         [Predicates.SBOL3.displayId]: node.createStringNode(identity.displayId)
     })
 
-    g.insertProperties(node.createUriNode(withinComponentIdentity.uri), {
+    g.insertProperties(node.createUriNode(parentURI), {
         [Predicates.SBOL3.hasInteraction]: node.createUriNode(identity.uri),
     })
 

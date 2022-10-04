@@ -41,7 +41,7 @@ let createComponentAction:ActionDef = {
         {
             name: '',
             type: OptIdentity,
-	    optional: true
+            optional: true
         },
     ],
     run: createComponent

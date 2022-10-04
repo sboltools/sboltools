@@ -13,28 +13,28 @@ let tests:Test[] = [
             --output sbol2
             namespace "http://example.com/"
             sbol-version 2
-            component .cas9_generic --type Protein
-            component .gRNA_generic --type RNA --role SO:0001998
-            component .cas9_gRNA_complex --type Complex
-            component .target_gene --type DNA --role Promoter
-            component .target --type Protein
-            module .CRISPR_Template
-                interaction .CRISPR_Template.cas9_complex_formation --type NonCovalentBinding
-                    participation .CRISPR_Template.cas9_complex_formation.cas9_generic --participant .cas9_generic --role Reactant
-                    participation .CRISPR_Template.cas9_complex_formation.gRNA_generic --participant .gRNA_generic --role Reactant
-                    participation .CRISPR_Template.cas9_complex_formation.cas9_gRNA_complex --participant .cas9_gRNA_complex --role Product
-                interaction .CRISPR_Template.target_production --type GeneticProduction
-                    participation .CRISPR_Template.target_production.participant_target_gene --participant .target_gene --role Promoter
-                    participation .CRISPR_Template.target_production.participant_target --participant .target --role Product
-                interaction .CRISPR_Template.target_gene_inhibition --type Inhibition
-                    participation .CRISPR_Template.target_gene_inhibition.participant_cas9_gRNA_complex --participant .cas9_gRNA_complex --role Inhibitor
-                    participation .CRISPR_Template.target_gene_inhibition.participant_target_gene --participant .target_gene --role Promoter
-            component .EYFP_gene --type DNA 
-            component .EYFP_gene.CRP_b --type DNA --role Promoter
-            sequence .CRP_b_seq --for-component .CRP_b --source ./test/data/CRP_b.fasta
-            component .EYFP_gene.EYFP_cds --type DNA --role CDS
+            component cas9_generic --type Protein
+            component gRNA_generic --type RNA --role SO:0001998
+            component cas9_gRNA_complex --type Complex
+            component target_gene --type DNA --role Promoter
+            component target --type Protein
+            module CRISPR_Template
+                interaction CRISPR_Template.cas9_complex_formation --type NonCovalentBinding
+                    participation CRISPR_Template.cas9_complex_formation.cas9_generic --participant cas9_generic --role Reactant
+                    participation CRISPR_Template.cas9_complex_formation.gRNA_generic --participant gRNA_generic --role Reactant
+                    participation CRISPR_Template.cas9_complex_formation.cas9_gRNA_complex --participant cas9_gRNA_complex --role Product
+                interaction CRISPR_Template.target_production --type GeneticProduction
+                    participation CRISPR_Template.target_production.participant_target_gene --participant target_gene --role Promoter
+                    participation CRISPR_Template.target_production.participant_target --participant target --role Product
+                interaction CRISPR_Template.target_gene_inhibition --type Inhibition
+                    participation CRISPR_Template.target_gene_inhibition.participant_cas9_gRNA_complex --participant cas9_gRNA_complex --role Inhibitor
+                    participation CRISPR_Template.target_gene_inhibition.participant_target_gene --participant target_gene --role Promoter
+            component EYFP_gene --type DNA 
+            component EYFP_gene.CRP_b --type DNA --role Promoter
+            sequence CRP_b_seq --for-component CRP_b --source ./test/data/CRP_b.fasta
+            component EYFP_gene.EYFP_cds --type DNA --role CDS
             graph-dump
-            constraint .EYFP_gene.EYFP_gene_constraint --subject .EYFP_gene.CRP_b --restriction Precedes --object .EYFP_gene.EYFP_cds
+            constraint EYFP_gene.EYFP_gene_constraint --subject EYFP_gene.CRP_b --restriction Precedes --object EYFP_gene.EYFP_cds
         `,
 
         validate: async (r:string|undefined) => {

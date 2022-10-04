@@ -17,6 +17,7 @@ import sbol2CompliantConcat from "../../util/sbol2-compliant-concat"
 import joinURIFragments from "../../util/join-uri-fragments"
 import { trace } from "../../output/print";
 import Context from "../../Context"
+import { TermType } from '../../vocab'
 
 
 let createParticipationAction:ActionDef = {
@@ -27,11 +28,6 @@ let createParticipationAction:ActionDef = {
         {
             name: '',
             type: OptIdentity
-        },
-        {
-            name: 'within-interaction', /// TODO: are these withins necessary or is parent of identity enough?
-            type: OptIdentity,
-            optional: true
         },
         {
             name: 'participant',
@@ -45,6 +41,11 @@ let createParticipationAction:ActionDef = {
         }
     ],
     positionalOpts: [  
+        {
+            name: '',
+            type: OptIdentity,
+            optional: true
+        }
     ],
     run: createParticipation
 }
@@ -57,37 +58,29 @@ async function createParticipation(ctx:Context, namedOpts:Opt[], positionalOpts:
 
     trace(text('createParticipation'))
 
-    let [ optIdentity, optWithinInteractionIdentity, optParticipant, optRole ] = namedOpts
 
-    assert(optIdentity instanceof OptIdentity)
-    assert(optWithinInteractionIdentity instanceof OptIdentity)
+
+    let [ optNamedIdentity, optParticipant, optRole ] = namedOpts
+
+    assert(optNamedIdentity instanceof Opt)
     assert(optParticipant instanceof OptIdentity)
     assert(optRole instanceof OptTerm)
 
 
-    trace(text(`createParticipation participant ${JSON.stringify(optParticipant.optDef)}`))
-    
-    let withinInteractionIdentity = optWithinInteractionIdentity.getIdentity(ctx, Existence.MayExist)
+    let [ optPositionalIdentity ] = positionalOpts
 
-    let identity = optIdentity.getIdentity(ctx, Existence.MustNotExist, withinInteractionIdentity)
+    assert(!optPositionalIdentity || optPositionalIdentity instanceof OptIdentity)
+
+    let identity = (optPositionalIdentity || optNamedIdentity).getIdentity(ctx, Existence.MustNotExist)
     assert(identity !== undefined)
 
-    if(!withinInteractionIdentity) {
-        if(identity.parentURI) {
-            withinInteractionIdentity = Identity.from_namespace_and_identity(
-                Existence.MustExist, identity.sbolVersion, g, identity.namespace, identity.parentURI, identity.version)
-        }
-    }
-  
-    assert(withinInteractionIdentity !== undefined)
 
-    if(!withinInteractionIdentity) {
-        throw new ActionResult(text('Participation must be contained by an interaction'))
+    if(!identity.parentURI) {
+            throw new ActionResult(text('Participation must have a parent'))
     }
 
 
-
-    let participantIdentity = optParticipant.getIdentity(ctx, Existence.MustExist, withinInteractionIdentity)
+    let participantIdentity = optParticipant.getIdentity(ctx, Existence.MustExist)
     assert(participantIdentity)
 
 
@@ -99,9 +92,9 @@ async function createParticipation(ctx:Context, namedOpts:Opt[], positionalOpts:
 
     switch(identity.sbolVersion) {
         case SBOLVersion.SBOL2:
-            return createParticipationSBOL2(g, identity, withinInteractionIdentity, participantIdentity, role)
+            return createParticipationSBOL2(g, identity, participantIdentity, role)
         case SBOLVersion.SBOL3:
-            return createParticipationSBOL3(g, identity, withinInteractionIdentity, participantIdentity, role)
+            return createParticipationSBOL3(g, identity, participantIdentity, role)
         default:
             throw new ActionResult(text('Unsupported SBOL version for create-component'))
     }
@@ -109,7 +102,7 @@ async function createParticipation(ctx:Context, namedOpts:Opt[], positionalOpts:
     return new ActionResult()
 }
 
-function createParticipationSBOL2(g:Graph, identity:Identity, withinInteractionIdentity:Identity, participantIdentity:Identity, role:string):ActionResult {
+function createParticipationSBOL2(g:Graph, identity:Identity, participantIdentity:Identity, role:string):ActionResult {
 
     let gv = new SBOL2GraphView(g)
 
@@ -125,7 +118,7 @@ function createParticipationSBOL2(g:Graph, identity:Identity, withinInteractionI
         })
     }
 
-    g.insertProperties(node.createUriNode(withinInteractionIdentity.uri), {
+    g.insertProperties(node.createUriNode(identity.parentURI!), {
         [Predicates.SBOL2.participation]: node.createUriNode(identity.uri),
     })
 
@@ -139,7 +132,7 @@ function createParticipationSBOL2(g:Graph, identity:Identity, withinInteractionI
 }
 
 
-function createParticipationSBOL3(g:Graph, identity:Identity, withinInteractionIdentity:Identity, participantIdentity:Identity, role:string):ActionResult {
+function createParticipationSBOL3(g:Graph, identity:Identity, participantIdentity:Identity, role:string):ActionResult {
 
     let gv = new SBOL3GraphView(g)
 
@@ -154,7 +147,7 @@ function createParticipationSBOL3(g:Graph, identity:Identity, withinInteractionI
         [Predicates.SBOL3.role]: node.createUriNode(role)
     })
 
-    g.insertProperties(node.createUriNode(withinInteractionIdentity.uri), {
+    g.insertProperties(node.createUriNode(identity.parentURI!), {
         [Predicates.SBOL3.hasParticipation]: node.createUriNode(identity.uri),
     })
 
