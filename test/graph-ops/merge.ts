@@ -10,7 +10,7 @@ let tests:Test[] = [
         name: 'Merge one graph into another',
         command: `
             --trace
-            --output sbol3
+            --output sbol
 
             graph a
                 insert --subject "http://s" --predicate "http://p" --object "o"

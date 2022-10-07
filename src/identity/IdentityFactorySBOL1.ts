@@ -123,6 +123,8 @@ export default class IdentityFactorySBOL1 extends IdentityFactory {
     child_from_namespace_context_displayId(
         existence:Existence, g:Graph, namespace:string, contextIdentity:string, displayId:string, version?:string):Identity
     {
+        trace(text(`SBOL1 child_from_namespace_context_displayId: existence ${existence}, namespace ${namespace}, contextIdentity ${contextIdentity}, displayId ${displayId}, version ${version}`))
+
         if (version !== undefined) {
             throw sbol1VersionError()
         }
@@ -132,7 +134,6 @@ export default class IdentityFactorySBOL1 extends IdentityFactory {
 
         // base case TL:C = context is a top level
         // recursive case C:C = context is a child
-        // who cares context is a shit that has a shitting uri
 
         let parent = sbol1(g).subjectToFacade(node.createUriNode(context.uri))
 
@@ -144,9 +145,28 @@ export default class IdentityFactorySBOL1 extends IdentityFactory {
 
         let match = children.filter((child) => child.getStringProperty(Predicates.SBOL1.displayId) === displayId)[0]
 
-        // TODO: does supplied version match object?
+        if(match) {
 
-        return this.from_namespace_and_identity(existence, g, namespace, match.subject.value, version)
+            if(existence === Existence.MustNotExist) {
+                throw actionResultAbort(text(`Child with displayId ${displayId} already exists in context ${contextIdentity}`))
+            }
+
+            // TODO: does supplied version match object?
+            return this.from_namespace_and_identity(existence, g, namespace, match.subject.value, version)
+
+        } else {
+
+            if(existence === Existence.MustExist) {
+                throw actionResultAbort(text(`No child found with displayId ${displayId} in context ${contextIdentity}`))
+            }
+
+            let childUri = joinURIFragments([ parent!.subject.value, displayId ])
+
+            return new Identity(SBOLVersion.SBOL1, context.namespace, displayId, version, context.uri, childUri)
+
+        }
+
+
     }
 
     child_from_context_displayId(existence:Existence, g: Graph, contextIdentity: string, displayId: string, version?: string): Identity {

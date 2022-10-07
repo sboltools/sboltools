@@ -17,6 +17,7 @@ import ActionDef, { def2usage } from './actions/ActionDef'
 import Opt from './actions/opt/Opt'
 import Context from './Context'
 import graphToSboltoolsCmd from './graphToSboltoolsCmd'
+import { getSBOLVersionFromGraph, SBOLVersion } from './util/get-sbol-version-from-graph'
 
 var sqparse = require('shell-quote').parse;
 
@@ -79,7 +80,7 @@ export default async function sboltools(args:string[]|string):Promise<string|und
 		if(action.positionalOpts[i]) {
 			return new optDef.type(actDef, optDef, new ArgvOptionSet([
 				new ArgvNamedOption(optDef.name, action.positionalOpts[i])
-			], undefined))
+			]))
 		} else {
 			return undefined
 		}
@@ -92,7 +93,7 @@ export default async function sboltools(args:string[]|string):Promise<string|und
 
         try {
             trace(text(`Begin action: ${actDef.name}`))
-            var actionResult:ActionResult = await actDef.run(ctx, namedOpts, positionalOpts)
+            var actionResult:ActionResult = await actDef.run(ctx, namedOpts as Opt[], positionalOpts as Opt[])
         } catch(e) {
             if(e instanceof ActionResult) {
                 actionResult = e
@@ -140,6 +141,22 @@ export default async function sboltools(args:string[]|string):Promise<string|und
             case 'summary':
                 summarize(ctx.getCurrentGraph())
                 break
+            case 'sbol':
+
+                let detectedVersion = getSBOLVersionFromGraph(ctx.getCurrentGraph())
+
+                switch(detectedVersion) {
+                    case SBOLVersion.SBOL1:
+                        return new SBOL1GraphView(ctx.getCurrentGraph()).serializeXML()
+                    case SBOLVersion.SBOL2:
+                        return new SBOL2GraphView(ctx.getCurrentGraph()).serializeXML()
+                    case SBOLVersion.SBOL3:
+                        return new SBOL3GraphView(ctx.getCurrentGraph()).serializeXML()
+                    case SBOLVersion.Mixed:
+                    default:
+                        return new SBOL3GraphView(ctx.getCurrentGraph()).serializeXML()
+                }
+
             case 'sbol1':
                 return new SBOL1GraphView(ctx.getCurrentGraph()).serializeXML()
             case 'sbol2':

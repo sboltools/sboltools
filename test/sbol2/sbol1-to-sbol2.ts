@@ -16,7 +16,7 @@ let tests:Test[] = [
         ],
         command: (filename) => `
             --trace
-            --output sbol2
+            --output sbol
 
             graph orig
                 import ${filename}

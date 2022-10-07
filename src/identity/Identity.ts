@@ -35,7 +35,7 @@ export default class Identity {
     static from_identity(
         existence:Existence, sbolVersion:SBOLVersion, g:Graph, identity:string, version?:string):Identity {
 
-        trace(text(`from_identity: Constructing identity (existence = ${existence}) from identity ${identity}, version ${version}`))
+        trace(text(`Identity.from_identity: Constructing identity (existence = ${existence}) from identity ${identity}, version ${version}`))
 
         return factory(sbolVersion).from_identity(existence, g, identity, version)
     }
@@ -43,7 +43,7 @@ export default class Identity {
     static from_namespace_and_identity(
         existence:Existence, sbolVersion:SBOLVersion, g:Graph, namespace:string, identity:string, version?:string):Identity {
 
-        trace(text(`from_namespace_and_identity: Constructing identity (existence = ${existence}) from namespace ${namespace}, identity ${identity}, version ${version}`))
+        trace(text(`Identity.from_namespace_and_identity: Constructing identity (existence = ${existence}) from namespace ${namespace}, identity ${identity}, version ${version}`))
 
         return factory(sbolVersion).from_namespace_and_identity(existence, g, namespace, identity, version)
     }
@@ -51,7 +51,7 @@ export default class Identity {
     static child_from_namespace_context_displayId(
         existence:Existence, sbolVersion:SBOLVersion, g:Graph, namespace:string, context:string, displayId:string, version?:string):Identity {
 
-        trace(text(`child_from_namespace_context_identity: Constructing identity (existence = ${existence}) from namespace ${namespace}, context ${context}, displayId ${displayId}, version ${version}`))
+        trace(text(`Identity.child_from_namespace_context_identity: Constructing identity (existence = ${existence}) from namespace ${namespace}, context ${context}, displayId ${displayId}, version ${version}`))
 
         return factory(sbolVersion).child_from_namespace_context_displayId(existence, g, namespace, context, displayId, version)
     }
@@ -59,7 +59,7 @@ export default class Identity {
     static toplevel_from_namespace_displayId(
         existence:Existence, sbolVersion:SBOLVersion, g:Graph, namespace:string, displayId:string, version?:string):Identity {
 
-        trace(text(`toplevel_from_namespace_displayId: Constructing identity (existence = ${existence}) from namespace ${namespace}, displayId ${displayId}`))
+        trace(text(`Identity.toplevel_from_namespace_displayId: Constructing identity (existence = ${existence}) from namespace ${namespace}, displayId ${displayId}`))
 
         return factory(sbolVersion).toplevel_from_namespace_displayId(existence, g, namespace, displayId, version)
     }
@@ -67,7 +67,7 @@ export default class Identity {
     static child_from_context_displayId(
         existence:Existence, sbolVersion:SBOLVersion, g:Graph, context:string, displayId:string, version?:string):Identity {
 
-        trace(text(`child_from_namespace_displayId: Constructing identity (existence = ${existence}) from context ${context}, displayId ${displayId}, version ${version}`))
+        trace(text(`Identity.child_from_namespace_displayId: Constructing identity (existence = ${existence}) from context ${context}, displayId ${displayId}, version ${version}`))
 
         return factory(sbolVersion).child_from_context_displayId(existence, g, context, displayId, version)
     }
@@ -75,7 +75,7 @@ export default class Identity {
     static toplevel_from_displayId(
         existence:Existence, sbolVersion:SBOLVersion, g:Graph, displayId:string, version?:string):Identity {
 
-        trace(text(`toplevel_from_displayId: Constructing identity (existence = ${existence}) from displayId ${displayId}, version ${version}`))
+        trace(text(`Identity.toplevel_from_displayId: Constructing identity (existence = ${existence}) from displayId ${displayId}, version ${version}`))
 
         return factory(sbolVersion).toplevel_from_displayId(existence, g, displayId, version)
     }

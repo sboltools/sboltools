@@ -69,6 +69,9 @@ async function createComponent(ctx:Context, namedOpts:Opt[], positionalOpts:Opt[
     assert(identity !== undefined)
 
 
+    trace(text('Create component: identity: ' + JSON.stringify(identity)))
+
+
     let parentURI = ''
 
     /*
@@ -90,7 +93,7 @@ async function createComponent(ctx:Context, namedOpts:Opt[], positionalOpts:Opt[
                 identity.displayId, identity.version)
     }
 
-    trace(text('Create component: identity: ' + identity.uri + ', parent identity: ' + parentURI))
+    trace(text('Create component: component identity: ' + JSON.stringify(identity) + ', parent identity: ' + parentURI))
 
 
     switch(identity.sbolVersion) {
@@ -119,7 +122,7 @@ function createComponentSBOL1(g:Graph, identity:Identity, optType:OptTerm, optRo
     if(parentURI) {
 
         if(!g.hasMatch(node.createUriNode( parentURI), Predicates.a, node.createUriNode(Types.SBOL1.DnaComponent))) {
-            throw new ActionResult(text(`Parent DnaComponent with URI ${identity.parentURI} not found`), Outcome.Abort)
+            throw new ActionResult(text(`Parent DnaComponent with URI ${parentURI} not found`), Outcome.Abort)
         }
 
         let annoURI = g.generateURI(parentURI + '_anno$n$')

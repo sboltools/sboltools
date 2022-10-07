@@ -10,7 +10,7 @@ let tests:Test[] = [
         name: 'Create SBOL3 component',
         command: `
             --trace
-            --output sbol3
+            --output sbol
             namespace "http://example.com/"
             sbol-version 3
             component --type DNA --displayId lac_inverter
@@ -39,11 +39,11 @@ let tests:Test[] = [
         name: 'Create SBOL3 component with a subcomponent',
         command: `
             --trace
-            --output sbol3
+            --output sbol
             namespace "http://example.com/"
             sbol-version 3
-            component --type DNA .lac_inverter
-            component --type DNA .lac_inverter.pLac
+            component --type DNA lac_inverter
+            component --type DNA lac_inverter.pLac
         `,
         validate: async (r:string|undefined) => {
 

@@ -10,7 +10,7 @@ let tests:Test[] = [
         name: 'Switch from one graph to another (test 1)',
         command: `
             --trace
-            --output sbol3
+            --output sbol
 
             graph a
                 insert --subject "http://s" --predicate "http://p" --object "o"
@@ -38,7 +38,7 @@ let tests:Test[] = [
         name: 'Switch from one graph to another (test 2)',
         command: `
             --trace
-            --output sbol3
+            --output sbol
 
             graph a
                 insert --subject "http://s" --predicate "http://p" --object "o"

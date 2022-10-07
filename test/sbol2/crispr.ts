@@ -10,7 +10,7 @@ let tests:Test[] = [
         name: 'CRISPR example',
         command: `
             --trace
-            --output sbol2
+            --output sbol
             namespace "http://example.com/"
             sbol-version 2
             component cas9_generic --type Protein

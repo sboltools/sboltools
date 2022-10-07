@@ -10,8 +10,10 @@ let tests:Test[] = [
         name: 'Create SBOL2 component',
         command: `
             --trace
-            --output sbol2
-            component --sbol-version 2 --namespace "http://example.com/" --displayId lac_inverter
+            --output sbol
+            sbol-version 2
+            namespace "http://example.com/"
+            component lac_inverter
         `,
         validate: async (r:string|undefined) => {
 
@@ -33,12 +35,14 @@ let tests:Test[] = [
 
     {
         id: 'sbol2-create-component-002',
-        name: 'Create SBOL2 component with a subcomponent with a sequence',
+        name: 'Create SBOL2 component with a subcomponent',
         command: `
             --trace
-            --output sbol2
-            component --sbol-version 2 --namespace "http://example.com/" --displayId lac_inverter
-            component --within-component-displayId lac_inverter --displayId pLac
+            --output sbol
+            sbol-version 2
+            namespace "http://example.com/"
+            component lac_inverter
+            component lac_inverter.pLac
         `,
         validate: async (r:string|undefined) => {
 

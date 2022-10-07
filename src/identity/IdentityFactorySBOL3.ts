@@ -151,8 +151,7 @@ export default class IdentityFactorySBOL3 extends IdentityFactory {
                 throw actionResultAbort(text(`No object with displayId ${displayId} in context ${JSON.stringify(context)}`))
             }
 
-            // TODO ??
-            let childUri = parent.subject.value + '/' + displayId
+            let childUri = joinURIFragments([ parent.subject.value, displayId ])
 
             return new Identity(SBOLVersion.SBOL3, context.namespace, displayId, version, parent.subject.value, childUri)
 
